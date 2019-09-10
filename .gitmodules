@@ -1,0 +1,4 @@
+[submodule "product_configurator"]
+	branch = 12.0
+	path = product_configurator
+	url = git@gitlab.pledra.com:pledra/odoo-product-configurator.git
