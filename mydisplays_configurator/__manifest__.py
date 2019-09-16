@@ -1,0 +1,21 @@
+{
+    'name': "Mydisplays Product Configurator",
+    'summary': """
+        Product configurator adaptation for mydisplays products and workflow
+    """,
+    'description': """
+        Product configurator adaptation for mydisplays products and workflow
+    """,
+    'author': "Pledra",
+    'website': "http://www.pledra.com",
+    'category': 'Generic Modules/Base',
+    'version': '0.1',
+    'depends': [
+        'product_configurator',
+        'website_product_configurator'
+    ],
+    'data': [
+    ],
+    'demo': [
+    ],
+}
