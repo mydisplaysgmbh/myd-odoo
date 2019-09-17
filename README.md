@@ -1,1 +1,1 @@
-# myd-odoo
+# mydisplays-odoo
