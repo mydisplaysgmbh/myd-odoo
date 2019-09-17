@@ -2,7 +2,7 @@
 <odoo>
 
     <record model="ir.ui.view" id="product_attribute_form_view">
-        <field name="name">product.attribute.form.view</field>
+        <field name="name">mydisplays.product.attribute.form.view</field>
         <field name="model">product.attribute</field>
         <field name="inherit_id" ref="product_configurator.product_attribute_form_view"/>
         <field name="arch" type="xml">

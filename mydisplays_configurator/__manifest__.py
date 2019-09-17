@@ -16,6 +16,7 @@
         'website_product_configurator'
     ],
     'data': [
+        'views/product_view.xml',
         'views/product_attribute_view.xml',
     ],
     'demo': [
