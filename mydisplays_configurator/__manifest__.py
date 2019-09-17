@@ -11,10 +11,12 @@
     'category': 'Generic Modules/Base',
     'version': '0.1',
     'depends': [
+        'base_sparse_field',
         'product_configurator',
         'website_product_configurator'
     ],
     'data': [
+        'views/product_attribute_view.xml',
     ],
     'demo': [
     ],
