@@ -63,7 +63,7 @@ class ProductTemplate(models.Model):
     @api.multi
     @api.depends(get_config_dependencies)
     def _get_config_data(self):
-        for product_tmpl in self:
+        for product_tmpl in self.filtered(lambda x: x.config_ok):
             """Fetch configuration data related to templates and store them as
             json in config_cache serialized field"""
             attr_lines = product_tmpl.attribute_line_ids
@@ -101,20 +101,24 @@ class ProductTemplate(models.Model):
 
                 for attr_val in line.value_ids:
                     attr_tree['attr_vals'][attr_val.id] = {
-                        'price_extra': attr_vals_extra.get('price_extra', 0),
-                        'weight_extra': attr_vals_extra.get('weight_extra', 0),
+                        'price': 0,
+                        'weight': 0,
                     }
+
+                    attr_val_tree = attr_tree['attr_vals'][attr_val.id]
 
                     # Product info
                     product = attr_val.product_id
-                    if not product:
-                        continue
-
-                    attr_tree['attr_vals'][attr_val.id]['product'] = {
-                        'id': product.id,
-                        'price': product.price,
-                        'weight': product.weight
-                    }
+                    if product:
+                        attr_val_tree['price'] = product.price
+                        attr_val_tree['weight'] = product.weight
+                    else:
+                        attr_val_tree['price'] = attr_vals_extra.get(
+                            'price_extra', 0
+                        )
+                        attr_val_tree['weight'] = attr_vals_extra.get(
+                            'weight_extra', 0
+                        )
             product_tmpl.config_cache = json_tree
 
     config_cache = fields.Serialized(

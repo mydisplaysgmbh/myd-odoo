@@ -5,8 +5,8 @@ class ProductAttribute(models.Model):
     _inherit = 'product.attribute'
 
     json_name = fields.Char(
-        name='Json Name',
-        required=True
+        name='JSON Name',
+        required=True,
     )
 
     _sql_constraints = [('unique_attribute_json_name', 'unique(json_name)',

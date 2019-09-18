@@ -9,7 +9,7 @@
         <field name="arch" type="xml">
             <xpath expr="//field[@name='config_step_line_ids']" position="after">
                 <separator colspan="4" string="Config Cache"/>
-                <field name="config_cache"/>
+                <field name="config_cache" widget="text"/>
             </xpath>
         </field>
     </record>
