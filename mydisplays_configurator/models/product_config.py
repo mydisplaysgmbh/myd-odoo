@@ -54,6 +54,7 @@ class ProductConfigSession(models.Model):
     )
     json_vals = fields.Serialized(
         name='JSON Vals',
+        help='Final version of aggregated custom values and computed values',
         compute='_compute_json_vals',
         store=True
     )

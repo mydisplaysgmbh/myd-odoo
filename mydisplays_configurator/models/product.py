@@ -1,3 +1,5 @@
+import json
+
 from odoo import api, fields, models
 from odoo.tools.safe_eval import test_python_expr
 from odoo.exceptions import ValidationError
@@ -108,6 +110,11 @@ class ProductTemplate(models.Model):
                         'weight': 0,
                     })
 
+                    # Load extra info from attribute value or related product
+                    # if we decide to change approach (or both?)
+                    if attr_val.json_context:
+                        val_tree.update(json.loads(attr_val.json_context))
+
                     # Product info
                     product = attr_val.product_id
                     if product:
@@ -126,6 +133,7 @@ class ProductTemplate(models.Model):
     config_cache = fields.Serialized(
         name='Cached configuration data',
         compute='_get_config_data',
+        readonly=True,
         store=True,
         help='Store data used for configuration in json format for quick '
         'access and low latency',
