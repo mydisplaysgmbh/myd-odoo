@@ -13,11 +13,12 @@
     'depends': [
         'base_sparse_field',
         'product_configurator',
-        'website_product_configurator'
+        'website_product_configurator',
     ],
     'data': [
-        'views/product_view.xml',
         'views/product_attribute_view.xml',
+        'views/product_config_view.xml',
+        'views/product_view.xml',
     ],
     'demo': [
     ],

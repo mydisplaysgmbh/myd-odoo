@@ -1,4 +1,12 @@
 from odoo import api, fields, models
+from odoo.tools.safe_eval import test_python_expr
+from odoo.exceptions import ValidationError
+
+DEFAULT_PYTHON_CODE = """# Available variables:
+#  - template: Cached values from the related product template
+#  - config: Current configuration expressed as json
+#  - session: Object to store computed values on\n\n\n\n
+"""
 
 
 class ProductTemplate(models.Model):
@@ -9,24 +17,21 @@ class ProductTemplate(models.Model):
     configuration process
 
         {
-            'attr_json_name_map': {
+            'attr_json_map': {
                 'id_1': 'length',
                 'id_2': 'width'
             },
-
-            'attrs': {
-                'attr_prefix': {
-                    'attr_vals': {
-                        'custom_type': 'float',
-                        'val_id_1': {
-                            'price_extra': 'number'
-                            'product': {
-                                'id': 'product_id',
-                                'price': 'product_price',
-                                'weight': 'product_weight'
-                            }
+            'attr_vals': {
+                'val_id_1': {
+                    'attribute_id': attribute.id,
+                    'custom_type': 'float',
+                    'price_extra': 'number'
+                    'product_id': product_id,
+                    'price': 'product_price',
+                    'weight': 'product_weight'
                         }
                     }
+                }
                 }
             }
         }
@@ -54,11 +59,10 @@ class ProductTemplate(models.Model):
         attr_val_prefix = 'attribute_line_ids.attribute_id.value_ids.%s'
         attr_val_constraints = self.get_attr_val_json_tree()
         attr_val_constraints = [
-             attr_val_prefix % cst for cst in attr_val_constraints
+            attr_val_prefix % cst for cst in attr_val_constraints
         ]
         constraints += attr_val_constraints
         return constraints
-        # return ','.join(constraints)
 
     @api.multi
     @api.depends(get_config_dependencies)
@@ -69,10 +73,11 @@ class ProductTemplate(models.Model):
             attr_lines = product_tmpl.attribute_line_ids
             attrs = attr_lines.mapped('attribute_id')
             json_tree = {
-                'attr_json_name_map': {
+                # Map attribute ids to their respective json name
+                'attr_json_map': {
                     a.id: a.json_name for a in attrs if a.json_name
                 },
-                'attrs': {}
+                'attr_vals': {}
             }
 
             tmpl_attr_val_obj = self.env['product.template.attribute.value']
@@ -92,31 +97,28 @@ class ProductTemplate(models.Model):
 
             for line in attr_lines:
                 attr = line.attribute_id
-                if attr.id not in json_tree['attr_json_name_map']:
-                    continue
-                attr_tree = json_tree['attrs'][attr.json_name] = {}
-                attr_tree['custom'] = attr.val_custom
-                attr_tree['custom_type'] = attr.custom_type
-                attr_tree['attr_vals'] = {}
-
                 for attr_val in line.value_ids:
-                    attr_tree['attr_vals'][attr_val.id] = {
+                    val_tree = json_tree['attr_vals'][attr_val.id] = {}
+                    val_tree.update({
+                        'attribute_id': attr.id,
+                        'custom': attr.val_custom,
+                        'custom_type': attr.custom_type,
+                        'product_id': 0,
                         'price': 0,
                         'weight': 0,
-                    }
-
-                    attr_val_tree = attr_tree['attr_vals'][attr_val.id]
+                    })
 
                     # Product info
                     product = attr_val.product_id
                     if product:
-                        attr_val_tree['price'] = product.price
-                        attr_val_tree['weight'] = product.weight
+                        val_tree['product_id'] = product.id
+                        val_tree['price'] = product.price
+                        val_tree['weight'] = product.weight
                     else:
-                        attr_val_tree['price'] = attr_vals_extra.get(
+                        val_tree['price'] = attr_vals_extra.get(
                             'price_extra', 0
                         )
-                        attr_val_tree['weight'] = attr_vals_extra.get(
+                        val_tree['weight'] = attr_vals_extra.get(
                             'weight_extra', 0
                         )
             product_tmpl.config_cache = json_tree
@@ -128,3 +130,18 @@ class ProductTemplate(models.Model):
         help='Store data used for configuration in json format for quick '
         'access and low latency',
     )
+    computed_vals_formula = fields.Text(
+        string='Computed values function',
+        default=DEFAULT_PYTHON_CODE,
+        help="Write Python code that will compute extra values on the "
+        "configuration JSON values field. Some variables are "
+    )
+
+    @api.constrains('computed_vals_formula')
+    def _check_python_code(self):
+        for tmpl in self.sudo().filtered('computed_vals_formula'):
+            msg = test_python_expr(
+                expr=tmpl.computed_vals_formula.strip(), mode="exec"
+            )
+            if msg:
+                raise ValidationError(msg)

@@ -8,8 +8,10 @@
         <field name="inherit_id" ref="product_configurator.product_template_form_view"/>
         <field name="arch" type="xml">
             <xpath expr="//field[@name='config_step_line_ids']" position="after">
-                <separator colspan="4" string="Config Cache"/>
-                <field name="config_cache" widget="text"/>
+                <separator colspan="4" string="Computed Vals Formula"/>
+                <field name="computed_vals_formula" widget="ace" options="{'mode': 'python'}"/>
+<!--                 <separator colspan="4" string="Config Cache"/>
+                <field name="config_cache"/> -->
             </xpath>
         </field>
     </record>
