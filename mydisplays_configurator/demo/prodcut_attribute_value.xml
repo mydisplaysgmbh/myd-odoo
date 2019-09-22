@@ -165,12 +165,6 @@
             <field name="product_id" ref="mydisplays_configurator.product_ose"/>
         </record>
 
-        <!-- <record id="product_attribute_value_30" model="product.attribute.value">
-            <field name="name">Ösen alle 50 cm</field>
-            <field name="attribute_id" ref="mydisplays_configurator.product_attribute_rechts_depending_on_entered_height"/>
-            <field name="product_id" ref="mydisplays_configurator.product_ose"/>
-        </record> -->
-
         <record id="product_attribute_value_31" model="product.attribute.value">
             <field name="name">Flachsaum (40 mm)</field>
             <field name="attribute_id" ref="mydisplays_configurator.product_attribute_rechts_depending_on_entered_height"/>
@@ -207,12 +201,6 @@
             <field name="product_id" ref="mydisplays_configurator.product_ose"/>
         </record>
 
-        <!-- <record id="product_attribute_value_37" model="product.attribute.value">
-            <field name="name">Ösen alle 50 cm</field>
-            <field name="attribute_id" ref="mydisplays_configurator.product_attribute_Oben_depending_on_entered_width"/>
-            <field name="product_id" ref="mydisplays_configurator.product_ose"/>
-        </record> -->
-
         <record id="product_attribute_value_38" model="product.attribute.value">
             <field name="name">Flachsaum (40 mm)</field>
             <field name="attribute_id" ref="mydisplays_configurator.product_attribute_Oben_depending_on_entered_width"/>
@@ -247,12 +235,6 @@
             <field name="attribute_id" ref="mydisplays_configurator.product_attribute_unten_depending_on_entered_width"/>
             <field name="product_id" ref="mydisplays_configurator.product_ose"/>
         </record>
-
-        <!-- <record id="product_attribute_value_44" model="product.attribute.value">
-            <field name="name">Ösen alle 50 cm</field>
-            <field name="attribute_id" ref="mydisplays_configurator.product_attribute_unten_depending_on_entered_width"/>
-            <field name="product_id" ref="mydisplays_configurator.product_ose"/>
-        </record> -->
 
         <record id="product_attribute_value_45" model="product.attribute.value">
             <field name="name">Flachsaum (40 mm)</field>
