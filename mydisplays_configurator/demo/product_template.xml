@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="product_template_rollup_lite" model="product.template">
+            <field name="name">Rollup Lite</field>
+            <field name="type">product</field>
+            <field name="config_ok" eval="True"/>
+            
+        </record>
+
+        <record id="product_template_my_werbebanner" model="product.template">
+            <field name="name">my Werbebanner (PVC-Plane)</field>
+            <field name="type">product</field>
+            <field name="config_ok" eval="True"/>
+        </record>
+
+         <record id="product_template_my_acrylglas" model="product.template">
+            <field name="name">my Acrylglas (Plexiglas)</field>
+            <field name="type">product</field>
+            <field name="config_ok" eval="True"/>
+        </record>
+    </data>
+</odoo>

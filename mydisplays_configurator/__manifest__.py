@@ -21,5 +21,10 @@
         'views/product_view.xml',
     ],
     'demo': [
+        'demo/product_template.xml',
+        'demo/prodcut.xml',
+        'demo/prodcut_attribute.xml',
+        'demo/prodcut_attribute_value.xml',
+        'demo/product_attribute_line.xml',
     ],
 }
