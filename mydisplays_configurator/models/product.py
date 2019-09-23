@@ -43,7 +43,7 @@ class ProductTemplate(models.Model):
     def get_attr_val_json_tree(self):
         """Data to include inside json tree from attribute_value onward"""
         return [
-            # ?? 'price_extra',
+            'json_context',
             'product_id',
             'product_id.price',
             'product_id.weight',

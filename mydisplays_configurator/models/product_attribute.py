@@ -33,5 +33,5 @@ class ProductAttributeValue(models.Model):
             except Exception:
                 raise ValidationError(
                     'Please provide a valid JSON object and be sure to use '
-                    'double quotes "" for keys'
+                    'double quotes "" for keys and delete trailing commas'
                 )

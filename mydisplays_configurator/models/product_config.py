@@ -32,7 +32,10 @@ class ProductConfigSession(models.Model):
 
         return {
             'template': tmpl_config_cache.get('attrs', {}),
-            'session': {},
+            'session': {
+                'price': 0,
+                'weight': 0,
+            },
             'config': config,
         }
 
@@ -41,7 +44,7 @@ class ProductConfigSession(models.Model):
     def _compute_json_vals(self):
         for session in self:
             code = session.product_tmpl_id.computed_vals_formula
-            eval_context = self._get_eval_context()
+            eval_context = session._get_eval_context()
             safe_eval(
                 code.strip(), eval_context, mode="exec",
                 nocopy=True, locals_builtins=True
