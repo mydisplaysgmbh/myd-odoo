@@ -35,6 +35,7 @@ class ProductConfigSession(models.Model):
             'session': {
                 'price': 0,
                 'weight': 0,
+                'quantity': 0,
             },
             'config': config,
         }
