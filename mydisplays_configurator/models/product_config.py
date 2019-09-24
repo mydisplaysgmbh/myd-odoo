@@ -68,6 +68,9 @@ class ProductConfigSession(models.Model):
 
     @api.model
     def get_parsed_custom_value(self, val, custom_type="char"):
+        """Parse and return type casted value for custom fields
+        :val(string): custom value
+        :custom_type(string): type of custom field"""
         if custom_type in ["int"]:
             try:
                 return int(val)
@@ -92,6 +95,7 @@ class ProductConfigSession(models.Model):
 
     @api.model
     def get_default_json_dict(self, product_tmpl_id):
+        """Create basic structure for config JSON field"""
         cfg_session_json = {}
         if not product_tmpl_id:
             return cfg_session_json
@@ -100,8 +104,8 @@ class ProductConfigSession(models.Model):
         attrs = tmpl_config_cache.get("attrs", {})
         cfg_session_json["attrs"] = {}
         for attribute_id in attrs:
-            attr_prefix = attr_json_map.get(attribute_id, attribute_id)
-            cfg_session_json["attrs"][attr_prefix] = {}
+            attr_json_name = attr_json_map.get(attribute_id, attribute_id)
+            cfg_session_json["attrs"][attr_json_name] = {}
         return cfg_session_json
 
     @api.multi
@@ -140,7 +144,7 @@ class ProductConfigSession(models.Model):
         if not cfg_session_json:
             self.get_default_json_dict(product_tmpl_id=product_tmpl_id)
         for attribute_id in attrs:
-            attr_prefix = attr_json_map.get(attribute_id, attribute_id)
+            attr_json_name = attr_json_map.get(attribute_id, attribute_id)
             attr_dict = {}
             field_name = "%s%s" % (field_prefix, attribute_id)
             custom_field = "%s%s" % (custom_field_prefix, attribute_id)
@@ -148,8 +152,10 @@ class ProductConfigSession(models.Model):
                 continue
             value = vals.get(field_name, False)
             if not value:
+                # If value removed
                 attr_dict = {}
             elif value == custom_val_id.id:
+                # Custom value
                 value = vals.get(custom_field, False)
                 custom_type = attrs.get(attribute_id, {}).get(
                     "custom_type", "char"
@@ -159,6 +165,7 @@ class ProductConfigSession(models.Model):
                 )
                 attr_dict["value"] = custom_val
             else:
+                # Standard attribute value
                 attr_dict["value_id"] = value
                 value_tree = attr_vals.get("%s" % (value), {})
                 attr_dict["price"] = value_tree.get("price", 0)
@@ -166,11 +173,13 @@ class ProductConfigSession(models.Model):
                 product_id = value_tree.get("product_id", 0)
                 if product_id:
                     attr_dict["product"] = product_id
-            cfg_session_json["attrs"][attr_prefix] = attr_dict
+            cfg_session_json["attrs"][attr_json_name] = attr_dict
         return cfg_session_json
 
     @api.multi
     def update_session_configuration_value(self, vals, product_tmpl_id=None):
+        """storing data as JSON from the session
+        and update the values accordingly"""
         super(ProductConfigSession, self).update_session_configuration_value(
             vals=vals, product_tmpl_id=product_tmpl_id
         )
@@ -182,6 +191,7 @@ class ProductConfigSession(models.Model):
 
     @api.model
     def create(self, vals):
+        """Add default structure of config JSON field"""
         if vals.get("product_tmpl_id") and not vals.get("json_config"):
             product_tmpl_id = self.env["product.template"].browse(
                 vals.get("product_tmpl_id")
