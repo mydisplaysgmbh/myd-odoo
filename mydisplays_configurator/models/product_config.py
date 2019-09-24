@@ -38,21 +38,23 @@ class ProductConfigSession(models.Model):
     @api.multi
     @api.depends("product_tmpl_id.config_cache", "json_config", "value_ids")
     def _compute_json_vals(self):
-        for session in self:
-            code = session.product_tmpl_id.computed_vals_formula
-            eval_context = session._get_eval_context()
-            safe_eval(
-                code.strip(),
-                eval_context,
-                mode="exec",
-                nocopy=True,
-                locals_builtins=True,
-            )
-            session.json_vals = eval_context["session"]
+        # for session in self:
+        #     code = session.product_tmpl_id.computed_vals_formula
+        #     eval_context = session._get_eval_context()
+        #     safe_eval(
+        #         code.strip(),
+        #         eval_context,
+        #         mode="exec",
+        #         nocopy=True,
+        #         locals_builtins=True,
+        #     )
+        #     session.json_vals = eval_context["session"]
+        pass
 
     json_config = fields.Serialized(
         name="JSON Config", help="Json representation of all custom values"
     )
+    json_config_text = fields.Text(sparse="json_config")
     json_vals = fields.Serialized(
         name="JSON Vals",
         help="Final version of aggregated custom values and computed values",
@@ -60,7 +62,7 @@ class ProductConfigSession(models.Model):
         store=True,
     )
 
-    def get_parsed_custom_value(self, val, type="char"):
+    def get_parsed_custom_value(self, val, custom_type="char"):
         if custom_type in ["int"]:
             try:
                 return int(val)
@@ -80,6 +82,22 @@ class ProductConfigSession(models.Model):
             "datetime",
         ]:
             return val
+        else:
+            return val
+
+    @api.model
+    def get_default_json_dict(self, product_tmpl_id):
+        cfg_session_json = {}
+        if not product_tmpl_id:
+            return cfg_session_json
+        tmpl_config_cache = product_tmpl_id.config_cache
+        attr_json_map = tmpl_config_cache.get("attr_json_map", {})
+        attrs = tmpl_config_cache.get("attrs", {})
+        cfg_session_json["attrs"] = {}
+        for attribute_id in attrs:
+            attr_prefix = attr_json_map.get(attribute_id, attribute_id)
+            cfg_session_json["attrs"][attr_prefix] = {}
+        return cfg_session_json
 
     def get_configuration_session_json_dictionary(self, vals, product_tmpl_id):
         """Store product.config.session data in serialized computed field
@@ -111,23 +129,26 @@ class ProductConfigSession(models.Model):
             "custom_field_prefix"
         )
         custom_val_id = self.get_custom_value_id()
-        cfg_session_json = {}
-        cfg_session_json["attrs"] = {}
+        cfg_session_json = self.json_config
+        if not cfg_session_json:
+            self.get_default_json_dict(product_tmpl_id=product_tmpl_id)
         for attribute_id in attrs:
             attr_prefix = attr_json_map.get(attribute_id, attribute_id)
-            attr_dict = cfg_session_json["attrs"][attr_prefix] = {}
+            attr_dict = {}
             field_name = "%s%s" % (field_prefix, attribute_id)
             custom_field = "%s%s" % (custom_field_prefix, attribute_id)
+            if field_name not in vals:
+                continue
             value = vals.get(field_name, False)
             if not value:
-                continue
-            if value == custom_val_id.id:
+                attr_dict = {}
+            elif value == custom_val_id.id:
                 value = vals.get(custom_field, False)
                 custom_type = attrs.get(attribute_id, {}).get(
                     "custom_type", "char"
                 )
                 custom_val = self.get_parsed_custom_value(
-                    val=value, type=custom_type
+                    val=value, custom_type=custom_type
                 )
                 attr_dict["value"] = custom_val
             else:
@@ -138,8 +159,8 @@ class ProductConfigSession(models.Model):
                 product_id = value_tree.get("product_id", 0)
                 if product_id:
                     attr_dict["product"] = product_id
+            cfg_session_json["attrs"][attr_prefix] = attr_dict
         return cfg_session_json
-
 
     @api.multi
     def update_session_configuration_value(self, vals, product_tmpl_id=None):
@@ -150,3 +171,16 @@ class ProductConfigSession(models.Model):
             vals=vals, product_tmpl_id=product_tmpl_id
         )
         self.json_config = cfg_session_json
+        self.json_config_text = cfg_session_json
+
+    @api.model
+    def create(self, vals):
+        if vals.get("product_tmpl_id") and not vals.get("json_config"):
+            product_tmpl_id = self.env["product.template"].browse(
+                vals.get("product_tmpl_id")
+            )
+            json_config = self.get_default_json_dict(
+                product_tmpl_id=product_tmpl_id
+            )
+            vals.update({"json_config": json_config})
+        return super(ProductConfigSession, self).create(vals)

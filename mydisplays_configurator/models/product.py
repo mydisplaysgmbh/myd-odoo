@@ -110,7 +110,8 @@ class ProductTemplate(models.Model):
                 attr = line.attribute_id
                 json_tree['attrs'][attr.id] = {
                     'required': line.required,
-                    'custom': line.val_custom,
+                    'multi': line.multi,
+                    'custom': line.custom,
                     'custom_type': attr.custom_type,
                 }
                 for attr_val in line.value_ids:

@@ -9,6 +9,7 @@
         	<xpath expr="//notebook" position="inside">
         		<page name="json_vals" string="JSON Vals">
         			<field name="json_vals"/>
+                    <field name="json_config_text"/>
         		</page>
         	</xpath>
         </field>
