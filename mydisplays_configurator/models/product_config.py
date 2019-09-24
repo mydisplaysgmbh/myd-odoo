@@ -54,7 +54,7 @@ class ProductConfigSession(models.Model):
     json_config = fields.Serialized(
         name="JSON Config", help="Json representation of all custom values"
     )
-    json_config_text = fields.Text(sparse="json_config")
+    json_config_text = fields.Text()
     json_vals = fields.Serialized(
         name="JSON Vals",
         help="Final version of aggregated custom values and computed values",
@@ -171,6 +171,7 @@ class ProductConfigSession(models.Model):
             vals=vals, product_tmpl_id=product_tmpl_id
         )
         self.json_config = cfg_session_json
+        print("cfg_session_json ",cfg_session_json)
         self.json_config_text = cfg_session_json
 
     @api.model
