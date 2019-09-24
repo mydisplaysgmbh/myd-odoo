@@ -13,7 +13,8 @@ class ProductConfigSession(models.Model):
         # Configuration data (attr vals and custom vals) using json name
         config = {}
         # Add selected value_ids to config dict using human readable json name
-        for attr_val in self.value_ids:
+        custom_val_id = self.get_custom_value_id()
+        for attr_val in self.value_ids - custom_val_id:
             val_id = str(attr_val.id)
             json_val = tmpl_config_cache["attr_vals"].get(val_id, {})
             attr_id = json_val.get("attribute_id")
@@ -21,13 +22,16 @@ class ProductConfigSession(models.Model):
             config[attr_json_name] = tmpl_config_cache["attr_vals"][val_id]
 
         # Add custom value_ids to config dict using human readable json name
-        for attr_val_id, val in self.json_config:
-            val_id = str(attr_val.id)
-            json_val = tmpl_config_cache["attr_vals"].get(val_id, {})
-            attr_id = json_val.get("attribute_id")
-            attr_json_name = tmpl_config_cache["attr_json_map"][str(attr_id)]
+        for attr_json_name, vals in self.json_config.get("attrs", {}).items():
+            if not vals.get("value", False):
+                continue
+            value = vals.get("value")
+            # val_id = str(attr_val.id)
+            # json_val = tmpl_config_cache["attr_vals"].get(val_id, {})
+            # attr_id = json_val.get("attribute_id")
+            # attr_json_name = tmpl_config_cache["attr_json_map"][str(attr_id)]
             # TODO: Add typecast using custom_type info
-            config[attr_json_name] = val
+            config[attr_json_name] = value
 
         return {
             "template": tmpl_config_cache.get("attrs", {}),
@@ -38,17 +42,17 @@ class ProductConfigSession(models.Model):
     @api.multi
     @api.depends("product_tmpl_id.config_cache", "json_config", "value_ids")
     def _compute_json_vals(self):
-        # for session in self:
-        #     code = session.product_tmpl_id.computed_vals_formula
-        #     eval_context = session._get_eval_context()
-        #     safe_eval(
-        #         code.strip(),
-        #         eval_context,
-        #         mode="exec",
-        #         nocopy=True,
-        #         locals_builtins=True,
-        #     )
-        #     session.json_vals = eval_context["session"]
+        for session in self:
+            code = session.product_tmpl_id.computed_vals_formula
+            eval_context = session._get_eval_context()
+            safe_eval(
+                code.strip(),
+                eval_context,
+                mode="exec",
+                nocopy=True,
+                locals_builtins=True,
+            )
+            session.json_vals = eval_context["session"]
         pass
 
     json_config = fields.Serialized(
@@ -62,6 +66,7 @@ class ProductConfigSession(models.Model):
         store=True,
     )
 
+    @api.model
     def get_parsed_custom_value(self, val, custom_type="char"):
         if custom_type in ["int"]:
             try:
@@ -99,6 +104,7 @@ class ProductConfigSession(models.Model):
             cfg_session_json["attrs"][attr_prefix] = {}
         return cfg_session_json
 
+    @api.multi
     def get_configuration_session_json_dictionary(self, vals, product_tmpl_id):
         """Store product.config.session data in serialized computed field
             {
@@ -117,6 +123,7 @@ class ProductConfigSession(models.Model):
             }
 
         """
+        self.ensure_one()
         if not product_tmpl_id:
             product_tmpl_id = self.product_tmpl_id
         tmpl_config_cache = product_tmpl_id.config_cache
@@ -171,7 +178,6 @@ class ProductConfigSession(models.Model):
             vals=vals, product_tmpl_id=product_tmpl_id
         )
         self.json_config = cfg_session_json
-        print("cfg_session_json ",cfg_session_json)
         self.json_config_text = cfg_session_json
 
     @api.model
