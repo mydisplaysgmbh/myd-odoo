@@ -30,23 +30,27 @@ class ProductConfigSession(models.Model):
             config[attr_json_name] = val
 
         return {
-            "template": tmpl_config_cache.get("attrs", {}),
-            "session": {},
-            "config": config,
+            'template': tmpl_config_cache.get('attrs', {}),
+            'session': {
+                'price': 0,
+                'weight': 0,
+                'quantity': 0,
+                'bom': [],
+            },
+            'config': config,
         }
 
     @api.multi
     @api.depends("product_tmpl_id.config_cache", "json_config", "value_ids")
     def _compute_json_vals(self):
-        # for session in self:
-        #     code = session.product_tmpl_id.computed_vals_formula
-        #     eval_context = session._get_eval_context()
-        #     safe_eval(
-        #         code.strip(), eval_context, mode="exec",
-        #         nocopy=True, locals_builtins=True
-        #     )
-        #     session.json_vals = eval_context['session']
-        pass
+        for session in self:
+            code = session.product_tmpl_id.computed_vals_formula
+            eval_context = session._get_eval_context()
+            safe_eval(
+                code.strip(), eval_context, mode="exec",
+                nocopy=True, locals_builtins=True
+            )
+            session.json_vals = eval_context['session']
 
     json_config = fields.Serialized(
         name="JSON Config", help="Json representation of all custom values"

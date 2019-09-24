@@ -23,6 +23,13 @@ class ProductTemplate(models.Model):
                 'id_1': 'length',
                 'id_2': 'width'
             },
+            'attrs': {
+                'attr_id_1': {
+                    'custom': attribute.val_custom,
+                    'custom_type': attribute.custom_type,
+                    'required': attribute.required,
+                }
+            }
             'attr_vals': {
                 'val_id_1': {
                     'attribute_id': attribute.id,
@@ -43,7 +50,7 @@ class ProductTemplate(models.Model):
     def get_attr_val_json_tree(self):
         """Data to include inside json tree from attribute_value onward"""
         return [
-            # ?? 'price_extra',
+            'json_context',
             'product_id',
             'product_id.price',
             'product_id.weight',
@@ -56,6 +63,7 @@ class ProductTemplate(models.Model):
             'attribute_line_ids.value_ids',
             'attribute_line_ids.attribute_id',
             'attribute_line_ids.attribute_id.json_name',
+            'attribute_line_ids.attribute_id.val_custom',
             'attribute_line_ids.attribute_id.custom_type',
         ]
         attr_val_prefix = 'attribute_line_ids.attribute_id.value_ids.%s'
@@ -76,10 +84,11 @@ class ProductTemplate(models.Model):
             attrs = attr_lines.mapped('attribute_id')
             json_tree = {
                 # Map attribute ids to their respective json name
+                'attrs': {},
+                'attr_vals': {},
                 'attr_json_map': {
                     a.id: a.json_name for a in attrs if a.json_name
                 },
-                'attr_vals': {}
             }
 
             tmpl_attr_val_obj = self.env['product.template.attribute.value']
@@ -99,12 +108,15 @@ class ProductTemplate(models.Model):
 
             for line in attr_lines:
                 attr = line.attribute_id
+                json_tree['attrs'][attr.id] = {
+                    'required': attr.required,
+                    'custom': attr.val_custom,
+                    'custom_type': attr.custom_type,
+                }
                 for attr_val in line.value_ids:
                     val_tree = json_tree['attr_vals'][attr_val.id] = {}
                     val_tree.update({
                         'attribute_id': attr.id,
-                        'custom': attr.val_custom,
-                        'custom_type': attr.custom_type,
                         'product_id': 0,
                         'price': 0,
                         'weight': 0,
