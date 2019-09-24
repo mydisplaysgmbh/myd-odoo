@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="config_form_select_inherit" name="Selectbox configuration form" inherit_id="website_product_configurator.config_form_select">
+        <xpath expr="//select[@t-att-data-oe-id='line.attribute_id.id']//option[@t-att-value='value.id']" position="attributes">
+            <attribute name='t-att-selected'>'selected' if value.id in value_ids.ids or len(line.value_ids) == 1 else None</attribute>
+        </xpath>
+    </template>
+
+    <template id="config_form_radio_inherit" name="RadioButton configuration form" inherit_id="website_product_configurator.config_form_radio">
+        <xpath expr="//fieldset[@t-att-data-oe-id='line.attribute_id.id']//div[hasclass('radio-card-container')]//input[@t-att-value='value.id']" position="attributes">
+            <attribute name='t-att-checked'>'checked' if value.id in value_ids.ids or len(line.value_ids) == 1 else None</attribute>
+        </xpath>
+    </template>
+</odoo>
