@@ -201,7 +201,7 @@ class ProductConfigSession(models.Model):
             vals=vals, product_tmpl_id=product_tmpl_id
         )
         self.json_config = cfg_session_json
-        self.json_config_text = cfg_session_json
+        self.json_config_text = pprint.pformat(cfg_session_json)
 
     @api.model
     def create(self, vals):

@@ -8,7 +8,7 @@
         <field name="arch" type="xml">
             <xpath expr="//notebook" position="inside">
                 <page name="json_vals" string="JSON Vals">
-                    <field name="json_config_text"/>
+                    <field name="json_config_text" readonly="True" widget="ace" options="{'mode': 'python'}"/>
                     <field name="json_vals_debug" readonly="True" widget="ace" options="{'mode': 'python'}"/>
                 </page>
             </xpath>
