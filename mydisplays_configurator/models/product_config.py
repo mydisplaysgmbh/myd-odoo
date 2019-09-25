@@ -77,6 +77,8 @@ class ProductConfigSession(models.Model):
         """Parse and return type casted value for custom fields
         :val(string): custom value
         :custom_type(string): type of custom field"""
+        if not custom_type:
+            custom_type = "char"
         if custom_type in ["int"]:
             try:
                 return int(val)
@@ -120,25 +122,34 @@ class ProductConfigSession(models.Model):
             cfg_session_json = {}
         for attribute_id in attrs:
             if not attrs[attribute_id].get("custom", False):
-                return
-            attr_dict = {}
-            custom_field = "%s%s" % (custom_field_prefix, attribute_id)
-            if custom_field not in vals:
                 continue
-            value = vals.get(custom_field, False)
-            if not value:
-                # If value removed
-                attr_dict = {}
-            else:
-                # Custom value
-                custom_type = attrs.get(attribute_id, {}).get(
-                    "custom_type", "char"
-                )
-                custom_val = self.get_parsed_custom_value(
-                    val=value, custom_type=custom_type
-                )
-                attr_dict["value"] = custom_val
-            cfg_session_json[attribute_id] = attr_dict
+            field_name = "%s%s" % (field_prefix, attribute_id)
+            custom_field = "%s%s" % (custom_field_prefix, attribute_id)
+            if field_name not in vals and custom_field not in vals:
+                continue
+            if field_name in vals:
+                value = vals.get(field_name, False)
+                if (
+                    value != custom_val_id.id
+                    and attribute_id in cfg_session_json
+                ):
+                    cfg_session_json.pop(attribute_id)
+            if custom_field in vals:
+                custom_val = vals.get(custom_field, False)
+                if not custom_val and attribute_id in cfg_session_json:
+                    # If value removed
+                    cfg_session_json.pop(attribute_id)
+                else:
+                    attr_dict = {}
+                    custom_val = vals.get(custom_field, False)
+                    custom_type = attrs.get(attribute_id, {}).get(
+                        "custom_type", "char"
+                    )
+                    custom_val = self.get_parsed_custom_value(
+                        val=custom_val, custom_type=custom_type
+                    )
+                    attr_dict["value"] = custom_val
+                    cfg_session_json[attribute_id] = attr_dict
         return cfg_session_json
 
     @api.multi
@@ -151,6 +162,29 @@ class ProductConfigSession(models.Model):
         cfg_session_json = self.get_configuration_session_json_dictionary(
             vals=vals, product_tmpl_id=product_tmpl_id
         )
-        print("cfg_session_json ",cfg_session_json)
+        self.json_config = cfg_session_json
+        self.json_config_text = pprint.pformat(cfg_session_json)
+
+    def set_default_cfg_session_json_dictionary(self, custom_value_ids=None):
+        if custom_value_ids == None:
+            custom_value_ids = self.custom_value_ids
+        cfg_session_json = {}
+        for custom_val_id in custom_value_ids:
+            attribute_id = "%s" % (custom_val_id.attribute_id.id)
+            attr_dict = cfg_session_json[attribute_id] = {}
+            custom_val = False
+            if custom_val_id.value:
+                custom_type = custom_val_id.attribute_id.custom_type
+                custom_val = self.get_parsed_custom_value(
+                    val=custom_val_id.value, custom_type=custom_type
+                )
+            elif custom_val_id.attachment_ids:
+                vals = custom_val_id.attachment_ids.mapped("datas")
+                if len(vals) == 1:
+                    custom_val = vals[0]
+                else:
+                    custom_val = vals
+            if custom_val:
+                attr_dict["value"] = custom_val
         self.json_config = cfg_session_json
         self.json_config_text = pprint.pformat(cfg_session_json)
