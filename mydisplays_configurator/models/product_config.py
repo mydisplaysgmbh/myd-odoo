@@ -53,7 +53,6 @@ class ProductConfigSession(models.Model):
                 locals_builtins=True,
             )
             session.json_vals = eval_context["session"]
-        pass
 
     json_config = fields.Serialized(
         name="JSON Config", help="Json representation of all custom values"
