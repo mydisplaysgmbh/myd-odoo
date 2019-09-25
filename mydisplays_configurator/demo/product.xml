@@ -19,16 +19,19 @@
         <record id="product_rollup_case_100cm" model="product.product">
             <field name="name">Rollup Case 100 cm x 200 cm</field>
             <field name="type">product</field>
+            <field name="uom_id" ref="mydisplays_configurator.product_uom_id_demo"/>
         </record>
 
         <record id="product_rollup_case_120cm" model="product.product">
             <field name="name">Rollup Case 120 cm x 200 cm</field>
             <field name="type">product</field>
+            <field name="uom_id" ref="mydisplays_configurator.product_uom_id_demo"/>
         </record>
 
         <record id="product_pvc_plane" model="product.product">
             <field name="name">PVC-Plane 510g/m² B1+M1</field>
             <field name="type">product</field>
+            <field name="uom_id" ref="mydisplays_configurator.product_uom_id_demo"/>
         </record>
 
         <record id="product_rollflat_film_420gm" model="product.product">

@@ -7,12 +7,10 @@
 
         <record id="product_attribute_Größe" model="product.attribute">
             <field name="name">Größe (Breite x Höhe)</field>
-            <field name="uom_id" ref="mydisplays_configurator.product_uom_id_demo"/>
         </record>
 
         <record id="product_attribute_druckmaterial" model="product.attribute">
             <field name="name">Druckmaterial</field>
-            <field name="uom_id" ref="mydisplays_configurator.product_uom_id_demo"/>
         </record>
 
         <record id="product_attribute_MYD_easychange_system" model="product.attribute">
