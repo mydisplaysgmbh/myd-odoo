@@ -128,6 +128,7 @@ class ProductConfigSession(models.Model):
             if field_name not in vals and custom_field not in vals:
                 continue
             if field_name in vals:
+                # custom value changed with standard one
                 value = vals.get(field_name, False)
                 if (
                     value != custom_val_id.id
@@ -166,6 +167,7 @@ class ProductConfigSession(models.Model):
         self.json_config_text = pprint.pformat(cfg_session_json)
 
     def set_default_cfg_session_json_dictionary(self, custom_value_ids=None):
+        """update json field while reconfigure product"""
         if custom_value_ids == None:
             custom_value_ids = self.custom_value_ids
         cfg_session_json = {}
