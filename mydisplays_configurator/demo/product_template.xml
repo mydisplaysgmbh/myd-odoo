@@ -5,6 +5,10 @@
             <field name="name">Rollup Lite</field>
             <field name="type">product</field>
             <field name="config_ok" eval="True"/>
+            <field name="price">10</field>
+            <field name="weight">10</field>
+            <field name="uom_id" ref="mydisplays_configurator.product_uom_id_demo"/>
+            <field name="uom_po_id" ref="mydisplays_configurator.product_uom_id_demo"/>
             
         </record>
 
@@ -12,12 +16,16 @@
             <field name="name">my Werbebanner (PVC-Plane)</field>
             <field name="type">product</field>
             <field name="config_ok" eval="True"/>
+            <field name="price">20</field>
+            <field name="weight">20</field>
         </record>
 
          <record id="product_template_my_acrylglas" model="product.template">
             <field name="name">my Acrylglas (Plexiglas)</field>
             <field name="type">product</field>
             <field name="config_ok" eval="True"/>
+            <field name="price">30</field>
+            <field name="weight">30</field>
         </record>
     </data>
 </odoo>

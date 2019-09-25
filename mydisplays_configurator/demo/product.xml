@@ -94,6 +94,8 @@
         <record id="product_5mm" model="product.product">
             <field name="name">5 mm Acrylglas, farblos</field>
             <field name="type">product</field>
+            <field name="price">180</field>
+            <field name="weight">180</field>
         </record>
 
         <record id="product_10mm" model="product.product">
