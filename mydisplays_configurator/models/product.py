@@ -131,16 +131,18 @@ class ProductTemplate(models.Model):
                     # Product info
                     product = attr_val.product_id
                     if product:
+                        pricelist = self.env.user.partner_id.property_product_pricelist
                         val_tree['product_id'] = product.id
-                        val_tree['price'] = product.price
+                        val_tree['price'] = product.with_context(pricelist=pricelist).price
                         val_tree['weight'] = product.weight
                     else:
-                        val_tree['price'] = attr_vals_extra.get(
+                        val_tree['price'] = attr_vals_extra.get(attr_val.id, {}).get(
                             'price_extra', 0
                         )
-                        val_tree['weight'] = attr_vals_extra.get(
+                        val_tree['weight'] = attr_vals_extra.get(attr_val.id, {}).get(
                             'weight_extra', 0
                         )
+                    print("Vals tree", val_tree)
             product_tmpl.config_cache = json_tree
 
     config_cache = fields.Serialized(

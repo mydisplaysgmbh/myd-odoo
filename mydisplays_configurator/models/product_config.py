@@ -168,11 +168,14 @@ class ProductConfigSession(models.Model):
                 # Standard attribute value
                 attr_dict["value_id"] = value
                 value_tree = attr_vals.get("%s" % (value), {})
-                attr_dict["price"] = value_tree.get("price", 0)
-                attr_dict["weight"] = value_tree.get("weight", 0)
                 product_id = value_tree.get("product_id", 0)
                 if product_id:
                     attr_dict["product"] = product_id
+                    attr_dict["price"] = value_tree.get("price", 0)
+                    attr_dict["weight"] = value_tree.get("weight", 0)
+                else:
+                    attr_dict["price"] = value_tree.get("price_extra", 0)
+                    attr_dict["weight"] = value_tree.get("weight_extra", 0)
             cfg_session_json["attrs"][attr_json_name] = attr_dict
         return cfg_session_json
 
