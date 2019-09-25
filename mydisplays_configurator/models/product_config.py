@@ -55,7 +55,7 @@ class ProductConfigSession(models.Model):
                 locals_builtins=True,
             )
             session.json_vals = eval_context["session"]
-            session.json_vals_debug = pprint.pformat(eval_context['session'])
+            session.json_vals_debug = pprint.pformat(eval_context["session"])
 
     json_config = fields.Serialized(
         name="JSON Config", help="Json representation of all custom values"
@@ -68,9 +68,7 @@ class ProductConfigSession(models.Model):
         store=True,
     )
     json_vals_debug = fields.Text(
-        name="JSON Vals Debug",
-        compute='_compute_json_vals',
-        readonly=True
+        name="JSON Vals Debug", compute="_compute_json_vals", readonly=True
     )
 
     @api.model
@@ -101,11 +99,11 @@ class ProductConfigSession(models.Model):
             return val
 
     @api.model
-    def get_default_json_dict(self, product_tmpl_id):
+    def get_default_json_dict(self, product_tmpl_id=None):
         """Create basic structure for config JSON field"""
         cfg_session_json = {}
         if not product_tmpl_id:
-            return cfg_session_json
+            product_tmpl_id = self.product_tmpl_id
         tmpl_config_cache = product_tmpl_id.config_cache
         attr_json_map = tmpl_config_cache.get("attr_json_map", {})
         attrs = tmpl_config_cache.get("attrs", {})
@@ -116,7 +114,9 @@ class ProductConfigSession(models.Model):
         return cfg_session_json
 
     @api.multi
-    def get_configuration_session_json_dictionary(self, vals, product_tmpl_id):
+    def get_configuration_session_json_dictionary(
+        self, vals, product_tmpl_id=None
+    ):
         """Store product.config.session data in serialized computed field
             {
                 'attrs': {
