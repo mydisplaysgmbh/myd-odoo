@@ -1,3 +1,5 @@
+import pprint
+
 from odoo import api, fields, models
 from odoo.tools.safe_eval import safe_eval
 
@@ -53,6 +55,7 @@ class ProductConfigSession(models.Model):
                 locals_builtins=True,
             )
             session.json_vals = eval_context["session"]
+            session.json_vals_debug = pprint.pformat(eval_context['session'])
 
     json_config = fields.Serialized(
         name="JSON Config", help="Json representation of all custom values"
@@ -63,6 +66,11 @@ class ProductConfigSession(models.Model):
         help="Final version of aggregated custom values and computed values",
         compute="_compute_json_vals",
         store=True,
+    )
+    json_vals_debug = fields.Text(
+        name="JSON Vals Debug",
+        compute='_compute_json_vals',
+        readonly=True
     )
 
     @api.model
