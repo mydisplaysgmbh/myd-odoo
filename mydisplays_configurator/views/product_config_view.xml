@@ -6,11 +6,11 @@
         <field name="model">product.config.session</field>
         <field name="inherit_id" ref="product_configurator.product_config_session_form_view"/>
         <field name="arch" type="xml">
-        	<xpath expr="//notebook" position="inside">
-        		<page name="json_vals" string="JSON Vals">
-        			<field name="json_vals"/>
-        		</page>
-        	</xpath>
+            <xpath expr="//notebook" position="inside">
+                <page name="json_vals" string="JSON Vals">
+                    <field name="json_vals_debug" readonly="True" widget="ace" options="{'mode': 'python'}"/>
+                </page>
+            </xpath>
         </field>
   </record>
 
