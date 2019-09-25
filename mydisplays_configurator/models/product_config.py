@@ -124,6 +124,7 @@ class ProductConfigSession(models.Model):
                         'value': custom - value,  # (sanitized and typecasted),
                         # (when standard option and attr_val_id is selected,
                         # cannot be both custom and value_id)
+                        'attribute_id': attr_1_id,
                         'value_id': attr_val_id,
                         'product': attr_val.product_id.id,
                         'price': attr_val.product_id.price,
@@ -152,7 +153,7 @@ class ProductConfigSession(models.Model):
             self.get_default_json_dict(product_tmpl_id=product_tmpl_id)
         for attribute_id in attrs:
             attr_json_name = attr_json_map.get(attribute_id, attribute_id)
-            attr_dict = {}
+            attr_dict = {'attribute_id': attribute_id}
             field_name = "%s%s" % (field_prefix, attribute_id)
             custom_field = "%s%s" % (custom_field_prefix, attribute_id)
             if field_name not in vals:
@@ -160,8 +161,11 @@ class ProductConfigSession(models.Model):
             value = vals.get(field_name, False)
             if not value:
                 # If value removed
-                attr_dict = {}
-            elif value == custom_val_id.id:
+                attr_dict = {'attribute_id': attribute_id}
+            elif (
+                attrs[attribute_id].get("custom", False)
+                and value == custom_val_id.id
+            ):
                 # Custom value
                 value = vals.get(custom_field, False)
                 custom_type = attrs.get(attribute_id, {}).get(
@@ -171,7 +175,7 @@ class ProductConfigSession(models.Model):
                     val=value, custom_type=custom_type
                 )
                 attr_dict["value"] = custom_val
-            else:
+            elif value in attr_vals:
                 # Standard attribute value
                 attr_dict["value_id"] = value
                 value_tree = attr_vals.get("%s" % (value), {})
