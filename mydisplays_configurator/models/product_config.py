@@ -63,3 +63,15 @@ class ProductConfigSession(models.Model):
         compute='_compute_json_vals',
         store=True
     )
+
+    @api.multi
+    def get_session_vals(self, product_tmpl_id, parent_id=None, user_id=None):
+        res = super(ProductConfigSession, self).get_session_vals(
+            product_tmpl_id=product_tmpl_id, parent_id=None, user_id=None)
+        product_tmpl_id = res.get('product_tmpl_id', False)
+        product_tmpl = self.env['product.template'].browse(int(product_tmpl_id))
+        attr_line = product_tmpl.attribute_line_ids
+        for line in attr_line:
+            if len(line.value_ids) == 1:
+                res.update({'value_ids': [(6, 0, line.value_ids)]})
+        return res
