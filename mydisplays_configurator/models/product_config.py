@@ -34,7 +34,7 @@ class ProductConfigSession(models.Model):
 
         return {
             "template": tmpl_config_cache.get("attrs", {}),
-            "session": {"price": 0, "weight": 0, "quantity": 0, "bom": []},
+            "session": {"price": 30, "weight": 40, "quantity": 0, "bom": []},
             "config": config,
         }
 

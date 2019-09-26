@@ -22,6 +22,8 @@
         'views/product_attribute_view.xml',
         'views/product_config_view.xml',
         'views/product_view.xml',
+        'views/assets.xml',
+        'views/templates.xml',
     ],
     'demo': [
     ],
