@@ -10,8 +10,8 @@
             <xpath expr="//field[@name='config_step_line_ids']" position="after">
                 <separator colspan="4" string="Computed Vals Formula"/>
                 <field name="computed_vals_formula" widget="ace" options="{'mode': 'python'}"/>
-<!--                 <separator colspan="4" string="Config Cache"/>
-                <field name="config_cache"/> -->
+                <separator colspan="4" string="Config Cache"/>
+                <field name="config_cache_debug" readonly="True" widget="ace" options="{'mode': 'python'}"/>
             </xpath>
         </field>
     </record>

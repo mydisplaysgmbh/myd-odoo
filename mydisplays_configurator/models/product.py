@@ -1,4 +1,5 @@
 import json
+import pprint
 
 from odoo import api, fields, models
 from odoo.tools.safe_eval import test_python_expr
@@ -150,6 +151,7 @@ class ProductTemplate(models.Model):
                             attr_val.id, {}
                         ).get("weight_extra", 0)
             product_tmpl.config_cache = json_tree
+            product_tmpl.config_cache_debug = pprint.pformat(json_tree)
 
     config_cache = fields.Serialized(
         name="Cached configuration data",
@@ -158,6 +160,11 @@ class ProductTemplate(models.Model):
         store=True,
         help="Store data used for configuration in json format for quick "
         "access and low latency",
+    )
+    config_cache_debug = fields.Text(
+        name='Cached config data (debug)',
+        compute='_get_config_data',
+        readonly=True,
     )
     computed_vals_formula = fields.Text(
         string="Computed values function",
