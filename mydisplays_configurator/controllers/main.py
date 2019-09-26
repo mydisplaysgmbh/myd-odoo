@@ -3,17 +3,9 @@ from odoo import http
 from odoo.http import request
 from odoo.addons.website_product_configurator.controllers.main import\
     ProductConfigWebsiteSale
+from odoo.addons.website_product_configurator.controllers.main import\
+    get_pricelist
 from odoo.addons.website_sale.controllers.main import WebsiteSale
-
-
-def get_pricelist():
-    sale_order = request.env.context.get('sale_order')
-    if sale_order:
-        pricelist = sale_order.pricelist_id
-    else:
-        partner = request.env.user.partner_id
-        pricelist = partner.property_product_pricelist
-    return pricelist
 
 
 class MydisplayConfigWebsiteSale(ProductConfigWebsiteSale):

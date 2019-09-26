@@ -184,7 +184,7 @@ class ProductConfigSession(models.Model):
 
     def set_default_cfg_session_json_dictionary(self, custom_value_ids=None):
         """update json field while reconfigure product"""
-        if not custom_value_ids:
+        if custom_value_ids == None:
             custom_value_ids = self.custom_value_ids
         cfg_session_json = {}
         for custom_val_id in custom_value_ids:

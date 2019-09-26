@@ -8,7 +8,7 @@
         <field name="arch" type="xml">
             <xpath expr="//field[@name='order_line']/form//field[@name='product_id']" position="after">
                 <field name="bom_id"/>
-                <field name="cfg_session_id" invisible="0"/>
+                <field name="cfg_session_id" invisible="0" readonly="1"/>
             </xpath>
             <xpath expr="//field[@name='order_line']/tree//field[@name='product_id']" position="after">
                 <field name="bom_id"/>
