@@ -23,7 +23,7 @@
         'views/product_attribute_view.xml',
         'views/product_config_view.xml',
         'views/product_view.xml',
-        'views/sale_view.xml',
+        'views/config_form_template.xml',
     ],
     'demo': [
     ],
