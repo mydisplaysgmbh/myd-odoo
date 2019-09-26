@@ -1,4 +1,4 @@
-from odoo import models, fields, tools, api, _
+from odoo import models
 
 
 class ProductConfiguratorSale(models.TransientModel):

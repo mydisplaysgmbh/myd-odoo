@@ -1,7 +1,10 @@
 {
     'name': "Mydisplays Product Configurator Purchase",
     'summary': """
-        Product configuration interface module for Purchase
+        Mydisplay configuration interface module for Purchase
+    """,
+    'description': """
+        Mydisplay configuration interface module for Purchase
     """,
     'author': "Pledra",
     'website': "http://www.pledra.com",

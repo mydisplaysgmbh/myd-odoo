@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-	<template id="cfg_product_variant_inherit" name="Product" inherit_id="website_product_configurator.cfg_product_variant">
-		<xpath expr="//form//input[@name='product_template_id']" position="after">
-			<input type="hidden" class="config_session_id" name="config_session_id"
-				t-att-value="config_session.id" />
-		</xpath>
-	</template>
+    <template id="cfg_product_variant_inherit" name="Product" inherit_id="website_product_configurator.cfg_product_variant">
+        <xpath expr="//form//input[@name='product_template_id']" position="after">
+            <input type="hidden" class="config_session_id" name="config_session_id"
+                t-att-value="config_session.id" />
+        </xpath>
+    </template>
 </odoo>

@@ -1,7 +1,10 @@
 {
     'name': "Mydisplays Product Configurator Stock",
     'summary': """
-        Product configuration interface module for Stock
+        Mydisplay configuration interface module for Stock
+    """,
+    'description': """
+        Mydisplay configuration interface module for Stock
     """,
     'author': "Pledra",
     'website': "http://www.pledra.com",
@@ -20,4 +23,3 @@
     'installable': True,
     'auto_install': False,
 }
-

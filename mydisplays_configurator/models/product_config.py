@@ -1,7 +1,8 @@
 import pprint
 
-from odoo import api, fields, models
+from odoo import api, fields, models, _
 from odoo.tools.safe_eval import safe_eval
+from odoo.exceptions import UserError
 
 
 class ProductConfigSessionCustomValue(models.Model):
@@ -183,7 +184,7 @@ class ProductConfigSession(models.Model):
 
     def set_default_cfg_session_json_dictionary(self, custom_value_ids=None):
         """update json field while reconfigure product"""
-        if custom_value_ids == None:
+        if not custom_value_ids:
             custom_value_ids = self.custom_value_ids
         cfg_session_json = {}
         for custom_val_id in custom_value_ids:

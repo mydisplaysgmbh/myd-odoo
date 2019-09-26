@@ -1,5 +1,5 @@
 import json
-from odoo import api, fields, models
+from odoo import api, fields, models, _
 from odoo.exceptions import ValidationError
 
 
@@ -31,7 +31,7 @@ class ProductAttributeValue(models.Model):
             try:
                 json.loads(attr_val.json_context.strip())
             except Exception:
-                raise ValidationError(
+                raise ValidationError(_(
                     'Please provide a valid JSON object and be sure to use '
                     'double quotes "" for keys and delete trailing commas'
-                )
+                ))
