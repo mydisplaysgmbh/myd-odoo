@@ -127,6 +127,7 @@ class ProductConfigSession(models.Model):
             custom_field = "%s%s" % (custom_field_prefix, attribute_id)
             if field_name not in vals and custom_field not in vals:
                 continue
+            custom_flag = True
             if field_name in vals:
                 # custom value changed with standard one
                 value = vals.get(field_name, False)
@@ -135,12 +136,13 @@ class ProductConfigSession(models.Model):
                     and attribute_id in cfg_session_json
                 ):
                     cfg_session_json.pop(attribute_id)
-            if custom_field in vals:
+                    custom_flag = False
+            if custom_field in vals and custom_flag:
                 custom_val = vals.get(custom_field, False)
                 if not custom_val and attribute_id in cfg_session_json:
                     # If value removed
                     cfg_session_json.pop(attribute_id)
-                else:
+                elif custom_val:
                     attr_dict = {}
                     custom_val = vals.get(custom_field, False)
                     custom_type = attrs.get(attribute_id, {}).get(
