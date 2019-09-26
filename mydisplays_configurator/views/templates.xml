@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Base view for website configuration body -->
+    <template id="product_configurator" inherit_id="website_product_configurator.product_configurator" name="Product Configuration Interface">
+        <xpath expr="//form[@id='product_config_form']//span[hasclass('config_product_weight')]" position="attributes">
+            <attribute name="t-esc">('{0:,.%sf}' % (weight_prec)).format(cfg_session_weight)</attribute>
+        </xpath>
+        <xpath expr="//form[@id='product_config_form']//span[hasclass('config_product_price')]" position="attributes">
+            <attribute name="t-esc">cfg_session_price</attribute>
+        </xpath>
+    </template>
+</odoo>
