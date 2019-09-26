@@ -6,7 +6,6 @@ odoo.define('mydisplay_configurator.config_form', function (require) {
     var utils = require('web.utils');
     var core = require('web.core');
     var Dialog = require('web.Dialog');
-    var website_product_configurator = require('website_product_configurator.config_form')
     var _t = core._t;
 
     var image_dict = {}
@@ -15,17 +14,14 @@ odoo.define('mydisplay_configurator.config_form', function (require) {
 
         var config_form = $("#product_config_form");
 
-        /* Monitor input changes in the configuration form and call the backend onchange method*/
-        config_form.find('.config_attribute, .custom_config_value').change(function(ev) {
-            ev.preventDefault();
-            ev.stopPropagation();
+        function OnchangeVals(ev, fild_name) {
             var form_data = config_form.serializeArray();
             for (var field_name in image_dict) {
                 form_data.push({'name': field_name, 'value': image_dict[field_name]});
             }
             ajax.jsonRpc("/website_product_configurator/onchange", 'call', {
                 form_values: form_data,
-                field_name: $(this)[0].name,
+                field_name: fild_name,
             }).then(function(data) {
                 if (data.error) {
                     openWarningDialog(data.error);
@@ -43,6 +39,26 @@ odoo.define('mydisplay_configurator.config_form', function (require) {
                 };
             });
             _handleCustomAttribute(ev)
+        }
+
+        /* Monitor input changes in the configuration form and call the backend onchange method*/
+        config_form.find('.custom_config_value').change(function(ev) {
+            ev.preventDefault();
+            ev.stopPropagation();
+            OnchangeVals(ev, $(this)[0].name)
+        });
+        config_form.find('.product_config_datepicker').parent().on('change.datetimepicker', function (event) {
+            OnchangeVals(event, $('.product_config_datepicker')[0].name)
+        });
+        config_form.find('.product_config_datetimepicker').parent().on('change.datetimepicker', function (event) {
+            OnchangeVals(event, $('.product_config_datepicker')[0].name)
+        });
+        $('.js_add_qty').on('click', function(ev) {
+            OnchangeVals(event, $('.custom_config_value.spinner_qty')[0].name)
+        });
+
+        $('.js_remove_qty').on('click', function(ev) {
+            OnchangeVals(event, $('.custom_config_value.spinner_qty')[0].name)
         });
 
         config_form.find('.custom_config_value.config_attachment').change(function (ev) {
