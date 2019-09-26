@@ -24,11 +24,11 @@
         'views/product_view.xml',
     ],
     'demo': [
-        'demo/uom.xml',
-        'demo/product_template.xml',
-        'demo/product.xml',
-        'demo/product_attribute.xml',
-        'demo/product_attribute_value.xml',
-        'demo/product_attribute_line.xml',
+        'demo/uom_demo.xml',
+        'demo/product_template_demo.xml',
+        'demo/product_demo.xml',
+        'demo/product_attribute_demo.xml',
+        'demo/product_attribute_value_demo.xml',
+        'demo/product_attribute_line_demo.xml',
     ],
 }
