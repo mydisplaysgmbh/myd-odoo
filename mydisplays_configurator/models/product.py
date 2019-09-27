@@ -1,4 +1,5 @@
 import json
+import pprint
 
 from odoo import api, fields, models
 from odoo.tools.safe_eval import test_python_expr
@@ -12,7 +13,7 @@ DEFAULT_PYTHON_CODE = """# Available variables:
 
 
 class ProductTemplate(models.Model):
-    _inherit = 'product.template'
+    _inherit = "product.template"
 
     """Store product.template configuration data in a serialized computed field
     in an attempt to reduce latency and read/write cycles for an efficient
@@ -50,23 +51,23 @@ class ProductTemplate(models.Model):
     def get_attr_val_json_tree(self):
         """Data to include inside json tree from attribute_value onward"""
         return [
-            'json_context',
-            'product_id',
-            'product_id.price',
-            'product_id.weight',
+            "json_context",
+            "product_id",
+            "product_id.price",
+            "product_id.weight",
         ]
 
     def get_config_dependencies(self):
         """Return fields used in computing the config cache"""
         constraints = [
-            'attribute_line_ids',
-            'attribute_line_ids.value_ids',
-            'attribute_line_ids.attribute_id',
-            'attribute_line_ids.attribute_id.json_name',
-            'attribute_line_ids.attribute_id.val_custom',
-            'attribute_line_ids.attribute_id.custom_type',
+            "attribute_line_ids",
+            "attribute_line_ids.value_ids",
+            "attribute_line_ids.attribute_id",
+            "attribute_line_ids.attribute_id.json_name",
+            "attribute_line_ids.attribute_id.val_custom",
+            "attribute_line_ids.attribute_id.custom_type",
         ]
-        attr_val_prefix = 'attribute_line_ids.attribute_id.value_ids.%s'
+        attr_val_prefix = "attribute_line_ids.attribute_id.value_ids.%s"
         attr_val_constraints = self.get_attr_val_json_tree()
         attr_val_constraints = [
             attr_val_prefix % cst for cst in attr_val_constraints
@@ -81,46 +82,50 @@ class ProductTemplate(models.Model):
             """Fetch configuration data related to templates and store them as
             json in config_cache serialized field"""
             attr_lines = product_tmpl.attribute_line_ids
-            attrs = attr_lines.mapped('attribute_id')
+            attrs = attr_lines.mapped("attribute_id")
             json_tree = {
                 # Map attribute ids to their respective json name
-                'attrs': {},
-                'attr_vals': {},
-                'attr_json_map': {
+                "attrs": {},
+                "attr_vals": {},
+                "attr_json_map": {
                     a.id: a.json_name for a in attrs if a.json_name
                 },
             }
 
-            tmpl_attr_val_obj = self.env['product.template.attribute.value']
+            tmpl_attr_val_obj = self.env["product.template.attribute.value"]
 
             # Get tmpl attr val objects with weight or price extra
-            product_tmpl_attr_vals = tmpl_attr_val_obj.search_read([
-                ('product_tmpl_id', '=', product_tmpl.id)],
-                ['price_extra', 'weight_extra', 'product_attribute_value_id']
+            product_tmpl_attr_vals = tmpl_attr_val_obj.search_read(
+                [("product_tmpl_id", "=", product_tmpl.id)],
+                ["price_extra", "weight_extra", "product_attribute_value_id"],
             )
 
             attr_vals_extra = {
-                v['product_attribute_value_id'][0]: {
-                    'price_extra': v['price_extra'],
-                    'weight_extra': v['weight_extra']
-                } for v in product_tmpl_attr_vals
+                v["product_attribute_value_id"][0]: {
+                    "price_extra": v["price_extra"],
+                    "weight_extra": v["weight_extra"],
+                }
+                for v in product_tmpl_attr_vals
             }
 
             for line in attr_lines:
                 attr = line.attribute_id
-                json_tree['attrs'][attr.id] = {
-                    'required': attr.required,
-                    'custom': attr.val_custom,
-                    'custom_type': attr.custom_type,
+                json_tree["attrs"][attr.id] = {
+                    "required": line.required,
+                    "multi": line.multi,
+                    "custom": line.custom,
+                    "custom_type": attr.custom_type,
                 }
                 for attr_val in line.value_ids:
-                    val_tree = json_tree['attr_vals'][attr_val.id] = {}
-                    val_tree.update({
-                        'attribute_id': attr.id,
-                        'product_id': 0,
-                        'price': 0,
-                        'weight': 0,
-                    })
+                    val_tree = json_tree["attr_vals"][attr_val.id] = {}
+                    val_tree.update(
+                        {
+                            "attribute_id": attr.id,
+                            "product_id": 0,
+                            "price": 0,
+                            "weight": 0,
+                        }
+                    )
 
                     # Load extra info from attribute value or related product
                     # if we decide to change approach (or both?)
@@ -130,36 +135,47 @@ class ProductTemplate(models.Model):
                     # Product info
                     product = attr_val.product_id
                     if product:
-                        val_tree['product_id'] = product.id
-                        val_tree['price'] = product.price
-                        val_tree['weight'] = product.weight
+                        pricelist = (
+                            self.env.user.partner_id.property_product_pricelist
+                        )
+                        val_tree["product_id"] = product.id
+                        val_tree["price"] = product.with_context(
+                            pricelist=pricelist.id
+                        ).price
+                        val_tree["weight"] = product.weight
                     else:
-                        val_tree['price'] = attr_vals_extra.get(
-                            'price_extra', 0
-                        )
-                        val_tree['weight'] = attr_vals_extra.get(
-                            'weight_extra', 0
-                        )
+                        val_tree["price"] = attr_vals_extra.get(
+                            attr_val.id, {}
+                        ).get("price_extra", 0)
+                        val_tree["weight"] = attr_vals_extra.get(
+                            attr_val.id, {}
+                        ).get("weight_extra", 0)
             product_tmpl.config_cache = json_tree
+            product_tmpl.config_cache_debug = pprint.pformat(json_tree)
 
     config_cache = fields.Serialized(
-        name='Cached configuration data',
-        compute='_get_config_data',
+        name="Cached configuration data",
+        compute="_get_config_data",
         readonly=True,
         store=True,
-        help='Store data used for configuration in json format for quick '
-        'access and low latency',
+        help="Store data used for configuration in json format for quick "
+        "access and low latency",
+    )
+    config_cache_debug = fields.Text(
+        name='Cached config data (debug)',
+        compute='_get_config_data',
+        readonly=True,
     )
     computed_vals_formula = fields.Text(
-        string='Computed values function',
+        string="Computed values function",
         default=DEFAULT_PYTHON_CODE,
         help="Write Python code that will compute extra values on the "
-        "configuration JSON values field. Some variables are "
+        "configuration JSON values field. Some variables are ",
     )
 
-    @api.constrains('computed_vals_formula')
+    @api.constrains("computed_vals_formula")
     def _check_python_code(self):
-        for tmpl in self.sudo().filtered('computed_vals_formula'):
+        for tmpl in self.sudo().filtered("computed_vals_formula"):
             msg = test_python_expr(
                 expr=tmpl.computed_vals_formula.strip(), mode="exec"
             )
