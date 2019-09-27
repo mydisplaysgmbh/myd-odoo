@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="uom_categ_wtime_1" model="uom.category">
+            <field name="name">square_meters</field>
+        </record>
+
+        <record id="product_uom_id_demo" model="uom.uom">
+            <field name="name">paper material</field>
+            <field name="category_id" eval="uom_categ_wtime_1"/>
+            <field name="uom_po_id" eval="uom_categ_wtime_1"/>
+            <field name="factor" eval="1.0"/>
+        </record>
+    </data>
+</odoo>

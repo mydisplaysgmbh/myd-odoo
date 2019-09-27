@@ -1,0 +1,226 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="product_attribute_line_rollup_lite_quantity" model="product.template.attribute.line">
+            <field name="product_tmpl_id" ref="mydisplays_configurator.product_template_rollup_lite"/>
+            <field name="attribute_id" ref="mydisplays_configurator.product_attribute_quantity"/>
+            <field name="required" eval="True"/>
+            <field name="custom" eval="True"/>
+        </record>
+
+        <record id="product_attribute_line_1" model="product.template.attribute.line">
+            <field name="product_tmpl_id" ref="mydisplays_configurator.product_template_rollup_lite"/>
+            <field name="attribute_id" ref="mydisplays_configurator.product_attribute_systemvariante"/>
+            <field name="value_ids" 
+                eval="[(6, 0, [
+                ref('mydisplays_configurator.product_attribute_value_1'),
+                ref('mydisplays_configurator.product_attribute_value_2'),
+                ref('mydisplays_configurator.product_attribute_value_3'),])]"/>
+            <field name="required" eval="True"/>
+        </record>
+
+        <record id="product_attribute_line_2" model="product.template.attribute.line">
+            <field name="product_tmpl_id" ref="mydisplays_configurator.product_template_rollup_lite"/>
+            <field name="attribute_id" ref="mydisplays_configurator.product_attribute_Größe"/>
+            <field name="value_ids" 
+                eval="[(6, 0, [
+                ref('mydisplays_configurator.product_attribute_value_4'),
+                ref('mydisplays_configurator.product_attribute_value_5'),
+                ref('mydisplays_configurator.product_attribute_value_6'),
+                ref('mydisplays_configurator.product_attribute_value_7'),
+                ref('mydisplays_configurator.product_attribute_value_8'),])]"/>
+            <field name="required" eval="True"/>
+        </record>
+
+        <record id="product_attribute_line_3" model="product.template.attribute.line">
+            <field name="product_tmpl_id" ref="mydisplays_configurator.product_template_rollup_lite"/>
+            <field name="attribute_id" ref="mydisplays_configurator.product_attribute_druckmaterial"/>
+            <field name="value_ids" 
+                eval="[(6, 0, [
+                ref('mydisplays_configurator.product_attribute_value_9'),
+                ref('mydisplays_configurator.product_attribute_value_10'),
+                ref('mydisplays_configurator.product_attribute_value_11'),
+                ref('mydisplays_configurator.product_attribute_value_12'),
+                ref('mydisplays_configurator.product_attribute_value_13'),])]"/>
+        </record>
+
+        <record id="product_attribute_line_4" model="product.template.attribute.line">
+            <field name="product_tmpl_id" ref="mydisplays_configurator.product_template_rollup_lite"/>
+            <field name="attribute_id" ref="mydisplays_configurator.product_attribute_MYD_easychange_system"/>
+            <field name="value_ids" 
+                eval="[(6, 0, [
+                ref('mydisplays_configurator.product_attribute_value_14'),
+                ref('mydisplays_configurator.product_attribute_value_15'),])]"/>
+            <field name="required" eval="True"/>
+        </record>
+
+        <record id="product_attribute_line_5" model="product.template.attribute.line">
+            <field name="product_tmpl_id" ref="mydisplays_configurator.product_template_rollup_lite"/>
+            <field name="attribute_id" ref="mydisplays_configurator.product_attribute_beleuchtung_mit_spot"/>
+            <field name="value_ids" 
+                eval="[(6, 0, [
+                ref('mydisplays_configurator.product_attribute_value_16'),
+                ref('mydisplays_configurator.product_attribute_value_17'),
+                ref('mydisplays_configurator.product_attribute_value_18'),])]"/>
+            <field name="required" eval="True"/>
+        </record>
+
+        <record id="product_attribute_line_6" model="product.template.attribute.line">
+            <field name="product_tmpl_id" ref="mydisplays_configurator.product_template_my_werbebanner"/>
+            <field name="attribute_id" ref="mydisplays_configurator.product_attribute_breite_in_cm"/>
+            <field name="required" eval="True"/>
+            <field name="custom" eval="True"/>
+        </record>
+
+        <record id="product_attribute_line_7" model="product.template.attribute.line">
+            <field name="product_tmpl_id" ref="mydisplays_configurator.product_template_my_werbebanner"/>
+            <field name="attribute_id" ref="mydisplays_configurator.product_attribute_höhe_in_cm"/>
+            <field name="required" eval="True"/>
+            <field name="custom" eval="True"/>
+        </record>
+
+        <record id="product_attribute_line_my_werbebanner_quntity" model="product.template.attribute.line">
+            <field name="product_tmpl_id" ref="mydisplays_configurator.product_template_my_werbebanner"/>
+            <field name="attribute_id" ref="mydisplays_configurator.product_attribute_quantity"/>
+            <field name="required" eval="True"/>
+            <field name="custom" eval="True"/>
+        </record>
+
+        <record id="product_attribute_line_8" model="product.template.attribute.line">
+            <field name="product_tmpl_id" ref="mydisplays_configurator.product_template_my_werbebanner"/>
+            <field name="attribute_id" ref="mydisplays_configurator.product_attribute_Links_depending_on_entered_height"/>
+            <field name="value_ids" 
+                eval="[(6, 0, [
+                ref('mydisplays_configurator.product_attribute_value_21'),
+                ref('mydisplays_configurator.product_attribute_value_22'),
+                ref('mydisplays_configurator.product_attribute_value_23'),
+                ref('mydisplays_configurator.product_attribute_value_24'),
+                ref('mydisplays_configurator.product_attribute_value_25'),
+                ref('mydisplays_configurator.product_attribute_value_26'),])]"/>
+            <field name="required" eval="True"/>
+        </record>
+
+        <record id="product_attribute_line_9" model="product.template.attribute.line">
+            <field name="product_tmpl_id" ref="mydisplays_configurator.product_template_my_werbebanner"/>
+            <field name="attribute_id" ref="mydisplays_configurator.product_attribute_rechts_depending_on_entered_height"/>
+            <field name="value_ids" 
+                eval="[(6, 0, [
+                ref('mydisplays_configurator.product_attribute_value_27'),
+                ref('mydisplays_configurator.product_attribute_value_28'),
+                ref('mydisplays_configurator.product_attribute_value_29'),
+                ref('mydisplays_configurator.product_attribute_value_30'),
+                ref('mydisplays_configurator.product_attribute_value_31'),
+                ref('mydisplays_configurator.product_attribute_value_32'),
+                ref('mydisplays_configurator.product_attribute_value_33'),])]"/>
+            <field name="required" eval="True"/>
+        </record>
+
+        <record id="product_attribute_line_10" model="product.template.attribute.line">
+            <field name="product_tmpl_id" ref="mydisplays_configurator.product_template_my_werbebanner"/>
+            <field name="attribute_id" ref="mydisplays_configurator.product_attribute_Oben_depending_on_entered_width"/>
+            <field name="value_ids" 
+                eval="[(6, 0, [
+                ref('mydisplays_configurator.product_attribute_value_34'),
+                ref('mydisplays_configurator.product_attribute_value_35'),
+                ref('mydisplays_configurator.product_attribute_value_36'),
+                ref('mydisplays_configurator.product_attribute_value_37'),
+                ref('mydisplays_configurator.product_attribute_value_38'),
+                ref('mydisplays_configurator.product_attribute_value_39'),
+                ref('mydisplays_configurator.product_attribute_value_40'),])]"/>
+            <field name="required" eval="True"/>
+        </record>
+
+        <record id="product_attribute_line_11" model="product.template.attribute.line">
+            <field name="product_tmpl_id" ref="mydisplays_configurator.product_template_my_werbebanner"/>
+            <field name="attribute_id" ref="mydisplays_configurator.product_attribute_unten_depending_on_entered_width"/>
+            <field name="value_ids" 
+                eval="[(6, 0, [
+                ref('mydisplays_configurator.product_attribute_value_41'),
+                ref('mydisplays_configurator.product_attribute_value_42'),
+                ref('mydisplays_configurator.product_attribute_value_43'),
+                ref('mydisplays_configurator.product_attribute_value_44'),
+                ref('mydisplays_configurator.product_attribute_value_45'),
+                ref('mydisplays_configurator.product_attribute_value_46'),
+                ref('mydisplays_configurator.product_attribute_value_47'),])]"/>
+            <field name="required" eval="True"/>
+        </record>
+
+        <record id="product_attribute_line_12" model="product.template.attribute.line">
+            <field name="product_tmpl_id" ref="mydisplays_configurator.product_template_my_acrylglas"/>
+            <field name="attribute_id" ref="mydisplays_configurator.product_attribute_my_acrylglas_breite_in_cm"/>
+            <field name="required" eval="True"/>
+            <field name="custom" eval="True"/>
+        </record>
+
+        <record id="product_attribute_line_13" model="product.template.attribute.line">
+            <field name="product_tmpl_id" ref="mydisplays_configurator.product_template_my_acrylglas"/>
+            <field name="attribute_id" ref="mydisplays_configurator.product_attribute_my_acrylglas_höhe_in_cm"/>
+            <field name="required" eval="True"/>
+            <field name="custom" eval="True"/>
+        </record>
+
+        <record id="product_attribute_line_my_acrylglas_quntity" model="product.template.attribute.line">
+            <field name="product_tmpl_id" ref="mydisplays_configurator.product_template_my_acrylglas"/>
+            <field name="attribute_id" ref="mydisplays_configurator.product_attribute_quantity"/>
+            <field name="required" eval="True"/>
+            <field name="custom" eval="True"/>
+        </record>
+
+        <record id="product_attribute_line_14" model="product.template.attribute.line">
+            <field name="product_tmpl_id" ref="mydisplays_configurator.product_template_my_acrylglas"/>
+            <field name="attribute_id" ref="mydisplays_configurator.product_attribute_materialstärke_and_grundfarbe"/>
+            <field name="value_ids" 
+                eval="[(6, 0, [
+                ref('mydisplays_configurator.product_attribute_value_50'),
+                ref('mydisplays_configurator.product_attribute_value_51'),
+                ref('mydisplays_configurator.product_attribute_value_52'),])]"/>
+            <field name="required" eval="True"/>
+        </record>
+
+        <record id="product_attribute_line_15" model="product.template.attribute.line">
+            <field name="product_tmpl_id" ref="mydisplays_configurator.product_template_my_acrylglas"/>
+            <field name="attribute_id" ref="mydisplays_configurator.product_attribute_ausführung"/>
+            <field name="value_ids" 
+                eval="[(6, 0, [
+                ref('mydisplays_configurator.product_attribute_value_53'),
+                ref('mydisplays_configurator.product_attribute_value_54'),])]"/>
+            <field name="required" eval="True"/>
+        </record>
+
+        <record id="product_attribute_line_16" model="product.template.attribute.line">
+            <field name="product_tmpl_id" ref="mydisplays_configurator.product_template_my_acrylglas"/>
+            <field name="attribute_id" ref="mydisplays_configurator.product_attribute_druckverfahren_oder_beschriftung"/>
+            <field name="value_ids" 
+                eval="[(6, 0, [
+                ref('mydisplays_configurator.product_attribute_value_55'),
+                ref('mydisplays_configurator.product_attribute_value_56'),
+                ref('mydisplays_configurator.product_attribute_value_57'),
+                ref('mydisplays_configurator.product_attribute_value_58'),])]"/>
+            <field name="required" eval="True"/>
+        </record>
+
+        <record id="product_attribute_line_17" model="product.template.attribute.line">
+            <field name="product_tmpl_id" ref="mydisplays_configurator.product_template_my_acrylglas"/>
+            <field name="attribute_id" ref="mydisplays_configurator.product_attribute_zuschnitt"/>
+            <field name="value_ids" 
+                eval="[(6, 0, [
+                ref('mydisplays_configurator.product_attribute_value_59'),
+                ref('mydisplays_configurator.product_attribute_value_60'),
+                ref('mydisplays_configurator.product_attribute_value_61'),])]"/>
+            <field name="required" eval="True"/>
+        </record>
+
+        <record id="product_attribute_line_18" model="product.template.attribute.line">
+            <field name="product_tmpl_id" ref="mydisplays_configurator.product_template_my_acrylglas"/>
+            <field name="attribute_id" ref="mydisplays_configurator.product_attribute_aufhängung_or_montage"/>
+            <field name="value_ids" 
+                eval="[(6, 0, [
+                ref('mydisplays_configurator.product_attribute_value_62'),
+                ref('mydisplays_configurator.product_attribute_value_63'),
+                ref('mydisplays_configurator.product_attribute_value_64'),])]"/>
+            <field name="required" eval="True"/>
+        </record>
+
+
+    </data>
+</odoo>
