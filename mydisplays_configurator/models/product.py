@@ -29,6 +29,7 @@ class ProductTemplate(models.Model):
                     'custom': attribute.val_custom,
                     'custom_type': attribute.custom_type,
                     'required': attribute.required,
+                    'multi': attribute.required,
                 }
             }
             'attr_vals': {

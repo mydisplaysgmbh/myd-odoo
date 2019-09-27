@@ -190,3 +190,29 @@ class ProductConfigSession(models.Model):
                 attr_dict["value"] = custom_val
         self.json_config = cfg_session_json
         self.json_config_text = pprint.pformat(cfg_session_json)
+
+    @api.model
+    def create(self, vals):
+        res = super(ProductConfigSession, self).create(vals)
+        value_ids = res.value_ids
+        custom_val_id = self.get_custom_value_id()
+        attribute_line_ids = res.product_tmpl_id.attribute_line_ids
+        check_val_ids = attribute_line_ids.mapped("value_ids") + custom_val_id
+        available_value_ids = res.values_available(
+            check_val_ids=check_val_ids.ids
+        )
+        available_value_ids = self.env["product.attribute.value"].browse(
+            available_value_ids
+        )
+        for attr_line in attribute_line_ids:
+            if attr_line.default_val:
+                continue
+            if attr_line.custom:
+                continue
+            line_vals = attr_line.value_ids & available_value_ids
+            if len(line_vals) != 1:
+                continue
+            value_ids |= line_vals
+        res.value_ids = value_ids
+
+        return res
