@@ -188,3 +188,24 @@ class ProductConfigSession(models.Model):
                 attr_dict["value"] = custom_val
         self.json_config = cfg_session_json
         self.json_config_text = pprint.pformat(cfg_session_json)
+
+    @api.multi
+    @api.depends(
+        "json_vals",
+        "product_tmpl_id.config_cache",
+        "json_config",
+        "value_ids",
+    )
+    def _compute_cfg_weight(self):
+        for cfg_session in self:
+            cfg_session.weight = cfg_session.json_vals.get('weight', 0)
+
+    @api.multi
+    @api.depends(
+        "json_vals",
+        "product_tmpl_id.config_cache",
+        "json_config",
+        "value_ids",)
+    def _compute_cfg_price(self):
+        for session in self:
+            session.price = session.json_vals.get('price', 0)
