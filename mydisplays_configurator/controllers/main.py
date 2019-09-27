@@ -7,19 +7,20 @@ from odoo.addons.website_product_configurator.controllers.main import\
     get_pricelist
 
 
-
 class MydisplaysConfigWebsiteSale(ProductConfigWebsiteSale):
-
 
     @http.route()
     def save_configuration(self, form_values, current_step=False,
                            next_step=False):
         res = super(MydisplaysConfigWebsiteSale, self).save_configuration(
-            form_values=form_values, current_step=current_step, next_step=next_step)
+            form_values=form_values, current_step=current_step,
+            next_step=next_step)
         if res:
             redirect_url = res.get('redirect_url', False)
-            config_session = request.env['product.config.session'].browse(res.get('config_session'))
-            product = request.env['product.product'].browse(res.get('product_id'))
+            config_session = request.env['product.config.session'].browse(
+                res.get('config_session'))
+            product = request.env['product.product'].browse(
+                res.get('product_id'))
             if redirect_url:
                 redirect_url = "/website_product_configurator/open_product"
                 redirect_url += '/%s' % (slug(config_session))
