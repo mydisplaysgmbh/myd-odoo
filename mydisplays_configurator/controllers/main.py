@@ -13,6 +13,6 @@ class ProductConfigWebsiteSale(WebsiteSale):
             cfg_session=cfg_session
         )
         json_session_vals = cfg_session.json_vals
-        vals["cfg_session_price"] = json_session_vals.get("price", 0)
-        vals["cfg_session_weight"] = json_session_vals.get("weight", 0)
+        if json_session_vals:
+            vals.update({'json_session_vals': json_session_vals})
         return vals
