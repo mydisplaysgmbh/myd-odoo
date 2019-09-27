@@ -30,5 +30,8 @@
         'demo/product_attribute_demo.xml',
         'demo/product_attribute_value_demo.xml',
         'demo/product_attribute_line_demo.xml',
+        'demo/product_template_attribute_value_demo.xml',
+        'demo/product_config_domain_demo.xml',
+        'demo/product_config_domain_line_demo.xml',
     ],
 }

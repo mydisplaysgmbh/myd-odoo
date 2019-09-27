@@ -101,18 +101,6 @@
             <field name="product_id" ref="mydisplays_configurator.product_led_spot"/>
         </record>
 
-        <record id="product_attribute_value_19" model="product.attribute.value">
-            <field name="name">Customer specifies the desired width</field>
-            <field name="attribute_id" ref="mydisplays_configurator.product_attribute_breite_in_cm"/>
-            <field name="product_id" ref="mydisplays_configurator.product_pvc_plane"/>
-        </record>
-
-        <record id="product_attribute_value_20" model="product.attribute.value">
-            <field name="name">Customer specifies the desired height</field>
-            <field name="attribute_id" ref="mydisplays_configurator.product_attribute_höhe_in_cm"/>
-            <field name="product_id" ref="mydisplays_configurator.product_pvc_plane"/>
-        </record>
-
         <record id="product_attribute_value_21" model="product.attribute.value">
             <field name="name">Nur schneiden</field>
             <field name="attribute_id" ref="mydisplays_configurator.product_attribute_Links_depending_on_entered_height"/>
@@ -270,16 +258,6 @@
             <field name="name">Hohlsaum für 5 cm ø Keder</field>
             <field name="attribute_id" ref="mydisplays_configurator.product_attribute_unten_depending_on_entered_width"/>
             <field name="product_id" ref="mydisplays_configurator.product_12cm"/>
-        </record>
-
-        <record id="product_attribute_value_48" model="product.attribute.value">
-            <field name="name">Customer specifies the desired width</field>
-            <field name="attribute_id" ref="mydisplays_configurator.product_attribute_my_acrylglas_breite_in_cm"/>
-        </record>
-
-        <record id="product_attribute_value_49" model="product.attribute.value">
-            <field name="name">Customer specifies the desired height</field>
-            <field name="attribute_id" ref="mydisplays_configurator.product_attribute_my_acrylglas_höhe_in_cm"/>
         </record>
 
         <record id="product_attribute_value_50" model="product.attribute.value">
