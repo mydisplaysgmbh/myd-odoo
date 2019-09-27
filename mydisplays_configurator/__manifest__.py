@@ -12,9 +12,7 @@
     'version': '0.1',
     'depends': [
         'base_sparse_field',
-        'sale',
         'mrp',
-        'product_configurator',
         'website_product_configurator',
         'product_configurator_sale',
     ],
