@@ -37,11 +37,17 @@ class MydisplaysConfigWebsiteSale(ProductConfigWebsiteSale):
     def config_session(self, product_id, config_session_id, **post):
         """Render product page of product_id"""
         product_tmpl_id = product_id.product_tmpl_id
-
+        # CUSTOMIZATION START
         custom_vals = sorted(
-            product_id.value_custom_ids,
+            config_session_id.custom_value_ids,
             key=lambda obj: obj.attribute_id.sequence
         )
+        # OLD CODE
+        # custom_vals = sorted(
+        #     product_id.value_custom_ids,
+        #     key=lambda obj: obj.attribute_id.sequence
+        # )
+        # CUSTOMIZATION END
         vals = sorted(
             product_id.attribute_value_ids,
             key=lambda obj: obj.attribute_id.sequence
@@ -51,6 +57,7 @@ class MydisplaysConfigWebsiteSale(ProductConfigWebsiteSale):
             product_config_session = request.session['product_config_session']
             del product_config_session[product_tmpl_id.id]
             request.session['product_config_session'] = product_config_session
+        # CUSTOMIZATION START
         values = {
             'product_id': product_id,
             'product_tmpl': product_tmpl_id,
@@ -59,5 +66,14 @@ class MydisplaysConfigWebsiteSale(ProductConfigWebsiteSale):
             'custom_vals': custom_vals,
             'vals': vals,
         }
+        # OLD CODE
+        # values = {
+        #     'product_id': product_id,
+        #     'product_tmpl': product_tmpl_id,
+        #     'pricelist': pricelist,
+        #     'custom_vals': custom_vals,
+        #     'vals': vals,
+        # }
+        # CUSTOMIZATION END
         return request.render(
             "website_product_configurator.cfg_product_variant", values)
