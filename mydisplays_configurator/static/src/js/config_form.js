@@ -11,8 +11,49 @@ odoo.define('mydisplay_configurator.config_form', function (require) {
     var image_dict = {}
 
     $(document).ready(function () {
-
+        if (!$.fn.datetimepicker) {
+            ajax.loadJS("/web/static/lib/tempusdominus/tempusdominus.js");
+        }
         var config_form = $("#product_config_form");
+        var datetimepickers_options = {
+            calendarWeeks: true,
+            icons: {
+                time: 'fa fa-clock-o',
+                date: 'fa fa-calendar',
+                up: 'fa fa-chevron-up',
+                down: 'fa fa-chevron-down',
+                previous: 'fa fa-chevron-left',
+                next: 'fa fa-chevron-right',
+                today: 'fa fa-calendar-check-o',
+                clear: 'fa fa-delete',
+                close: 'fa fa-times'
+            },
+            locale: moment.locale(),
+            allowInputToggle: true,
+            buttons: {
+                showToday: true,
+                showClose: true,
+            },
+            format: time.getLangDatetimeFormat(),
+            keyBinds: null,
+        };
+
+        var datepickers_options = $.extend({}, datetimepickers_options, {format: time.getLangDateFormat()})
+
+        config_form.find('.product_config_datetimepicker').parent().datetimepicker(datetimepickers_options);
+        config_form.find('.product_config_datepicker').parent().datetimepicker(datepickers_options);
+        config_form.find('.product_config_datepicker').parent().on('change.datetimepicker', function (event) {
+            var attribute = $(event.currentTarget).find('input.required_config_attrib');
+            _checkRequiredFields(attribute);
+            var field_name = $(event.currentTarget).find('.product_config_datepicker')[0].name
+            OnchangeVals(event, field_name)
+        });
+        config_form.find('.product_config_datetimepicker').parent().on('change.datetimepicker', function (event) {
+            var attribute = $(event.currentTarget).find('input.required_config_attrib');
+            _checkRequiredFields(attribute);
+            var field_name = $(event.currentTarget).find('.product_config_datetimepicker')[0].name
+            OnchangeVals(event, $('.product_config_datepicker')[0].name)
+        });
 
         function OnchangeVals(ev, fild_name) {
             var form_data = config_form.serializeArray();
@@ -41,27 +82,17 @@ odoo.define('mydisplay_configurator.config_form', function (require) {
             _handleCustomAttribute(ev)
         }
 
+
         /* Monitor input changes in the configuration form and call the backend onchange method*/
-        config_form.find('.custom_config_value').change(function(ev) {
-            ev.preventDefault();
-            ev.stopPropagation();
+        config_form.find('.config_attribute').change(function(ev) {
             OnchangeVals(ev, $(this)[0].name)
         });
-        config_form.find('.product_config_datepicker').parent().on('change.datetimepicker', function (event) {
-            OnchangeVals(event, $('.product_config_datepicker')[0].name)
-        });
-        config_form.find('.product_config_datetimepicker').parent().on('change.datetimepicker', function (event) {
-            OnchangeVals(event, $('.product_config_datepicker')[0].name)
-        });
-        $('.js_add_qty').on('click', function(ev) {
-            OnchangeVals(event, $('.custom_config_value.spinner_qty')[0].name)
-        });
-
-        $('.js_remove_qty').on('click', function(ev) {
-            OnchangeVals(event, $('.custom_config_value.spinner_qty')[0].name)
+        config_form.find('.custom_config_value:not(".config_attachment"):not(".spinner_qty")').change(function(ev) {
+            OnchangeVals(ev, $(this)[0].name)
         });
 
         config_form.find('.custom_config_value.config_attachment').change(function (ev) {
+            var file_name = $(this)[0].name
             var file = ev.target.files[0];
             var loaded = false;
             var files_data = '';
@@ -73,6 +104,7 @@ odoo.define('mydisplay_configurator.config_form', function (require) {
                 buffer = buffer.split(',')[1];
                 files_data = buffer;
                 image_dict[ev.target.name]= files_data;
+                OnchangeVals(ev, file_name)
             }
         });
 
@@ -190,5 +222,260 @@ odoo.define('mydisplay_configurator.config_form', function (require) {
                 });
             });
         }
-    })
+
+        function _onChangeConfigStep(event, next_step) {
+            var active_step = config_form.find('.tab-content').find('.tab-pane.active.show');
+            var config_attr = active_step.find('.form-control.required_config_attrib');
+            var flag = _checkRequiredFields(config_attr)
+            var config_step_header = config_form.find('.nav.nav-tabs');
+            var current_config_step = config_step_header.find('.nav-item.config_step > a.active').parent().attr('data-step-id');
+            var form_data = config_form.serializeArray();
+            for (var field_name in image_dict) {
+                form_data.push({'name': field_name, 'value': image_dict[field_name]});
+            }
+            if (flag) {
+                return ajax.jsonRpc("/website_product_configurator/save_configuration", 'call', {
+                    form_values: form_data,
+                    next_step: next_step || false,
+                    current_step: current_config_step || false,
+                    force_check_build: event.type == 'submit'? true: false,
+                }).then(function(data) {
+                    if (data.error) {
+                        openWarningDialog(data.error);
+                    };
+                    return data;
+                });
+            } else {
+                return false;
+            }
+        };
+
+        function _displayTooltip(config_attribute, message) {
+            $(config_attribute).tooltip({
+                title: message,
+                placement: "bottom",
+                trigger: "manual",
+            }).tooltip('show');
+            setTimeout(function(){
+                $(config_attribute).tooltip('dispose');
+            }, 4000);
+        };
+
+        function _checkRequiredFieldsRadio(parent_container) {
+            var radio_inputs = parent_container.find('.config_attr_value:checked');
+            if (radio_inputs.length) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+
+        function _checkRequiredFields(config_attr) {
+            var flag_all = true;
+            for (var i = 0; i < config_attr.length; i++) {
+                var flag = true;
+                if (!$(config_attr[i]).hasClass('required_config_attrib')) {
+                    flag = true;
+                } else if (config_attr[i].tagName == 'FIELDSET') {
+                    flag = _checkRequiredFieldsRadio($(config_attr[i]));
+                } else if (!config_attr[i].value.trim()  || config_attr[i].value == '0') {
+                    flag = false;
+                };
+
+                if (!flag) {
+                    $(config_attr[i]).addClass('textbox-border-color');
+                } else if (flag && $(config_attr[i]).hasClass('textbox-border-color')) {
+                    $(config_attr[i]).removeClass('textbox-border-color');
+                };
+                flag_all &= flag;
+            };
+            return flag_all;
+        };
+
+        function _handleFooterButtons(step) {
+            var step_count = step.attr('data-step-count');
+            var total_steps = $('#total_attributes').val();
+            if (step_count == '1') {
+                $('.btnPreviousStep').addClass('d-none');
+                $('.btnNextStep').removeClass('d-none');
+                $('.configureProduct').addClass('d-none');
+            } else if (step_count == total_steps) {
+                $('.btnPreviousStep').removeClass('d-none');
+                $('.btnNextStep').addClass('d-none');
+                $('.configureProduct').removeClass('d-none');
+            } else {
+                $('.btnPreviousStep').removeClass('d-none');
+                $('.btnNextStep').removeClass('d-none');
+                $('.configureProduct').addClass('d-none');
+            }
+        }
+
+        config_form.find('.config_attribute').change(function (event) {
+            var attribute = [event.currentTarget];
+            _checkRequiredFields(attribute);
+        });
+
+        config_form.find('.custom_config_value').change(function (event) {
+            var attribute = [event.currentTarget];
+            _checkRequiredFields(attribute);
+        });
+
+        config_form.find('.config_step').click(function (event) {
+            var next_step = event.currentTarget.getAttribute('data-step-id');
+            var result = _onChangeConfigStep(event, next_step);
+            if (!result) {
+                event.preventDefault();
+                event.stopPropagation();
+            } else {
+                _handleFooterButtons($(event.currentTarget))
+            };
+        });
+
+        $('.btnNextStep').click(function(){
+            $('.nav-tabs > .config_step > .active').parent().nextAll('li:not(.d-none):first').find('a').trigger('click');
+        });
+
+        $('.btnPreviousStep').click(function(){
+            $('.nav-tabs > .config_step > .active').parent().prevAll('li:not(.d-none):first').find('a').trigger('click');
+        });
+
+        function _openNextStep(step) {
+            var config_step_header = config_form.find('.nav.nav-tabs');
+            var config_step = config_step_header.find('.nav-item.config_step > .nav-link.active');
+            if (config_step.length) {
+                config_step.removeClass('active');
+            }
+            var active_step = config_form.find('.tab-content').find('.tab-pane.active.show');
+            active_step.removeClass('active');
+            active_step.removeClass('show');
+
+            var next_step = config_step_header.find('.nav-item.config_step[data-step-id=' + step + '] > .nav-link');
+            if (next_step.length) {
+                next_step.addClass('active');
+                var selector = next_step.attr('href');
+                var step_to_active = config_form.find('.tab-content').find(selector);
+                step_to_active.addClass('active');
+                step_to_active.addClass('show');
+            }
+        };
+
+        function addRequiredAttr(config_step) {
+            config_step = config_form.find('.tab-content').find('tab-pane container[data-step-id=' + config_step + ']');
+            _.each(config_step.find('.form-control.config_attribute'), function(attribute_field) {
+                $(attribute_field).attr('required', true);
+            });
+        };
+
+        // Save Values
+        config_form.submit(function (event) {
+            event.preventDefault();
+            event.stopPropagation();
+
+            var result = _onChangeConfigStep(event);
+            if (result) {
+                result.then(function (data) {
+                    if (data) {
+                        if (data.next_step) {
+                            _openNextStep(data.next_step);
+                        };
+                        if (data.redirect_url) {
+                            window.location = data.redirect_url;
+                        };
+                    };
+                });
+            }
+        });
+
+        // Radio button work with image click
+        $('.image_config_attr_value_radio').on("click", function(event) {
+            var val_id = $(this).data('val-id');
+            var value_input = $(this).closest('fieldset').find('.config_attr_value[data-oe-id="' + val_id + '"]');
+            if (value_input.prop('disabled')) {
+                return
+            }
+            if (value_input.length) {
+                if (value_input.attr('type') == 'checkbox' && value_input.prop('checked')) {
+                    value_input.prop('checked', false);
+                } else {
+                    value_input.prop('checked', 'checked');
+                }
+                value_input.change();
+            }
+        });
+
+        // quantty sppiner
+        function _disableEnableAddRemoveQtyButton(current_target, quantity, max_val, min_val) {
+            var container = current_target.closest('.custom_field_container')
+            if (quantity >= max_val) {
+                container.find('.js_add_qty').addClass('btn-disabled');
+            } else if (quantity < max_val && $('.js_add_qty').hasClass('btn-disabled')) {
+                container.find('.js_add_qty').removeClass('btn-disabled');
+            }
+            if (quantity <= min_val) {
+                container.find('.js_remove_qty').addClass('btn-disabled');
+            } else if (quantity > min_val && $('.js_remove_qty').hasClass('btn-disabled')) {
+                container.find('.js_remove_qty').removeClass('btn-disabled');
+            }
+        }
+
+        function _handleSppinerCustomValue(ev) {
+            ev.preventDefault();
+            ev.stopPropagation();
+
+            var current_target = $(ev.currentTarget);
+            var custom_value = current_target.closest('.input-group').find('input.custom_config_value');
+            var max_val = parseFloat(custom_value.attr('max') || Infinity);
+            var min_val = parseFloat(custom_value.attr('min') || 0);
+            var new_qty = min_val;
+            var ui_val = parseFloat(custom_value.val());
+            var custom_type = custom_value.attr('data-type');
+            if (isNaN(ui_val)) {
+                var message = "Please enter a number.";
+                _displayTooltip(custom_value, message);
+            } else if (custom_type == 'int' && ui_val % 1 !== 0) {
+                var message = "Please enter a Integer.";
+                _displayTooltip(custom_value, message);
+            } else {
+                var quantity = ui_val || 0;
+                new_qty = quantity;
+                if (current_target.has(".fa-minus").length) {
+                    new_qty = quantity - 1;
+                } else if (current_target.has(".fa-plus").length) {
+                    new_qty = quantity + 1;
+                }
+                if (new_qty > max_val) {
+                    var attribute_name = custom_value.closest('.tab-pane').find('label[data-oe-id="' + custom_value.attr('data-oe-id') + '"]');
+                    var message = "Selected custom value " + attribute_name.text() + " must not be greater than " + max_val;
+                    _displayTooltip(custom_value, message);
+                    new_qty = max_val;
+                }
+                else if (new_qty < min_val) {
+                    var attribute_name = custom_value.closest('.tab-pane').find('label[data-oe-id="' + custom_value.attr('data-oe-id') + '"]');
+                    var message = "Selected custom value " + attribute_name.text() + " must be at least " + min_val;
+                    _displayTooltip(custom_value, message);
+                    new_qty = min_val;
+                }
+            }
+            custom_value.val(new_qty);
+            _disableEnableAddRemoveQtyButton(current_target, new_qty ,max_val ,min_val)
+            var field_name = $(ev.currentTarget).closest('.custom_field_container').find('.custom_config_value.spinner_qty')[0].name
+            OnchangeVals(event, field_name)
+            return custom_value;
+        }
+
+        $('.custom_config_value.spinner_qty').change(function(ev) {
+            _handleSppinerCustomValue(ev);
+        });
+
+        $('.js_add_qty').on('click', function(ev) {
+            var custom_value = _handleSppinerCustomValue(ev);
+            _checkRequiredFields(custom_value);
+        });
+
+        $('.js_remove_qty').on('click', function(ev) {
+            var custom_value = _handleSppinerCustomValue(ev);
+            _checkRequiredFields(custom_value);
+        });
+    });
+
 })
