@@ -45,16 +45,21 @@ odoo.define('mydisplay_configurator.config_form', function (require) {
         config_form.find('.product_config_datepicker').parent().on('change.datetimepicker', function (event) {
             var attribute = $(event.currentTarget).find('input.required_config_attrib');
             _checkRequiredFields(attribute);
+            // #customization : call onchange for custom vals
             var field_name = $(event.currentTarget).find('.product_config_datepicker')[0].name
             OnchangeVals(event, field_name)
+            // #customization end
         });
         config_form.find('.product_config_datetimepicker').parent().on('change.datetimepicker', function (event) {
             var attribute = $(event.currentTarget).find('input.required_config_attrib');
             _checkRequiredFields(attribute);
+            // #customization : call onchange for custom vals
             var field_name = $(event.currentTarget).find('.product_config_datetimepicker')[0].name
             OnchangeVals(event, $('.product_config_datepicker')[0].name)
+            // #customization end
         });
 
+        // #customization : before this code inside onchange event
         function OnchangeVals(ev, fild_name) {
             var form_data = config_form.serializeArray();
             for (var field_name in image_dict) {
@@ -81,15 +86,17 @@ odoo.define('mydisplay_configurator.config_form', function (require) {
             });
             _handleCustomAttribute(ev)
         }
-
+        // #customization end
 
         /* Monitor input changes in the configuration form and call the backend onchange method*/
         config_form.find('.config_attribute').change(function(ev) {
-            OnchangeVals(ev, $(this)[0].name)
+            OnchangeVals(ev, $(this)[0].name) // #customization : Move code to method OnchangeVals and call method
         });
+        // #customization : call onchange for custom vals
         config_form.find('.custom_config_value:not(".config_attachment"):not(".spinner_qty")').change(function(ev) {
             OnchangeVals(ev, $(this)[0].name)
         });
+        // #customization end
 
         config_form.find('.custom_config_value.config_attachment').change(function (ev) {
             var file_name = $(this)[0].name
@@ -104,7 +111,7 @@ odoo.define('mydisplay_configurator.config_form', function (require) {
                 buffer = buffer.split(',')[1];
                 files_data = buffer;
                 image_dict[ev.target.name]= files_data;
-                OnchangeVals(ev, file_name)
+                OnchangeVals(ev, file_name) // #customization : call onchange for custom vals
             }
         });
 
@@ -154,8 +161,12 @@ odoo.define('mydisplay_configurator.config_form', function (require) {
             var attribute_id = $(event.currentTarget).attr('data-oe-id');
             var custom_value = container.find('.custom_config_value[data-oe-id=' + attribute_id + ']');
             var custom_value_container = custom_value.closest('.custom_field_container[data-oe-id=' + attribute_id + ']');
+            // #customization
             var attr_field = container.find('.config_attribute[data-oe-id=' + attribute_id + ']');
             var custom_config_attr = attr_field.find('.custom_config_attr_value');
+            // #old code
+            // $(event.currentTarget).find('.custom_config_attr_value');
+            // #customization end
             var flag_custom = false;
             if (custom_config_attr.length && custom_config_attr[0].tagName == "OPTION" && custom_config_attr[0].selected) {
                 flag_custom = true;
@@ -459,7 +470,7 @@ odoo.define('mydisplay_configurator.config_form', function (require) {
             custom_value.val(new_qty);
             _disableEnableAddRemoveQtyButton(current_target, new_qty ,max_val ,min_val)
             var field_name = $(ev.currentTarget).closest('.custom_field_container').find('.custom_config_value.spinner_qty')[0].name
-            OnchangeVals(event, field_name)
+            OnchangeVals(event, field_name) // #customization : call onchange for custom vals
             return custom_value;
         }
 
