@@ -24,5 +24,14 @@
         'views/config_form_template.xml',
     ],
     'demo': [
+        'demo/uom_demo.xml',
+        'demo/product_template_demo.xml',
+        'demo/product_demo.xml',
+        'demo/product_attribute_demo.xml',
+        'demo/product_attribute_value_demo.xml',
+        'demo/product_attribute_line_demo.xml',
+        'demo/product_template_attribute_value_demo.xml',
+        'demo/product_config_domain_demo.xml',
+        'demo/product_config_domain_line_demo.xml',
     ],
 }

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="product_config_line_gasoline_engines" model="product.config.line">
+            <field name="product_tmpl_id" ref="mydisplays_configurator.product_template_rollup_lite"/>
+            <field name="attribute_line_id" ref="mydisplays_configurator.product_attribute_line_3"/>
+            <field name="value_ids" eval="[(6, 0, [
+                ref('mydisplays_configurator.product_attribute_value_9'),
+                ref('mydisplays_configurator.product_attribute_value_10'),
+                ref('mydisplays_configurator.product_attribute_value_11'),
+                ref('mydisplays_configurator.product_attribute_value_12'),
+                ref('mydisplays_configurator.product_attribute_value_13'),])]"/>
+            <field name="domain_id" ref="mydisplays_configurator.product_config_domain_Leersystem_ohne_Druck"/>
+        </record>
+    </data>
+</odoo>
