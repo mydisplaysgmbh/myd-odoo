@@ -11,12 +11,14 @@ class MydisplaysConfigWebsiteSale(ProductConfigWebsiteSale):
 
     @http.route()
     def save_configuration(self, form_values, current_step=False,
-                           next_step=False):
+                           next_step=False, **post):
         res = super(MydisplaysConfigWebsiteSale, self).save_configuration(
             form_values=form_values, current_step=current_step,
-            next_step=next_step)
-        if res:
+            next_step=next_step, post=post)
+        try:
             redirect_url = res.get('redirect_url', False)
+            if not redirect_url:
+                return res
             config_session = request.env['product.config.session'].browse(
                 res.get('config_session'))
             product = request.env['product.product'].browse(
@@ -27,6 +29,8 @@ class MydisplaysConfigWebsiteSale(ProductConfigWebsiteSale):
                 redirect_url += '/%s' % (slug(product))
                 res.update({'redirect_url': redirect_url})
                 return res
+        except Exception as Ex:
+            return {'error': Ex}
         return {}
 
     @http.route(
@@ -37,17 +41,6 @@ class MydisplaysConfigWebsiteSale(ProductConfigWebsiteSale):
     def config_session(self, product_id, config_session_id, **post):
         """Render product page of product_id"""
         product_tmpl_id = product_id.product_tmpl_id
-        # CUSTOMIZATION START
-        custom_vals = sorted(
-            config_session_id.custom_value_ids,
-            key=lambda obj: obj.attribute_id.sequence
-        )
-        # OLD CODE
-        # custom_vals = sorted(
-        #     product_id.value_custom_ids,
-        #     key=lambda obj: obj.attribute_id.sequence
-        # )
-        # CUSTOMIZATION END
         vals = sorted(
             product_id.attribute_value_ids,
             key=lambda obj: obj.attribute_id.sequence
@@ -63,7 +56,9 @@ class MydisplaysConfigWebsiteSale(ProductConfigWebsiteSale):
             'product_tmpl': product_tmpl_id,
             'config_session': config_session_id,
             'pricelist': pricelist,
-            'custom_vals': custom_vals,
+            'custom_vals': config_session_id.json_config,
+            'json_vals': config_session_id.json_vals,
+            'attr_data': product_tmpl_id.config_cache.get('attrs', {}),
             'vals': vals,
         }
         # OLD CODE

@@ -18,6 +18,7 @@
         'website_product_configurator',
     ],
     'data': [
+        'views/assets_frontend_view.xml',
         'views/config_form_templates.xml',
         'views/sale_order_view.xml',
         'views/product_attribute_view.xml',

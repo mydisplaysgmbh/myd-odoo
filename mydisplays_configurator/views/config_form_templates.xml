@@ -18,6 +18,7 @@
                         <t t-placeholder="select">
                             <input type="hidden" class="product_id" name="product_id" t-att-value="product_variant.id" />
                             <input type="hidden" class="product_template_id" name="product_template_id" t-att-value="product_tmpl.id" />
+                            <input type="hidden" class="bom_id" name="bom_id" t-att-value="json_vals.get('bom', [])" />
                             <div class="col-xs-12">
                                 <ul class="product_vals">
                                     <t t-if="config_session">
@@ -28,13 +29,14 @@
                                             </li>
                                         </t>
                                     </t>
-                                    <t t-foreach="custom_vals" t-as="val">
-                                        <li>
-                                            <strong t-field="val.attribute_id.name"/>:
-                                            <span t-field="val.value"/>
-                                            <t t-foreach="val.attachment_ids" t-as="attachment">
-                                                <br t-if="not attachment_first"/>
-                                                <span t-field="attachment.name"/>
+                                    <t t-foreach="custom_vals" t-as="cust_key">
+                                        <li t-if="custom_vals[cust_key].get('value')">
+                                            <strong t-esc="attr_data[cust_key].get('name')"/>:
+                                            <t t-if="attr_data[cust_key].get('custom_type') != 'binary'">
+                                                <span t-esc="custom_vals[cust_key].get('value')"/>
+                                            </t>
+                                            <t t-elif="attr_data[cust_key].get('custom_type') == 'binary'">
+                                                <img class="myd-img" alt="set company logo" t-attf-src="data:image/gif;base64, #{custom_vals[cust_key].get('value')}"/>
                                             </t>
                                         </li>
                                     </t>
@@ -43,7 +45,7 @@
                         </t>
                         <div class="config_price">
                             <h4 class="oe_price_h4 css_editable_mode_hidden">
-                                <b class="oe_price" style="white-space: nowrap;" t-esc="config_session.price" t-options="{'widget': 'monetary', 'display_currency': product_tmpl.currency_id}"/>
+                                <b class="oe_price" style="white-space: nowrap;" t-esc="json_vals.get('price', 0)" t-options="{'widget': 'monetary', 'display_currency': product_tmpl.currency_id}"/>
                             </h4>
                         </div>
                         <a role="button" id="add_to_cart" class="btn btn-primary btn-lg mt8 js_check_product a-submit" href="#">Add to Cart</a>
