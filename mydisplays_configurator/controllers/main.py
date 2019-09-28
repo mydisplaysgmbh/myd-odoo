@@ -17,11 +17,13 @@ class MydisplayConfigWebsiteSale(ProductConfigWebsiteSale):
     def cfg_session(self, product_id, **post):
         """Render product page of product_id"""
         product_tmpl_id = product_id.product_tmpl_id
+        # Customization
         try:
             config_session_id = self.get_config_session(
                 product_tmpl_id=product_tmpl_id)
         except Exception as Ex:
             return {'error': Ex}
+        # Customization
 
         custom_vals = sorted(
             product_id.value_custom_ids,
@@ -39,7 +41,7 @@ class MydisplayConfigWebsiteSale(ProductConfigWebsiteSale):
         values = {
             'product_id': product_id,
             'product_tmpl': product_tmpl_id,
-            'config_session': config_session_id,
+            'config_session': config_session_id, # Customization
             'pricelist': pricelist,
             'custom_vals': custom_vals,
             'vals': vals,
