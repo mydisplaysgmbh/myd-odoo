@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="product_attribute_quantity" model="product.attribute">
+            <field name="name">Quantity </field>
+            <field name="val_custom" eval="True"/>
+            <field name="custom_type">int</field>
+        </record>
+
+        <record id="product_attribute_systemvariante" model="product.attribute">
+            <field name="name">Systemvariante</field>
+        </record>
+
+        <record id="product_attribute_Größe" model="product.attribute">
+            <field name="name">Größe (Breite x Höhe)</field>
+        </record>
+
+        <record id="product_attribute_druckmaterial" model="product.attribute">
+            <field name="name">Druckmaterial</field>
+        </record>
+
+        <record id="product_attribute_MYD_easychange_system" model="product.attribute">
+            <field name="name">MYD Easy Change System</field>
+        </record>
+
+        <record id="product_attribute_beleuchtung_mit_spot" model="product.attribute">
+            <field name="name">Beleuchtung mit Spot</field>
+        </record>
+
+        <record id="product_attribute_breite_in_cm" model="product.attribute">
+            <field name="name">Breite in cm</field>
+            <field name="val_custom" eval="True"/>
+            <field name="custom_type">float</field>
+        </record>
+
+        <record id="product_attribute_höhe_in_cm" model="product.attribute">
+            <field name="name">Höhe in cm</field>
+            <field name="val_custom" eval="True"/>
+            <field name="custom_type">float</field>
+        </record>
+
+        <record id="product_attribute_Links_depending_on_entered_height" model="product.attribute">
+            <field name="name">Links - depending on entered height</field>
+        </record>
+
+        <record id="product_attribute_rechts_depending_on_entered_height" model="product.attribute">
+            <field name="name">Rechts - depending on entered height</field>
+        </record>
+
+        <record id="product_attribute_Oben_depending_on_entered_width" model="product.attribute">
+            <field name="name">Oben - depending on entered width</field>
+        </record>
+
+        <record id="product_attribute_unten_depending_on_entered_width" model="product.attribute">
+            <field name="name">Unten - depending on entered width</field>
+        </record>
+
+        <record id="product_attribute_my_acrylglas_breite_in_cm" model="product.attribute">
+            <field name="name">Breite in cm</field>
+            <field name="val_custom" eval="True"/>
+            <field name="custom_type">float</field>
+        </record>
+
+        <record id="product_attribute_my_acrylglas_höhe_in_cm" model="product.attribute">
+            <field name="name">Höhe in cm</field>
+            <field name="val_custom" eval="True"/>
+            <field name="custom_type">float</field>
+        </record>
+
+        <record id="product_attribute_materialstärke_and_grundfarbe" model="product.attribute">
+            <field name="name">Materialstärke and Grundfarbe</field>
+        </record>
+
+        <record id="product_attribute_ausführung" model="product.attribute">
+            <field name="name">Ausführunge</field>
+        </record>
+
+        <record id="product_attribute_druckverfahren_oder_beschriftung" model="product.attribute">
+            <field name="name">Druckverfahren oder Beschriftung</field>
+        </record>       
+
+        <record id="product_attribute_zuschnitt" model="product.attribute">
+            <field name="name">Zuschnitt</field>
+        </record>
+
+        <record id="product_attribute_aufhängung_or_montage" model="product.attribute">
+            <field name="name">Aufhängung / Montage</field>
+        </record>
+    </data>
+</odoo>

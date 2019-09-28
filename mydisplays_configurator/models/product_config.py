@@ -1,7 +1,8 @@
 import pprint
 
-from odoo import api, fields, models
+from odoo import api, fields, models, _
 from odoo.tools.safe_eval import safe_eval
+from odoo.exceptions import UserError
 
 
 class ProductConfigSession(models.Model):
@@ -83,12 +84,12 @@ class ProductConfigSession(models.Model):
             try:
                 return int(val)
             except Exception:
-                raise UserError(_("Please provide valid integer value"))
+                raise UserError(_("Please provide a valid integer value"))
         elif custom_type in ["float"]:
             try:
                 return float(val)
             except Exception:
-                raise UserError(_("Please provide valid float value"))
+                raise UserError(_("Please provide a valid float value"))
         else:
             return val
 
@@ -168,7 +169,7 @@ class ProductConfigSession(models.Model):
 
     def set_default_cfg_session_json_dictionary(self, custom_value_ids=None):
         """update json field while reconfigure product"""
-        if custom_value_ids == None:
+        if custom_value_ids is None:
             custom_value_ids = self.custom_value_ids
         cfg_session_json = {}
         for custom_val_id in custom_value_ids:
