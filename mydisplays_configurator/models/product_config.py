@@ -223,7 +223,7 @@ class ProductConfigSession(models.Model):
             value for value in value_ids if value != custom_value_id.id
         ]
         return super(ProductConfigSession, self).get_variant_vals(
-            value_ids=value_ids, custom_vals={}, kwargs
+            value_ids=value_ids, custom_vals={}, kwargs=kwargs
         )
 
     @api.multi
