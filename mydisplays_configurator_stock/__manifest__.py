@@ -12,7 +12,8 @@
     'version': '0.1',
     'depends': [
         'mydisplays_configurator',
-        'product_configurator_stock'
+        'product_configurator_stock',
+        'sale_stock',
     ],
     'data': [
         'views/stock_picking_view.xml',

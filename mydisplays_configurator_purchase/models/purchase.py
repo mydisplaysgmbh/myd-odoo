@@ -1,8 +1,8 @@
-from odoo import fields, models
+from odoo import fields, models, api
 
 
 class PurchaseOrderLine(models.Model):
-    _inherit = 'purchase.order.line'
+    _inherit = "purchase.order.line"
 
     cfg_session_id = fields.Many2one(
         comodel_name='product.config.session',
@@ -21,6 +21,6 @@ class PurchaseOrderLine(models.Model):
         res = super(PurchaseOrderLine, self)._merge_in_existing_line(
             product_id=product_id, product_qty=product_qty, product_uom=product_uom,
             location_id=location_id, name=name, origin=origin, values=values)
-        if not values.get('cfg_session_id'):
+        if values.get('cfg_session_id'):
             return res
         return False
