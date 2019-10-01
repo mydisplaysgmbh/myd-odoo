@@ -81,7 +81,7 @@
         </record>
 
         <record id="product_attribute_materialstärke_and_grundfarbe" model="product.attribute">
-            <field name="name">Material thickness & basic colour </field>
+            <field name="name">Material thickness and basic colour </field>
             <field name="json_name">mtabc</field>
         </record>
 
