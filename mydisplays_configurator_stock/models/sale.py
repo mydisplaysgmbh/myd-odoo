@@ -6,7 +6,6 @@ class SaleOrderLine(models.Model):
 
     @api.multi
     def _prepare_procurement_values(self, group_id=False):
-    	print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!",self.cfg_session_id.id, self)
         res = super(SaleOrderLine, self)._prepare_procurement_values(
             group_id=group_id)
         res.update({'cfg_session_id': self.cfg_session_id.id})
