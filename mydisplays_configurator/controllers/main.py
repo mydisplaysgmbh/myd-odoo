@@ -24,9 +24,8 @@ class MydisplaysConfigWebsiteSale(ProductConfigWebsiteSale):
             product = request.env['product.product'].browse(
                 res.get('product_id'))
             if redirect_url:
-                redirect_url = "/website_product_configurator/open_product"
+                redirect_url = "/website_product_configurator/configuration"
                 redirect_url += '/%s' % (slug(config_session))
-                redirect_url += '/%s' % (slug(product))
                 res.update({'redirect_url': redirect_url})
                 return res
         except Exception as Ex:
@@ -34,12 +33,12 @@ class MydisplaysConfigWebsiteSale(ProductConfigWebsiteSale):
         return {}
 
     @http.route(
-        '/website_product_configurator/open_product/'
-        '<model("product.config.session"):config_session_id>/'
-        '<model("product.product"):product_id>',
+        '/website_product_configurator/configuration/'
+        '<model("product.config.session"):config_session_id>',
         type='http', auth="public", website=True)
-    def config_session(self, product_id, config_session_id, **post):
+    def config_session(self, config_session_id, **post):
         """Render product page of product_id"""
+        product_id = config_session_id.product_id
         product_tmpl_id = product_id.product_tmpl_id
         vals = sorted(
             product_id.attribute_value_ids,
@@ -50,7 +49,7 @@ class MydisplaysConfigWebsiteSale(ProductConfigWebsiteSale):
             product_config_session = request.session['product_config_session']
             del product_config_session[product_tmpl_id.id]
             request.session['product_config_session'] = product_config_session
-        # CUSTOMIZATION START
+
         values = {
             'product_id': product_id,
             'product_tmpl': product_tmpl_id,
@@ -61,14 +60,5 @@ class MydisplaysConfigWebsiteSale(ProductConfigWebsiteSale):
             'attr_data': product_tmpl_id.config_cache.get('attrs', {}),
             'vals': vals,
         }
-        # OLD CODE
-        # values = {
-        #     'product_id': product_id,
-        #     'product_tmpl': product_tmpl_id,
-        #     'pricelist': pricelist,
-        #     'custom_vals': custom_vals,
-        #     'vals': vals,
-        # }
-        # CUSTOMIZATION END
         return request.render(
             "website_product_configurator.cfg_product_variant", values)

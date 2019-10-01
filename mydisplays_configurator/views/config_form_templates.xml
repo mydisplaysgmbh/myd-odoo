@@ -11,12 +11,12 @@
                     </div>
                 </div>
                 <h1 itemprop="name" t-field="product_variant.name">Product Name</h1>
-                <span itemprop="url" style="display:none;" t-esc="'%s/website_product_configurator/open_product/%s/%s' % (request.httprequest.url_root, slug(config_session),slug(product_variant))"/>
+                <span itemprop="url" style="display:none;" t-esc="'%s/website_product_configurator/configuration/%s' % (request.httprequest.url_root, slug(config_session))"/>
                 <form action="/shop/cart/update" method="POST">
                     <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()" />
                     <div class="js_product js_main_product">
                         <t t-placeholder="select">
-                            <input type="hidden" class="product_id" name="product_id" t-att-value="product_variant.id" />
+                            <input type="hidden" class="product_id" name="product_id" t-att-value="product_id.id" />
                             <input type="hidden" class="product_template_id" name="product_template_id" t-att-value="product_tmpl.id" />
                             <input type="hidden" class="bom_id" name="bom_id" t-att-value="json_vals.get('bom', [])" />
                             <div class="col-xs-12">
