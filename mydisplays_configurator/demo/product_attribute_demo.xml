@@ -8,101 +8,101 @@
         </record>
 
         <record id="product_attribute_systemvariante" model="product.attribute">
-            <field name="name">Systemvariante</field>
-            <field name="json_name">sysvar</field>
+            <field name="name">System configuration </field>
+            <field name="json_name">sc</field>
         </record>
 
         <record id="product_attribute_Größe" model="product.attribute">
-            <field name="name">Größe (Breite x Höhe)</field>
-            <field name="json_name">gro</field>
+            <field name="name">Size (width x height) </field>
+            <field name="json_name">siz</field>
         </record>
 
         <record id="product_attribute_druckmaterial" model="product.attribute">
-            <field name="name">Druckmaterial</field>
-            <field name="json_name">dru</field>
+            <field name="name">Print material </field>
+            <field name="json_name">pm</field>
         </record>
 
         <record id="product_attribute_MYD_easychange_system" model="product.attribute">
-            <field name="name">MYD Easy Change System</field>
+            <field name="name">MYD Easy Change System </field>
             <field name="json_name">mecs</field>
         </record>
 
         <record id="product_attribute_beleuchtung_mit_spot" model="product.attribute">
-            <field name="name">Beleuchtung mit Spot</field>
-            <field name="json_name">bms</field>
+            <field name="name">Spotlighting </field>
+            <field name="json_name">spo</field>
         </record>
 
         <record id="product_attribute_breite_in_cm" model="product.attribute">
-            <field name="name">Breite in cm</field>
+            <field name="name">Width in cm </field>
             <field name="val_custom" eval="True"/>
             <field name="custom_type">float</field>
-            <field name="json_name">werbic</field>
+            <field name="json_name">werwic</field>
         </record>
 
         <record id="product_attribute_höhe_in_cm" model="product.attribute">
-            <field name="name">Höhe in cm</field>
+            <field name="name">Height in cm </field>
             <field name="val_custom" eval="True"/>
             <field name="custom_type">float</field>
             <field name="json_name">werhic</field>
         </record>
 
         <record id="product_attribute_Links_depending_on_entered_height" model="product.attribute">
-            <field name="name">Links - depending on entered height</field>
-            <field name="json_name">links</field>
+            <field name="name">Left </field>
+            <field name="json_name">lef</field>
         </record>
 
         <record id="product_attribute_rechts_depending_on_entered_height" model="product.attribute">
-            <field name="name">Rechts - depending on entered height</field>
-            <field name="json_name">rechts</field>
+            <field name="name">Right </field>
+            <field name="json_name">rig</field>
         </record>
 
         <record id="product_attribute_Oben_depending_on_entered_width" model="product.attribute">
-            <field name="name">Oben - depending on entered width</field>
-            <field name="json_name">oben</field>
+            <field name="name">Top </field>
+            <field name="json_name">top</field>
         </record>
 
         <record id="product_attribute_unten_depending_on_entered_width" model="product.attribute">
-            <field name="name">Unten - depending on entered width</field>
-            <field name="json_name">unten</field>
+            <field name="name">Bottom </field>
+            <field name="json_name">bot</field>
         </record>
 
         <record id="product_attribute_my_acrylglas_breite_in_cm" model="product.attribute">
-            <field name="name">Breite in cm</field>
+            <field name="name">Width in cm </field>
             <field name="val_custom" eval="True"/>
             <field name="custom_type">float</field>
-            <field name="json_name">acrbic</field>
+            <field name="json_name">acrwic</field>
         </record>
 
         <record id="product_attribute_my_acrylglas_höhe_in_cm" model="product.attribute">
-            <field name="name">Höhe in cm</field>
+            <field name="name">Height in cm </field>
             <field name="val_custom" eval="True"/>
             <field name="custom_type">float</field>
             <field name="json_name">acrhic</field>
         </record>
 
         <record id="product_attribute_materialstärke_and_grundfarbe" model="product.attribute">
-            <field name="name">Materialstärke and Grundfarbe</field>
-            <field name="json_name">mag</field>
+            <field name="name">Material thickness & basic colour </field>
+            <field name="json_name">mtabc</field>
         </record>
 
         <record id="product_attribute_ausführung" model="product.attribute">
-            <field name="name">Ausführunge</field>
-            <field name="json_name">aus</field>
+            <field name="name">Design </field>
+            <field name="json_name">des</field>
         </record>
 
         <record id="product_attribute_druckverfahren_oder_beschriftung" model="product.attribute">
-            <field name="name">Druckverfahren oder Beschriftung</field>
-            <field name="json_name">dob</field>
+            <field name="name">Printing method or lettering </field>
+            <field name="json_name">pmol</field>
         </record>       
 
         <record id="product_attribute_zuschnitt" model="product.attribute">
-            <field name="name">Zuschnitt</field>
-            <field name="json_name">zus</field>
+            <field name="name">Cutting options </field>
+            <field name="json_name">co</field>
         </record>
 
         <record id="product_attribute_aufhängung_or_montage" model="product.attribute">
-            <field name="name">Aufhängung / Montage</field>
-            <field name="json_name">am</field>
+            <field name="name">Suspension / assembly </field>
+            <field name="json_name">sa</field>
         </record>
     </data>
 </odoo>
