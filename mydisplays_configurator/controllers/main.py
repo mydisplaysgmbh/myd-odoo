@@ -39,7 +39,19 @@ class MydisplaysConfigWebsiteSale(ProductConfigWebsiteSale):
     def config_session(self, config_session_id, **post):
         """Render product page of product_id"""
         product_id = config_session_id.product_id
-        product_tmpl_id = product_id.product_tmpl_id
+        product_tmpl_id = config_session_id.product_tmpl_id
+        cfg_user_id = config_session_id.user_id
+        user_id = request.env.user
+
+        check_for_session = (
+            product_id.product_tmpl_id == product_tmpl_id and
+            cfg_user_id == user_id and
+            config_session_id.state == 'done'
+        ) and True or False
+
+        if not check_for_session:
+            return request.redirect('/shop/product/%s' % slug(product_tmpl_id))
+
         vals = sorted(
             product_id.attribute_value_ids,
             key=lambda obj: obj.attribute_id.sequence
