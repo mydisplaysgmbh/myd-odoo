@@ -2,107 +2,102 @@
 <odoo>
     <data>
         <record id="product_attribute_quantity" model="product.attribute">
-            <field name="name">Quantity </field>
+            <field name="name">Quantity</field>
             <field name="val_custom" eval="True"/>
             <field name="custom_type">int</field>
+            <field name="custom_type">qty</field>
         </record>
 
-        <record id="product_attribute_systemvariante" model="product.attribute">
-            <field name="name">System configuration </field>
-            <field name="json_name">sc</field>
+        <record id="product_attribute_system_configuration" model="product.attribute">
+            <field name="name">System Configuration</field>
+            <field name="json_name">sys_config</field>
         </record>
 
-        <record id="product_attribute_Größe" model="product.attribute">
-            <field name="name">Size (width x height) </field>
-            <field name="json_name">siz</field>
+        <record id="product_attribute_size" model="product.attribute">
+            <field name="name">Size (Width x Height)</field>
+            <field name="json_name">size</field>
         </record>
 
-        <record id="product_attribute_druckmaterial" model="product.attribute">
-            <field name="name">Print material </field>
-            <field name="json_name">pm</field>
+        <record id="product_attribute_print_material" model="product.attribute">
+            <field name="name">Print Material</field>
+            <field name="json_name">print_mtrl</field>
+            <field name="uom_id" ref="mydisplays_configurator.product_uom_gram_per_squar_meter"/>
         </record>
 
         <record id="product_attribute_MYD_easychange_system" model="product.attribute">
-            <field name="name">MYD Easy Change System </field>
-            <field name="json_name">mecs</field>
+            <field name="name">MYD Easy Change System</field>
+            <field name="json_name">chng_sys</field>
         </record>
 
-        <record id="product_attribute_beleuchtung_mit_spot" model="product.attribute">
-            <field name="name">Spotlighting </field>
-            <field name="json_name">spo</field>
+        <record id="product_attribute_spotlighting" model="product.attribute">
+            <field name="name">Spotlighting</field>
+            <field name="json_name">spt_lght</field>
         </record>
 
-        <record id="product_attribute_breite_in_cm" model="product.attribute">
-            <field name="name">Width in cm </field>
+        <record id="product_attribute_comments" model="product.attribute">
+            <field name="name">Comments</field>
+            <field name="json_name">cmnt</field>
+            <field name="val_custom" eval="True"/>
+            <field name="custom_type">text</field>
+        </record>
+
+        <record id="product_attribute_width" model="product.attribute">
+            <field name="name">Width in cm</field>
             <field name="val_custom" eval="True"/>
             <field name="custom_type">float</field>
-            <field name="json_name">werwic</field>
+            <field name="json_name">width</field>
         </record>
 
-        <record id="product_attribute_höhe_in_cm" model="product.attribute">
-            <field name="name">Height in cm </field>
+        <record id="product_attribute_height" model="product.attribute">
+            <field name="name">Height in cm</field>
             <field name="val_custom" eval="True"/>
             <field name="custom_type">float</field>
-            <field name="json_name">werhic</field>
+            <field name="json_name">high</field>
         </record>
 
-        <record id="product_attribute_Links_depending_on_entered_height" model="product.attribute">
-            <field name="name">Left </field>
-            <field name="json_name">lef</field>
+        <record id="product_attribute_left" model="product.attribute">
+            <field name="name">Left</field>
+            <field name="json_name">left</field>
         </record>
 
-        <record id="product_attribute_rechts_depending_on_entered_height" model="product.attribute">
-            <field name="name">Right </field>
-            <field name="json_name">rig</field>
+        <record id="product_attribute_right" model="product.attribute">
+            <field name="name">Right</field>
+            <field name="json_name">rght</field>
         </record>
 
-        <record id="product_attribute_Oben_depending_on_entered_width" model="product.attribute">
-            <field name="name">Top </field>
+        <record id="product_attribute_top" model="product.attribute">
+            <field name="name">Top</field>
             <field name="json_name">top</field>
         </record>
 
-        <record id="product_attribute_unten_depending_on_entered_width" model="product.attribute">
-            <field name="name">Bottom </field>
-            <field name="json_name">bot</field>
+        <record id="product_attribute_bottom" model="product.attribute">
+            <field name="name">Bottom</field>
+            <field name="json_name">btm</field>
         </record>
 
-        <record id="product_attribute_my_acrylglas_breite_in_cm" model="product.attribute">
-            <field name="name">Width in cm </field>
-            <field name="val_custom" eval="True"/>
-            <field name="custom_type">float</field>
-            <field name="json_name">acrwic</field>
+        <record id="product_attribute_material_thickness_and_basic_colour" model="product.attribute">
+            <field name="name">Material Thickness and Basic Colour</field>
+            <field name="json_name">mat_col</field>
         </record>
 
-        <record id="product_attribute_my_acrylglas_höhe_in_cm" model="product.attribute">
-            <field name="name">Height in cm </field>
-            <field name="val_custom" eval="True"/>
-            <field name="custom_type">float</field>
-            <field name="json_name">acrhic</field>
+        <record id="product_attribute_design" model="product.attribute">
+            <field name="name">Design</field>
+            <field name="json_name">dsgn</field>
         </record>
 
-        <record id="product_attribute_materialstärke_and_grundfarbe" model="product.attribute">
-            <field name="name">Material thickness and basic colour </field>
-            <field name="json_name">mtabc</field>
-        </record>
-
-        <record id="product_attribute_ausführung" model="product.attribute">
-            <field name="name">Design </field>
-            <field name="json_name">des</field>
-        </record>
-
-        <record id="product_attribute_druckverfahren_oder_beschriftung" model="product.attribute">
-            <field name="name">Printing method or lettering </field>
-            <field name="json_name">pmol</field>
+        <record id="product_attribute_printing_method_or_lettering" model="product.attribute">
+            <field name="name">Printing Method or Lettering</field>
+            <field name="json_name">prnt_mthd</field>
         </record>       
 
-        <record id="product_attribute_zuschnitt" model="product.attribute">
-            <field name="name">Cutting options </field>
-            <field name="json_name">co</field>
+        <record id="product_attribute_cutting_options" model="product.attribute">
+            <field name="name">Cutting Options</field>
+            <field name="json_name">cut_opts</field>
         </record>
 
-        <record id="product_attribute_aufhängung_or_montage" model="product.attribute">
-            <field name="name">Suspension / assembly </field>
-            <field name="json_name">sa</field>
+        <record id="product_attribute_suspension_assembly" model="product.attribute">
+            <field name="name">Suspension / Assembly</field>
+            <field name="json_name">suspn_assmbl</field>
         </record>
     </data>
 </odoo>

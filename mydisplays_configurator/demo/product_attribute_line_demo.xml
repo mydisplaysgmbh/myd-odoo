@@ -10,7 +10,7 @@
 
         <record id="product_attribute_line_1" model="product.template.attribute.line">
             <field name="product_tmpl_id" ref="mydisplays_configurator.product_template_rollup_lite"/>
-            <field name="attribute_id" ref="mydisplays_configurator.product_attribute_systemvariante"/>
+            <field name="attribute_id" ref="mydisplays_configurator.product_attribute_system_configuration"/>
             <field name="value_ids" 
                 eval="[(6, 0, [
                 ref('mydisplays_configurator.product_attribute_value_1'),
@@ -21,7 +21,7 @@
 
         <record id="product_attribute_line_2" model="product.template.attribute.line">
             <field name="product_tmpl_id" ref="mydisplays_configurator.product_template_rollup_lite"/>
-            <field name="attribute_id" ref="mydisplays_configurator.product_attribute_Größe"/>
+            <field name="attribute_id" ref="mydisplays_configurator.product_attribute_size"/>
             <field name="value_ids" 
                 eval="[(6, 0, [
                 ref('mydisplays_configurator.product_attribute_value_4'),
@@ -34,7 +34,7 @@
 
         <record id="product_attribute_line_3" model="product.template.attribute.line">
             <field name="product_tmpl_id" ref="mydisplays_configurator.product_template_rollup_lite"/>
-            <field name="attribute_id" ref="mydisplays_configurator.product_attribute_druckmaterial"/>
+            <field name="attribute_id" ref="mydisplays_configurator.product_attribute_print_material"/>
             <field name="value_ids" 
                 eval="[(6, 0, [
                 ref('mydisplays_configurator.product_attribute_value_9'),
@@ -56,7 +56,7 @@
 
         <record id="product_attribute_line_5" model="product.template.attribute.line">
             <field name="product_tmpl_id" ref="mydisplays_configurator.product_template_rollup_lite"/>
-            <field name="attribute_id" ref="mydisplays_configurator.product_attribute_beleuchtung_mit_spot"/>
+            <field name="attribute_id" ref="mydisplays_configurator.product_attribute_spotlighting"/>
             <field name="value_ids" 
                 eval="[(6, 0, [
                 ref('mydisplays_configurator.product_attribute_value_16'),
@@ -65,18 +65,36 @@
             <field name="required" eval="True"/>
         </record>
 
+        <record id="product_attribute_line_comment" model="product.template.attribute.line">
+            <field name="product_tmpl_id" ref="mydisplays_configurator.product_template_rollup_lite"/>
+            <field name="attribute_id" ref="mydisplays_configurator.product_attribute_comments"/>
+            <field name="custom" eval="True"/>
+            <field name="required" eval="False"/>
+        </record>
+
         <record id="product_attribute_line_6" model="product.template.attribute.line">
             <field name="product_tmpl_id" ref="mydisplays_configurator.product_template_my_werbebanner"/>
-            <field name="attribute_id" ref="mydisplays_configurator.product_attribute_breite_in_cm"/>
+            <field name="attribute_id" ref="mydisplays_configurator.product_attribute_width"/>
             <field name="required" eval="True"/>
             <field name="custom" eval="True"/>
         </record>
 
         <record id="product_attribute_line_7" model="product.template.attribute.line">
             <field name="product_tmpl_id" ref="mydisplays_configurator.product_template_my_werbebanner"/>
-            <field name="attribute_id" ref="mydisplays_configurator.product_attribute_höhe_in_cm"/>
+            <field name="attribute_id" ref="mydisplays_configurator.product_attribute_height"/>
             <field name="required" eval="True"/>
             <field name="custom" eval="True"/>
+        </record>
+
+        <!-- make field website invisible after merge -->
+        <record id="product_attribute_line_print_material" model="product.template.attribute.line">
+            <field name="product_tmpl_id" ref="mydisplays_configurator.product_template_my_werbebanner"/>
+            <field name="attribute_id" ref="mydisplays_configurator.product_attribute_print_material"/>
+            <field name="value_ids" 
+                eval="[(6, 0, [
+                    ref('mydisplays_configurator.product_attribute_value_12')
+                ])]"/>
+            <field name="default_val" ref="mydisplays_configurator.product_attribute_value_12"/>
         </record>
 
         <record id="product_attribute_line_my_werbebanner_quntity" model="product.template.attribute.line">
@@ -88,7 +106,7 @@
 
         <record id="product_attribute_line_8" model="product.template.attribute.line">
             <field name="product_tmpl_id" ref="mydisplays_configurator.product_template_my_werbebanner"/>
-            <field name="attribute_id" ref="mydisplays_configurator.product_attribute_Links_depending_on_entered_height"/>
+            <field name="attribute_id" ref="mydisplays_configurator.product_attribute_left"/>
             <field name="value_ids" 
                 eval="[(6, 0, [
                 ref('mydisplays_configurator.product_attribute_value_21'),
@@ -102,7 +120,7 @@
 
         <record id="product_attribute_line_9" model="product.template.attribute.line">
             <field name="product_tmpl_id" ref="mydisplays_configurator.product_template_my_werbebanner"/>
-            <field name="attribute_id" ref="mydisplays_configurator.product_attribute_rechts_depending_on_entered_height"/>
+            <field name="attribute_id" ref="mydisplays_configurator.product_attribute_right"/>
             <field name="value_ids" 
                 eval="[(6, 0, [
                 ref('mydisplays_configurator.product_attribute_value_27'),
@@ -117,7 +135,7 @@
 
         <record id="product_attribute_line_10" model="product.template.attribute.line">
             <field name="product_tmpl_id" ref="mydisplays_configurator.product_template_my_werbebanner"/>
-            <field name="attribute_id" ref="mydisplays_configurator.product_attribute_Oben_depending_on_entered_width"/>
+            <field name="attribute_id" ref="mydisplays_configurator.product_attribute_top"/>
             <field name="value_ids" 
                 eval="[(6, 0, [
                 ref('mydisplays_configurator.product_attribute_value_34'),
@@ -132,7 +150,7 @@
 
         <record id="product_attribute_line_11" model="product.template.attribute.line">
             <field name="product_tmpl_id" ref="mydisplays_configurator.product_template_my_werbebanner"/>
-            <field name="attribute_id" ref="mydisplays_configurator.product_attribute_unten_depending_on_entered_width"/>
+            <field name="attribute_id" ref="mydisplays_configurator.product_attribute_bottom"/>
             <field name="value_ids" 
                 eval="[(6, 0, [
                 ref('mydisplays_configurator.product_attribute_value_41'),
@@ -145,16 +163,21 @@
             <field name="required" eval="True"/>
         </record>
 
+
+
+
+
+
         <record id="product_attribute_line_12" model="product.template.attribute.line">
             <field name="product_tmpl_id" ref="mydisplays_configurator.product_template_my_acrylglas"/>
-            <field name="attribute_id" ref="mydisplays_configurator.product_attribute_my_acrylglas_breite_in_cm"/>
+            <field name="attribute_id" ref="mydisplays_configurator.product_attribute_width"/>
             <field name="required" eval="True"/>
             <field name="custom" eval="True"/>
         </record>
 
         <record id="product_attribute_line_13" model="product.template.attribute.line">
             <field name="product_tmpl_id" ref="mydisplays_configurator.product_template_my_acrylglas"/>
-            <field name="attribute_id" ref="mydisplays_configurator.product_attribute_my_acrylglas_höhe_in_cm"/>
+            <field name="attribute_id" ref="mydisplays_configurator.product_attribute_height"/>
             <field name="required" eval="True"/>
             <field name="custom" eval="True"/>
         </record>
@@ -168,7 +191,7 @@
 
         <record id="product_attribute_line_14" model="product.template.attribute.line">
             <field name="product_tmpl_id" ref="mydisplays_configurator.product_template_my_acrylglas"/>
-            <field name="attribute_id" ref="mydisplays_configurator.product_attribute_materialstärke_and_grundfarbe"/>
+            <field name="attribute_id" ref="mydisplays_configurator.product_attribute_material_thickness_and_basic_colour"/>
             <field name="value_ids" 
                 eval="[(6, 0, [
                 ref('mydisplays_configurator.product_attribute_value_50'),
@@ -179,7 +202,7 @@
 
         <record id="product_attribute_line_15" model="product.template.attribute.line">
             <field name="product_tmpl_id" ref="mydisplays_configurator.product_template_my_acrylglas"/>
-            <field name="attribute_id" ref="mydisplays_configurator.product_attribute_ausführung"/>
+            <field name="attribute_id" ref="mydisplays_configurator.product_attribute_design"/>
             <field name="value_ids" 
                 eval="[(6, 0, [
                 ref('mydisplays_configurator.product_attribute_value_53'),
@@ -189,7 +212,7 @@
 
         <record id="product_attribute_line_16" model="product.template.attribute.line">
             <field name="product_tmpl_id" ref="mydisplays_configurator.product_template_my_acrylglas"/>
-            <field name="attribute_id" ref="mydisplays_configurator.product_attribute_druckverfahren_oder_beschriftung"/>
+            <field name="attribute_id" ref="mydisplays_configurator.product_attribute_printing_method_or_lettering"/>
             <field name="value_ids" 
                 eval="[(6, 0, [
                 ref('mydisplays_configurator.product_attribute_value_55'),
@@ -201,7 +224,7 @@
 
         <record id="product_attribute_line_17" model="product.template.attribute.line">
             <field name="product_tmpl_id" ref="mydisplays_configurator.product_template_my_acrylglas"/>
-            <field name="attribute_id" ref="mydisplays_configurator.product_attribute_zuschnitt"/>
+            <field name="attribute_id" ref="mydisplays_configurator.product_attribute_cutting_options"/>
             <field name="value_ids" 
                 eval="[(6, 0, [
                 ref('mydisplays_configurator.product_attribute_value_59'),
@@ -212,7 +235,7 @@
 
         <record id="product_attribute_line_18" model="product.template.attribute.line">
             <field name="product_tmpl_id" ref="mydisplays_configurator.product_template_my_acrylglas"/>
-            <field name="attribute_id" ref="mydisplays_configurator.product_attribute_aufhängung_or_montage"/>
+            <field name="attribute_id" ref="mydisplays_configurator.product_attribute_suspension_assembly"/>
             <field name="value_ids" 
                 eval="[(6, 0, [
                 ref('mydisplays_configurator.product_attribute_value_62'),

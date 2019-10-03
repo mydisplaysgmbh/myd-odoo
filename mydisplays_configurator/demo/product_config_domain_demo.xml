@@ -8,7 +8,7 @@
 
         <record id="product_config_domain_line_1" model="product.config.domain.line">
             <field name="domain_id" ref="product_config_domain_Leersystem_ohne_Druck"/>
-            <field name="attribute_id" ref="mydisplays_configurator.product_attribute_systemvariante"/>
+            <field name="attribute_id" ref="mydisplays_configurator.product_attribute_system_configuration"/>
             <field name="condition">not in</field>
             <field name="operator">and</field>
             <field name="value_ids" eval="[(6, 0, [

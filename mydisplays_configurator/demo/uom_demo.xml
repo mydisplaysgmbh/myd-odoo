@@ -1,15 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <data>
-        <record id="uom_categ_wtime_1" model="uom.category">
-            <field name="name">square_meters</field>
+        <record id="uom_category_area" model="uom.category">
+            <field name="name">GSM</field>
+            <field name="measure_type">weight</field>
         </record>
 
-        <record id="product_uom_id_demo" model="uom.uom">
-            <field name="name">paper material</field>
-            <field name="category_id" eval="uom_categ_wtime_1"/>
-            <field name="uom_po_id" eval="uom_categ_wtime_1"/>
-            <field name="factor" eval="1.0"/>
+        <record id="product_uom_gram_per_squar_meter" model="uom.uom">
+            <field name="name">GSM</field>
+            <field name="category_id" ref="mydisplays_configurator.uom_category_area"/>
+            <field name="uom_type">reference</field>
+            <field name="active">True</field>
+            <field name="rounding">0.01000</field>
         </record>
     </data>
 </odoo>
