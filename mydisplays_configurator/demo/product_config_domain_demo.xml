@@ -2,17 +2,57 @@
 <odoo>
     <data>
 
-        <record id="product_config_domain_Leersystem_ohne_Druck" model="product.config.domain">
-            <field name="name">Leersystem, ohne Druck</field>
+        <record id="product_config_domain_print_material" model="product.config.domain">
+            <field name="name">Print Material</field>
         </record>
 
         <record id="product_config_domain_line_1" model="product.config.domain.line">
-            <field name="domain_id" ref="product_config_domain_Leersystem_ohne_Druck"/>
+            <field name="domain_id" ref="product_config_domain_print_material"/>
             <field name="attribute_id" ref="mydisplays_configurator.product_attribute_system_configuration"/>
             <field name="condition">not in</field>
             <field name="operator">and</field>
             <field name="value_ids" eval="[(6, 0, [
                 ref('mydisplays_configurator.product_attribute_value_3')])]"/>
+        </record>
+
+        <record id="product_config_domain_3mm_acrylic_glass_white_opal" model="product.config.domain">
+            <field name="name">3 mm Acrylic glass, white/opal</field>
+        </record>
+
+        <record id="product_config_domain_line_2" model="product.config.domain.line">
+            <field name="domain_id" ref="mydisplays_configurator.product_config_domain_3mm_acrylic_glass_white_opal"/>
+            <field name="attribute_id" ref="mydisplays_configurator.product_attribute_material_thickness_and_basic_colour"/>
+            <field name="condition">in</field>
+            <field name="operator">and</field>
+            <field name="value_ids" eval="[(6, 0, [
+                ref('mydisplays_configurator.product_attribute_value_50')])]"/>
+        </record>
+
+        <record id="product_config_domain_backlight_blockout_print" model="product.config.domain">
+            <field name="name">Backlight/Blockout Print</field>
+        </record>
+
+        <record id="product_config_domain_line_3" model="product.config.domain.line">
+            <field name="domain_id" ref="mydisplays_configurator.product_config_domain_backlight_blockout_print"/>
+            <field name="attribute_id" ref="mydisplays_configurator.product_attribute_material_thickness_and_basic_colour"/>
+            <field name="condition">not in</field>
+            <field name="operator">and</field>
+            <field name="value_ids" eval="[(6, 0, [
+                ref('mydisplays_configurator.product_attribute_value_50')])]"/>
+        </record>
+
+        <record id="product_config_domain_one_sided" model="product.config.domain">
+            <field name="name">One sided</field>
+        </record>
+
+        <record id="product_config_domain_line_4" model="product.config.domain.line">
+            <field name="domain_id" ref="mydisplays_configurator.product_config_domain_one_sided"/>
+            <field name="attribute_id" ref="mydisplays_configurator.product_attribute_design"/>
+            <field name="condition">in</field>
+            <field name="operator">and</field>
+            <field name="value_ids" eval="[(6, 0, [
+                    ref('mydisplays_configurator.product_attribute_value_53'),
+                ])]"/>
         </record>
     </data>
 </odoo>

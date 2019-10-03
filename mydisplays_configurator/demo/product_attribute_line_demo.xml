@@ -42,6 +42,7 @@
                 ref('mydisplays_configurator.product_attribute_value_11'),
                 ref('mydisplays_configurator.product_attribute_value_12'),
                 ref('mydisplays_configurator.product_attribute_value_13'),])]"/>
+            <field name="required" eval="False"/>
         </record>
 
         <record id="product_attribute_line_4" model="product.template.attribute.line">
@@ -65,7 +66,7 @@
             <field name="required" eval="True"/>
         </record>
 
-        <record id="product_attribute_line_comment" model="product.template.attribute.line">
+        <record id="product_attribute_line_comment_1" model="product.template.attribute.line">
             <field name="product_tmpl_id" ref="mydisplays_configurator.product_template_rollup_lite"/>
             <field name="attribute_id" ref="mydisplays_configurator.product_attribute_comments"/>
             <field name="custom" eval="True"/>
@@ -126,7 +127,6 @@
                 ref('mydisplays_configurator.product_attribute_value_27'),
                 ref('mydisplays_configurator.product_attribute_value_28'),
                 ref('mydisplays_configurator.product_attribute_value_29'),
-                ref('mydisplays_configurator.product_attribute_value_30'),
                 ref('mydisplays_configurator.product_attribute_value_31'),
                 ref('mydisplays_configurator.product_attribute_value_32'),
                 ref('mydisplays_configurator.product_attribute_value_33'),])]"/>
@@ -141,7 +141,6 @@
                 ref('mydisplays_configurator.product_attribute_value_34'),
                 ref('mydisplays_configurator.product_attribute_value_35'),
                 ref('mydisplays_configurator.product_attribute_value_36'),
-                ref('mydisplays_configurator.product_attribute_value_37'),
                 ref('mydisplays_configurator.product_attribute_value_38'),
                 ref('mydisplays_configurator.product_attribute_value_39'),
                 ref('mydisplays_configurator.product_attribute_value_40'),])]"/>
@@ -156,17 +155,18 @@
                 ref('mydisplays_configurator.product_attribute_value_41'),
                 ref('mydisplays_configurator.product_attribute_value_42'),
                 ref('mydisplays_configurator.product_attribute_value_43'),
-                ref('mydisplays_configurator.product_attribute_value_44'),
                 ref('mydisplays_configurator.product_attribute_value_45'),
                 ref('mydisplays_configurator.product_attribute_value_46'),
                 ref('mydisplays_configurator.product_attribute_value_47'),])]"/>
             <field name="required" eval="True"/>
         </record>
 
-
-
-
-
+        <record id="product_attribute_line_comment_2" model="product.template.attribute.line">
+            <field name="product_tmpl_id" ref="mydisplays_configurator.product_template_my_werbebanner"/>
+            <field name="attribute_id" ref="mydisplays_configurator.product_attribute_comments"/>
+            <field name="custom" eval="True"/>
+            <field name="required" eval="False"/>
+        </record>
 
         <record id="product_attribute_line_12" model="product.template.attribute.line">
             <field name="product_tmpl_id" ref="mydisplays_configurator.product_template_my_acrylglas"/>
@@ -244,6 +244,12 @@
             <field name="required" eval="True"/>
         </record>
 
+        <record id="product_attribute_line_comment_3" model="product.template.attribute.line">
+            <field name="product_tmpl_id" ref="mydisplays_configurator.product_template_my_acrylglas"/>
+            <field name="attribute_id" ref="mydisplays_configurator.product_attribute_comments"/>
+            <field name="custom" eval="True"/>
+            <field name="required" eval="False"/>
+        </record>
 
     </data>
 </odoo>

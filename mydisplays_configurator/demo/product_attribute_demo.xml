@@ -5,7 +5,7 @@
             <field name="name">Quantity</field>
             <field name="val_custom" eval="True"/>
             <field name="custom_type">int</field>
-            <field name="custom_type">qty</field>
+            <field name="json_name">qty</field>
         </record>
 
         <record id="product_attribute_system_configuration" model="product.attribute">

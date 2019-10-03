@@ -3,7 +3,6 @@
     <data>
         <record id="uom_category_area" model="uom.category">
             <field name="name">GSM</field>
-            <field name="measure_type">weight</field>
         </record>
 
         <record id="product_uom_gram_per_squar_meter" model="uom.uom">
