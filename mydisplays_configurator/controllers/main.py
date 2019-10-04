@@ -38,8 +38,14 @@ class MydisplaysConfigWebsiteSale(ProductConfigWebsiteSale):
         type='http', auth="public", website=True)
     def config_session(self, config_session_id, **post):
         """Render product page of product_id"""
+        config_session_id = request.env['product.config.session']
+        if not config_session_id.exists():
+            return request.render("website.404")
         product_id = config_session_id.product_id
         product_tmpl_id = config_session_id.product_tmpl_id
+        if not product_tmpl_id.exists():
+            return request.render("website.404")
+
         cfg_user_id = config_session_id.user_id
         user_id = request.env.user
 
