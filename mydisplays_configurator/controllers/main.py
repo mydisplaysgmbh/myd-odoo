@@ -38,7 +38,6 @@ class MydisplaysConfigWebsiteSale(ProductConfigWebsiteSale):
         type='http', auth="public", website=True)
     def config_session(self, config_session_id, **post):
         """Render product page of product_id"""
-        config_session_id = request.env['product.config.session']
         if not config_session_id.exists():
             return request.render("website.404")
         product_id = config_session_id.product_id
