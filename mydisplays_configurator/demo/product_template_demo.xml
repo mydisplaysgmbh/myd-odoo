@@ -2,26 +2,26 @@
 <odoo>
     <data>
         <record id="product_template_rollup_lite" model="product.template">
-            <field name="name">Rollup Lite</field>
+            <field name="name">my Roller Banner Stand Lite</field>
             <field name="type">product</field>
             <field name="config_ok" eval="True"/>
-            <field name="list_price">10</field>
+            <field name="list_price">1000</field>
             <field name="weight">10</field>
         </record>
 
         <record id="product_template_my_werbebanner" model="product.template">
-            <field name="name">my Werbebanner (PVC-Plane)</field>
+            <field name="name">my PVC Banner</field>
             <field name="type">product</field>
             <field name="config_ok" eval="True"/>
-            <field name="list_price">20</field>
+            <field name="list_price">1500</field>
             <field name="weight">20</field>
         </record>
 
          <record id="product_template_my_acrylglas" model="product.template">
-            <field name="name">my Acrylglas (Plexiglas)</field>
+            <field name="name">my Acrylic Glass Printing</field>
             <field name="type">product</field>
             <field name="config_ok" eval="True"/>
-            <field name="list_price">30</field>
+            <field name="list_price">2000</field>
             <field name="weight">30</field>
         </record>
     </data>
