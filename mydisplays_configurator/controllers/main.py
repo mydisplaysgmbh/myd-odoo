@@ -21,8 +21,6 @@ class MydisplaysConfigWebsiteSale(ProductConfigWebsiteSale):
                 return res
             config_session = request.env['product.config.session'].browse(
                 res.get('config_session'))
-            product = request.env['product.product'].browse(
-                res.get('product_id'))
             if redirect_url:
                 redirect_url = "/website_product_configurator/configuration"
                 redirect_url += '/%s' % (slug(config_session))
