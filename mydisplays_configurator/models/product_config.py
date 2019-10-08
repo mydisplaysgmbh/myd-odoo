@@ -5,6 +5,21 @@ from odoo.tools.safe_eval import safe_eval
 from odoo.exceptions import UserError
 
 
+class ProductConfigSessionCustomValue(models.Model):
+    _inherit = "product.config.session.custom.value"
+
+    @api.multi
+    @api.depends("attribute_id", "attribute_id.uom_id")
+    def _compute_val_name(self):
+        for attr_val_custom in self:
+            uom = attr_val_custom.attribute_id.uom_id.name
+            attr_val_custom.name = "%s%s" % (attr_val_custom.value, uom or "")
+
+    name = fields.Char(
+        string="Name", readonly=True, compute="_compute_val_name", store=True
+    )
+
+
 class ProductConfigSession(models.Model):
     _inherit = "product.config.session"
 

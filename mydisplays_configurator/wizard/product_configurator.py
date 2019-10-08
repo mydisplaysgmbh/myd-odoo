@@ -1,4 +1,4 @@
-from odoo import models, fields, tools, api, _
+from odoo import models, api
 
 
 class ProductConfigurator(models.TransientModel):
@@ -12,3 +12,16 @@ class ProductConfigurator(models.TransientModel):
                 wizard.custom_value_ids
             )
         return wizard
+
+
+class ProductConfiguratorSale(models.TransientModel):
+    _inherit = "product.configurator.sale"
+
+    def _get_order_line_vals(self, product_id):
+        """ Link session with sale order lines"""
+
+        line_vals = super(ProductConfiguratorSale, self)._get_order_line_vals(
+            product_id=product_id
+        )
+        line_vals.update({"cfg_session_id": self.config_session_id.id})
+        return line_vals

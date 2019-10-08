@@ -1,3 +1,4 @@
+import json
 from odoo import http
 from odoo.http import request
 from odoo.addons.http_routing.models.ir_http import slug
@@ -5,6 +6,7 @@ from odoo.addons.website_product_configurator.controllers.main import\
     ProductConfigWebsiteSale
 from odoo.addons.website_product_configurator.controllers.main import\
     get_pricelist
+from odoo.addons.website_sale.controllers.main import WebsiteSale
 
 
 class MydisplaysConfigWebsiteSale(ProductConfigWebsiteSale):
@@ -76,4 +78,20 @@ class MydisplaysConfigWebsiteSale(ProductConfigWebsiteSale):
             'vals': vals,
         }
         return request.render(
-            "website_product_configurator.cfg_product_variant", values)
+            "website_product_configurator.cfg_product_variant", values
+        )
+
+
+class WebsiteSale(WebsiteSale):
+
+    @http.route(['/shop/cart/update'], type='http', auth="public",
+                methods=['POST'], website=True, csrf=False)
+    def cart_update(self, product_id, add_qty=1, set_qty=0, **kw):
+        """This route is called when adding a product to cart (no options)."""
+        config_session_id = kw.get('config_session_id')
+        if config_session_id:
+            self = self.with_context({'config_session_id': config_session_id})
+
+        return super(self, WebsiteSale).cart_update(
+            product_id=product_id, add_qty=add_qty, set_qty=set_qty, **kw
+        )
