@@ -18,7 +18,7 @@ class ProductConfiguratorSale(models.TransientModel):
     _inherit = "product.configurator.sale"
 
     def _get_order_line_vals(self, product_id):
-        """ Link session with ssale order lines"""
+        """ Link session with sale order lines"""
 
         line_vals = super(ProductConfiguratorSale, self)._get_order_line_vals(
             product_id=product_id
