@@ -49,4 +49,17 @@ class SaleOrderLine(models.Model):
         the related session and link it on the sale order line
         """
         json_vals = self.cfg_session_id.json_vals
+        bom_lines = json_vals.get('bom', [])
+
+        if not bom_lines:
+            return
+
+        bom = self.env['mrp.bom'].create({
+            'product_tmpl_id': self.product_id.product_tmpl_id.id,
+            'product_id': self.product_id.id,
+            'bom_line_ids': [(0, 0, line_data) for line_data in bom_lines]
+        })
+
+        self.bom_id = bom.id
+
         return True
