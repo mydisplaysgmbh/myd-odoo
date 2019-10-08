@@ -4,114 +4,151 @@
         <record id="product_rollup_case_60cm" model="product.product">
             <field name="name">Rollup Case 60 cm x 200 cm</field>
             <field name="type">product</field>
+            <field name="lst_price">20</field>
+            <field name="weight">20</field>
         </record>
 
         <record id="product_rollup_case_80cm" model="product.product">
             <field name="name">Rollup Case 80 cm x 200 cm</field>
             <field name="type">product</field>
+            <field name="lst_price">25</field>
+            <field name="weight">25</field>
         </record>
 
         <record id="product_rollup_case_85cm" model="product.product">
             <field name="name">Rollup Case 85 cm x 200 cm</field>
             <field name="type">product</field>
+            <field name="lst_price">30</field>
+            <field name="weight">30</field>
         </record>
 
         <record id="product_rollup_case_100cm" model="product.product">
             <field name="name">Rollup Case 100 cm x 200 cm</field>
             <field name="type">product</field>
-            <field name="uom_id" ref="mydisplays_configurator.product_uom_id_demo"/>
-            <field name="uom_po_id" ref="mydisplays_configurator.product_uom_id_demo"/>
+            <field name="lst_price">20</field>
+            <field name="weight">20</field>
         </record>
 
         <record id="product_rollup_case_120cm" model="product.product">
             <field name="name">Rollup Case 120 cm x 200 cm</field>
             <field name="type">product</field>
-            <field name="uom_id" ref="mydisplays_configurator.product_uom_id_demo"/>
-            <field name="uom_po_id" ref="mydisplays_configurator.product_uom_id_demo"/>
+            <field name="lst_price">25</field>
+            <field name="weight">25</field>
         </record>
 
         <record id="product_pvc_plane" model="product.product">
             <field name="name">PVC-Plane 510g/m² B1+M1</field>
             <field name="type">product</field>
-            <field name="uom_id" ref="mydisplays_configurator.product_uom_id_demo"/>
-            <field name="uom_po_id" ref="mydisplays_configurator.product_uom_id_demo"/>
+            <field name="lst_price">30</field>
+            <field name="weight">30</field>
+            <field name="uom_id" ref="mydisplays_configurator.product_uom_gram_per_squar_meter"/>
+            <field name="uom_po_id" ref="mydisplays_configurator.product_uom_gram_per_squar_meter"/>
         </record>
 
         <record id="product_rollflat_film_420gm" model="product.product">
             <field name="name">Rollflat-Film 420g/m²</field>
             <field name="type">product</field>
+            <field name="lst_price">20</field>
+            <field name="weight">20</field>
+            <field name="uom_id" ref="mydisplays_configurator.product_uom_gram_per_squar_meter"/>
+            <field name="uom_po_id" ref="mydisplays_configurator.product_uom_gram_per_squar_meter"/>
         </record>
 
         <record id="product_rollup_film_175my" model="product.product">
             <field name="name">Rollup-Film 175my</field>
             <field name="type">product</field>
+            <field name="lst_price">25</field>
+            <field name="weight">25</field>
+            <field name="uom_id" ref="mydisplays_configurator.product_uom_gram_per_squar_meter"/>
+            <field name="uom_po_id" ref="mydisplays_configurator.product_uom_gram_per_squar_meter"/>
         </record>
 
-        <record id="product_dekostoff" model="product.product">
-            <field name="name">Dekostoff 215g/m² B1 (OEKO-TEX®)</field>
+        <record id="product_deco_fabric" model="product.product">
+            <field name="name">Deco Fabric 215g/m² B1 (OEKO-TEX®)</field>
             <field name="type">product</field>
+            <field name="lst_price">30</field>
+            <field name="weight">30</field>
+            <field name="uom_id" ref="mydisplays_configurator.product_uom_gram_per_squar_meter"/>
+            <field name="uom_po_id" ref="mydisplays_configurator.product_uom_gram_per_squar_meter"/>
         </record>
 
         <record id="product_displaybanner" model="product.product">
             <field name="name">Displaybanner 330g/m² B1</field>
             <field name="type">product</field>
+            <field name="lst_price">20</field>
+            <field name="weight">20</field>
+            <field name="uom_id" ref="mydisplays_configurator.product_uom_gram_per_squar_meter"/>
+            <field name="uom_po_id" ref="mydisplays_configurator.product_uom_gram_per_squar_meter"/>
         </record>
 
         <record id="product_klett_and_flausch" model="product.product">
-            <field name="name">Klett and Flausch für Easy Change</field>
+            <field name="name">Klett and Flausch for Easy Change</field>
             <field name="type">product</field>
+            <field name="lst_price">25</field>
+            <field name="weight">25</field>
         </record>
 
         <record id="product_halogen_spot" model="product.product">
-            <field name="name">Halogen Spot für Rollups</field>
+            <field name="name">Halogen Spot for Rollups</field>
             <field name="type">product</field>
+            <field name="lst_price">30</field>
+            <field name="weight">30</field>
         </record>
 
         <record id="product_led_spot" model="product.product">
-            <field name="name">LED Spot für Rollups</field>
+            <field name="name">LED Spot for Rollups</field>
             <field name="type">product</field>
+            <field name="lst_price">20</field>
+            <field name="weight">20</field>
         </record>
 
-        <record id="product_ose" model="product.product">
-            <field name="name">Öse (eyelet)</field>
+        <record id="product_eyelet" model="product.product">
+            <field name="name">Eyelet</field>
             <field name="type">product</field>
+            <field name="lst_price">25</field>
+            <field name="weight">25</field>
         </record>
 
-        <record id="product_flachsaum" model="product.product">
-            <field name="name">Flachsaum (running meters)</field>
+        <record id="product_plain_seam" model="product.product">
+            <field name="name">Plain Seam (running meters)</field>
             <field name="type">product</field>
+            <field name="lst_price">30</field>
+            <field name="weight">30</field>
         </record>
 
-        <record id="product_flachsaum_ose" model="product.product">
-            <field name="name">Flachsaum (running meters) + Öse (eyelet)</field>
+        <record id="product_plain_seam_and_eyelet" model="product.product">
+            <field name="name">Plain Seam (running meters) + Eyelet</field>
             <field name="type">product</field>
+            <field name="lst_price">20</field>
+            <field name="weight">20</field>
         </record>
 
-        <record id="product_12cm" model="product.product">
-            <field name="name">12 cm more material needed on this edge</field>
+        <record id="product_3mm_acrylic_glass_white_opal" model="product.product">
+            <field name="name">3 mm Acrylic glass, white/opal</field>
             <field name="type">product</field>
+            <field name="lst_price">30</field>
+            <field name="weight">30</field>
         </record>
 
-        <record id="product_3mm" model="product.product">
-            <field name="name">3 mm Acrylglas, weiß/opal</field>
+        <record id="product_5mm_acrylic_glass_colourless" model="product.product">
+            <field name="name">5 mm Acrylic glass, colourless</field>
             <field name="type">product</field>
+            <field name="lst_price">20</field>
+            <field name="weight">20</field>
         </record>
 
-        <record id="product_5mm" model="product.product">
-            <field name="name">5 mm Acrylglas, farblos</field>
+        <record id="product_10mm_acrylic_glass_colourless" model="product.product">
+            <field name="name">10 mm Acrylic glass, colourless</field>
             <field name="type">product</field>
-            <field name="price">180</field>
-            <field name="weight">180</field>
+            <field name="lst_price">25</field>
+            <field name="weight">25</field>
         </record>
 
-        <record id="product_10mm" model="product.product">
-            <field name="name">10 mm Acrylglas, farblos </field>
+        <record id="product_stainless_steel_wall_spacers" model="product.product">
+            <field name="name">1x per hole > Stainless Steel Wall Spacers</field>
             <field name="type">product</field>
-        </record>
-
-        <record id="product_1x" model="product.product">
-            <field name="name">1x per hole > Edelstahlabstandshalter</field>
-            <field name="type">product</field>
+            <field name="lst_price">30</field>
+            <field name="weight">30</field>
         </record>
     </data>
 </odoo>

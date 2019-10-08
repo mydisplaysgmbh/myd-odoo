@@ -17,11 +17,12 @@
         'product_configurator_sale',
     ],
     'data': [
+        'views/assets_frontend_view.xml',
+        'views/config_form_templates.xml',
         'views/sale_order_view.xml',
         'views/product_attribute_view.xml',
         'views/product_config_view.xml',
         'views/product_view.xml',
-        'views/config_form_template.xml',
     ],
     'demo': [
         'demo/uom_demo.xml',
