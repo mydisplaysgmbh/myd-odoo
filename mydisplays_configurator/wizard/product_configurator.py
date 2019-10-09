@@ -228,9 +228,23 @@ class ProductConfigurator(models.TransientModel):
                     # customization
                     on_change="onchange_attribute_value(%s, context)"
                     % custom_field,
+                    # End
                     attrs=str(attrs),
                     widget=widget,
                 )
                 orm.setup_modifiers(node)
                 xml_dynamic_form.append(node)
         return xml_view
+
+
+class ProductConfiguratorSale(models.TransientModel):
+    _inherit = "product.configurator.sale"
+
+    def _get_order_line_vals(self, product_id):
+        """ Link session with sale order lines"""
+
+        line_vals = super(ProductConfiguratorSale, self)._get_order_line_vals(
+            product_id=product_id
+        )
+        line_vals.update({"cfg_session_id": self.config_session_id.id})
+        return line_vals

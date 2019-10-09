@@ -1,7 +1,23 @@
 import pprint
 
-from odoo import api, fields, models
+from odoo import api, fields, models, _
 from odoo.tools.safe_eval import safe_eval
+from odoo.exceptions import UserError
+
+
+class ProductConfigSessionCustomValue(models.Model):
+    _inherit = "product.config.session.custom.value"
+
+    @api.multi
+    @api.depends("attribute_id", "attribute_id.uom_id")
+    def _compute_val_name(self):
+        for attr_val_custom in self:
+            uom = attr_val_custom.attribute_id.uom_id.name
+            attr_val_custom.name = "%s%s" % (attr_val_custom.value, uom or "")
+
+    name = fields.Char(
+        string="Name", readonly=True, compute="_compute_val_name", store=True
+    )
 
 
 class ProductConfigSession(models.Model):
@@ -79,12 +95,12 @@ class ProductConfigSession(models.Model):
             try:
                 return int(val)
             except Exception:
-                raise UserError(_("Please provide valid integer value"))
+                raise UserError(_("Please provide a valid integer value"))
         elif custom_type in ["float"]:
             try:
                 return float(val)
             except Exception:
-                raise UserError(_("Please provide valid float value"))
+                raise UserError(_("Please provide a valid float value"))
         else:
             return val
 
@@ -166,7 +182,7 @@ class ProductConfigSession(models.Model):
 
     def set_default_cfg_session_json_dictionary(self, custom_value_ids=None):
         """update json field while reconfigure product"""
-        if custom_value_ids == None:
+        if custom_value_ids is None:
             custom_value_ids = self.custom_value_ids
         cfg_session_json = {}
         for custom_val_id in custom_value_ids:
