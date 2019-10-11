@@ -8,7 +8,7 @@ class ProductConfigurator(models.TransientModel):
     def create(self, vals):
         wizard = super(ProductConfigurator, self).create(vals)
         if wizard.custom_value_ids:
-            wizard.config_session_id.set_default_cfg_session_json_dictionary(
+            wizard.config_session_id.set_default_config_json(
                 wizard.custom_value_ids
             )
         return wizard

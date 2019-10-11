@@ -13,13 +13,18 @@ class SaleOrder(models.Model):
             product_id=product_id, line_id=line_id, add_qty=add_qty,
             set_qty=set_qty, **kwargs)
         config_session_id = kwargs.get('config_session_id')
-        if config_session_id:
-            config_session_id = int(config_session_id)
-            order_line = self.env['sale.order.line'].browse(res.get('line_id'))
-            for line in order_line:
-                line.cfg_session_id = config_session_id
-                line._create_bom_from_json()
-        return res
+        if not config_session_id:
+            return res
+
+        config_session_id = int(config_session_id)
+        order_line = self.env['sale.order.line'].browse(res.get('line_id'))
+        for line in order_line:
+            line.cfg_session_id = config_session_id
+            bom_id = line._create_bom_from_json()
+            line.write({
+                'bom_id': bom_id,
+                'price_unit': line.cfg_session_id.json_vals.get('price')
+            })
 
 
 class SaleOrderLine(models.Model):
@@ -52,7 +57,7 @@ class SaleOrderLine(models.Model):
         bom_lines = json_vals.get('bom', [])
 
         if not bom_lines:
-            return
+            return None
 
         bom = self.env['mrp.bom'].create({
             'product_tmpl_id': self.product_id.product_tmpl_id.id,
@@ -60,6 +65,4 @@ class SaleOrderLine(models.Model):
             'bom_line_ids': [(0, 0, line_data) for line_data in bom_lines]
         })
 
-        self.bom_id = bom.id
-
-        return True
+        return bom.id
