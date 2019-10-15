@@ -216,3 +216,5 @@ class ProductConfigSession(models.Model):
     def _compute_cfg_price(self):
         for session in self:
             session.price = session.json_vals.get('price', 0)
+
+    # TODO: Verify if the above methods and fields are still needed
