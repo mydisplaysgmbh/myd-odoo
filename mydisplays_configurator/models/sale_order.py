@@ -1,5 +1,3 @@
-
-import json
 from odoo import fields, models, api
 
 
@@ -12,7 +10,8 @@ class SaleOrder(models.Model):
         res = super(SaleOrder, self)._cart_update(
             product_id=product_id, line_id=line_id, add_qty=add_qty,
             set_qty=set_qty, **kwargs)
-        config_session_id = kwargs.get('config_session_id')
+
+        config_session_id = kwargs.get('config_session_id', False)
         if not config_session_id:
             return res
 

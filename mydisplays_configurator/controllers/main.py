@@ -11,6 +11,17 @@ from odoo.addons.website_sale.controllers.main import WebsiteSale
 
 class MydisplaysConfigWebsiteSale(ProductConfigWebsiteSale):
 
+    def get_render_vals(self, cfg_session):
+        """Return dictionary with values required for website template
+        rendering"""
+        vals = super(ProductConfigWebsiteSale, self).get_render_vals(
+            cfg_session=cfg_session
+        )
+        json_session_vals = cfg_session.json_vals
+        if json_session_vals:
+            vals.update({'json_session_vals': json_session_vals})
+        return vals
+
     @http.route()
     def save_configuration(self, form_values, current_step=False,
                            next_step=False, **post):
@@ -112,7 +123,7 @@ class WebsiteSale(WebsiteSale):
             product_custom_attribute_values=product_custom_attribute_values,
             no_variant_attribute_values=no_variant_attribute_values,
             # Custom code
-            config_session_id=kw.get('config_session_id')
+            config_session_id=kw.get('config_session_id', False)
             # End
         )
         return request.redirect("/shop/cart")

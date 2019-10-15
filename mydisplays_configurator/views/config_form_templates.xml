@@ -1,5 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
+
+    <!-- Base view for website configuration body -->
+    <template id="product_configurator" inherit_id="website_product_configurator.product_configurator" name="Product Configuration Interface">
+        <xpath expr="//form[@id='product_config_form']//span[hasclass('config_product_weight')]" position="attributes">
+            <t t-set="json_session_vals" t-value="vals.get('json_session_vals')"/>
+            <attribute name="t-esc">('{0:,.%sf}' % (weight_prec)).format(json_session_vals.get("weight", 0))</attribute>
+        </xpath>
+        <xpath expr="//form[@id='product_config_form']//span[hasclass('config_product_price')]" position="attributes">
+            <t t-set="json_session_vals" t-value="vals.get('json_session_vals')"/>
+            <attribute name="t-esc">json_session_vals.get("price", 0)</attribute>
+        </xpath>
+    </template>
+
     <template id="cfg_product_variant_inherit" name="Product" inherit_id="website_product_configurator.cfg_product_variant">
         <xpath expr="//div[@id='product_details']" position="replace">
             <div class="col-md-6 col-xl-4 offset-xl-2" id="product_details">

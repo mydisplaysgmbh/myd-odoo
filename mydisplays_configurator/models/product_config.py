@@ -40,14 +40,10 @@ class ProductConfigSession(models.Model):
             config[attr_json_name] = tmpl_config_cache["attr_vals"][val_id]
 
         # Add custom value_ids to config dict using human readable json name
-        custom_val_id = self.get_custom_value_id()
         for attr_id, vals in self.json_config.items():
             if not vals.get("value", False):
                 continue
             value = vals.get("value")
-            # val_id = str(attr_val.id)
-            # json_val = tmpl_config_cache["attr_vals"].get(val_id, {})
-            # attr_id = json_val.get("attribute_id")
             attr_json_name = tmpl_config_cache["attr_json_map"][str(attr_id)]
             # TODO: Add typecast using custom_type info
             config[attr_json_name] = value
@@ -143,6 +139,7 @@ class ProductConfigSession(models.Model):
             custom_field = "%s%s" % (custom_field_prefix, attribute_id)
             if field_name not in vals and custom_field not in vals:
                 continue
+            custom_flag = True
             if field_name in vals:
                 # custom value changed with standard one
                 value = vals.get(field_name, False)
@@ -151,12 +148,13 @@ class ProductConfigSession(models.Model):
                     and attribute_id in cfg_session_json
                 ):
                     cfg_session_json.pop(attribute_id)
-            if custom_field in vals:
+                custom_flag = (value == custom_val_id.id)
+            if custom_field in vals and custom_flag:
                 custom_val = vals.get(custom_field, False)
                 if not custom_val and attribute_id in cfg_session_json:
                     # If value removed
                     cfg_session_json.pop(attribute_id)
-                else:
+                elif custom_val:
                     attr_dict = {}
                     custom_val = vals.get(custom_field, False)
                     custom_type = attrs.get(attribute_id, {}).get(
@@ -206,3 +204,17 @@ class ProductConfigSession(models.Model):
                 attr_dict["value"] = custom_val
         self.json_config = cfg_session_json
         self.json_config_text = pprint.pformat(cfg_session_json)
+
+    @api.multi
+    @api.depends("json_vals")
+    def _compute_cfg_weight(self):
+        for cfg_session in self:
+            cfg_session.weight = cfg_session.json_vals.get('weight', 0)
+
+    @api.multi
+    @api.depends("json_vals")
+    def _compute_cfg_price(self):
+        for session in self:
+            session.price = session.json_vals.get('price', 0)
+
+    # TODO: Verify if the above methods and fields are still needed
