@@ -105,10 +105,10 @@ class ProductConfigSession(models.Model):
             return val
 
     @api.multi
-    def get_configuration_session_json_dictionary(
+    def get_config_session_json(
         self, vals, product_tmpl_id=None
     ):
-        """Store product.config.session data in serialized computed field
+        """Get product.config.session data in a serialized computed field
             {
                 'attrs': {
                     attr_1_id: {
@@ -168,19 +168,19 @@ class ProductConfigSession(models.Model):
         return cfg_session_json
 
     @api.multi
-    def update_session_configuration_value(self, vals, product_tmpl_id=None):
+    def update_session_config_vals(self, vals, product_tmpl_id=None):
         """storing data as JSON from the session
         and update the values accordingly"""
         super(ProductConfigSession, self).update_session_configuration_value(
             vals=vals, product_tmpl_id=product_tmpl_id
         )
-        cfg_session_json = self.get_configuration_session_json_dictionary(
+        cfg_session_json = self.get_config_session_json(
             vals=vals, product_tmpl_id=product_tmpl_id
         )
         self.json_config = cfg_session_json
         self.json_config_text = pprint.pformat(cfg_session_json)
 
-    def set_default_cfg_session_json_dictionary(self, custom_value_ids=None):
+    def set_default_config_json(self, custom_value_ids=None):
         """update json field while reconfigure product"""
         if custom_value_ids is None:
             custom_value_ids = self.custom_value_ids
