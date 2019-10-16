@@ -14,7 +14,7 @@ class MydisplaysConfigWebsiteSale(ProductConfigWebsiteSale):
     def get_render_vals(self, cfg_session):
         """Return dictionary with values required for website template
         rendering"""
-        vals = super(ProductConfigWebsiteSale, self).get_render_vals(
+        vals = super(MydisplaysConfigWebsiteSale, self).get_render_vals(
             cfg_session=cfg_session
         )
         json_session_vals = cfg_session.json_vals
