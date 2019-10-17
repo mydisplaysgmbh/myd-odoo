@@ -10,9 +10,22 @@ class ProductAttribute(models.Model):
         name='JSON Name',
         required=True,
     )
+    is_website_visible = fields.Boolean(
+        string="Website",
+        default=True,
+        help="Set in order to make attribute visible on "
+        "website(work only for configurable products)",
+    )
 
     _sql_constraints = [('unique_attribute_json_name', 'unique(json_name)',
                          'Json name must be unique for each attribute')]
+
+    @api.onchange("is_website_visible")
+    def _onchange_display_attribute(self):
+        for attr_id in self:
+            if attr_id.is_website_visible:
+                return
+            attr_id.required = False
 
     @api.model_create_multi
     def create(self, vals_list):
@@ -34,6 +47,41 @@ class ProductAttribute(models.Model):
         })
 
         return super(ProductAttribute, self).copy(default=default)
+
+
+class ProductAttributeLine(models.Model):
+    _inherit = "product.template.attribute.line"
+
+    is_website_visible = fields.Boolean(
+        string="Website",
+        default=True,
+        help="Set in order to make attribute visible on "
+        "website(work only for configurable products)",
+    )
+
+    @api.onchange("attribute_id")
+    def onchange_attribute(self):
+        res = super(ProductAttributeLine, self).onchange_attribute()
+        self.is_website_visible = self.attribute_id.is_website_visible
+        return res
+
+    @api.onchange("is_website_visible")
+    def _onchange_display_attribute(self):
+        for attr_line in self:
+            if attr_line.is_website_visible:
+                return
+            attr_line.required = False
+
+    @api.multi
+    @api.constrains("is_website_visible")
+    def _check_default_values(self):
+        for template in self.mapped("product_tmpl_id"):
+            if not template.attribute_line_ids.filtered(
+                lambda l: l.is_website_visible
+            ):
+                raise ValidationError(
+                    _("Please set at least one attribute visible on website.")
+                )
 
 
 class ProductAttributeValue(models.Model):
