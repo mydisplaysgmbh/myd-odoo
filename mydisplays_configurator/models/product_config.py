@@ -32,8 +32,8 @@ class ProductConfigSession(models.Model):
         config = {}
         # Add selected value_ids to config dict using human readable json name
         custom_val_id = self.get_custom_value_id()
-        for attr_val in self.value_ids - custom_val_id:
-            val_id = str(attr_val.id)
+        for attr_val in list(set(self.json_config.get('value_ids') or []) - set([custom_val_id.id])):
+            val_id = str(attr_val)
             json_val = tmpl_config_cache["attr_vals"].get(val_id, {})
             attr_id = json_val.get("attribute_id")
             attr_json_name = tmpl_config_cache["attr_json_map"][str(attr_id)]
@@ -41,13 +41,14 @@ class ProductConfigSession(models.Model):
 
         # Add custom value_ids to config dict using human readable json name
         for attr_id, vals in self.json_config.items():
+            if attr_id == 'value_ids':
+                continue
             if not vals.get("value", False):
                 continue
             value = vals.get("value")
             attr_json_name = tmpl_config_cache["attr_json_map"][str(attr_id)]
             # TODO: Add typecast using custom_type info
             config[attr_json_name] = value
-
         return {
             "template": tmpl_config_cache.get("attrs", {}),
             "session": {"price": 0, "weight": 0, "quantity": 0, "bom": []},
@@ -69,7 +70,6 @@ class ProductConfigSession(models.Model):
             )
             session.json_vals = eval_context["session"]
             session.json_vals_debug = pprint.pformat(eval_context["session"])
-
     json_config = fields.Serialized(
         name="JSON Config", help="Json representation of all custom values"
     )
