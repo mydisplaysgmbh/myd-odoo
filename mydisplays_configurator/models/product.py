@@ -26,6 +26,7 @@ class ProductTemplate(models.Model):
             },
             'attrs': {
                 'attr_id_1': {
+                    'name': attribute.name,
                     'custom': attribute.val_custom,
                     'custom_type': attribute.custom_type,
                     'required': attribute.required,
@@ -89,7 +90,7 @@ class ProductTemplate(models.Model):
                 "attrs": {},
                 "attr_vals": {},
                 "attr_json_map": {
-                    a.id: a.json_name for a in attrs if a.json_name
+                    '%s' % (a.id): a.json_name for a in attrs if a.json_name
                 },
             }
 
@@ -111,14 +112,15 @@ class ProductTemplate(models.Model):
 
             for line in attr_lines:
                 attr = line.attribute_id
-                json_tree["attrs"][attr.id] = {
+                json_tree["attrs"]['%s' % (attr.id)] = {
                     "required": line.required,
                     "multi": line.multi,
                     "custom": line.custom,
                     "custom_type": attr.custom_type,
+                    "name": attr.name
                 }
                 for attr_val in line.value_ids:
-                    val_tree = json_tree["attr_vals"][attr_val.id] = {}
+                    val_tree = json_tree["attr_vals"]['%s' % (attr_val.id)] = {}
                     val_tree.update(
                         {
                             "attribute_id": attr.id,

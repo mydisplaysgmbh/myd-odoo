@@ -1,7 +1,23 @@
 import pprint
 
-from odoo import api, fields, models
+from odoo import api, fields, models, _
 from odoo.tools.safe_eval import safe_eval
+from odoo.exceptions import UserError
+
+
+class ProductConfigSessionCustomValue(models.Model):
+    _inherit = "product.config.session.custom.value"
+
+    @api.multi
+    @api.depends("attribute_id", "attribute_id.uom_id")
+    def _compute_val_name(self):
+        for attr_val_custom in self:
+            uom = attr_val_custom.attribute_id.uom_id.name
+            attr_val_custom.name = "%s%s" % (attr_val_custom.value, uom or "")
+
+    name = fields.Char(
+        string="Name", readonly=True, compute="_compute_val_name", store=True
+    )
 
 
 class ProductConfigSession(models.Model):
@@ -24,14 +40,10 @@ class ProductConfigSession(models.Model):
             config[attr_json_name] = tmpl_config_cache["attr_vals"][val_id]
 
         # Add custom value_ids to config dict using human readable json name
-        custom_val_id = self.get_custom_value_id()
         for attr_id, vals in self.json_config.items():
             if not vals.get("value", False):
                 continue
             value = vals.get("value")
-            # val_id = str(attr_val.id)
-            # json_val = tmpl_config_cache["attr_vals"].get(val_id, {})
-            # attr_id = json_val.get("attribute_id")
             attr_json_name = tmpl_config_cache["attr_json_map"][str(attr_id)]
             # TODO: Add typecast using custom_type info
             config[attr_json_name] = value
@@ -83,20 +95,20 @@ class ProductConfigSession(models.Model):
             try:
                 return int(val)
             except Exception:
-                raise UserError(_("Please provide valid integer value"))
+                raise UserError(_("Please provide a valid integer value"))
         elif custom_type in ["float"]:
             try:
                 return float(val)
             except Exception:
-                raise UserError(_("Please provide valid float value"))
+                raise UserError(_("Please provide a valid float value"))
         else:
             return val
 
     @api.multi
-    def get_configuration_session_json_dictionary(
+    def get_config_session_json(
         self, vals, product_tmpl_id=None
     ):
-        """Store product.config.session data in serialized computed field
+        """Get product.config.session data in a serialized computed field
             {
                 'attrs': {
                     attr_1_id: {
@@ -127,6 +139,7 @@ class ProductConfigSession(models.Model):
             custom_field = "%s%s" % (custom_field_prefix, attribute_id)
             if field_name not in vals and custom_field not in vals:
                 continue
+            custom_flag = True
             if field_name in vals:
                 # custom value changed with standard one
                 value = vals.get(field_name, False)
@@ -135,12 +148,13 @@ class ProductConfigSession(models.Model):
                     and attribute_id in cfg_session_json
                 ):
                     cfg_session_json.pop(attribute_id)
-            if custom_field in vals:
+                custom_flag = (value == custom_val_id.id)
+            if custom_field in vals and custom_flag:
                 custom_val = vals.get(custom_field, False)
                 if not custom_val and attribute_id in cfg_session_json:
                     # If value removed
                     cfg_session_json.pop(attribute_id)
-                else:
+                elif custom_val:
                     attr_dict = {}
                     custom_val = vals.get(custom_field, False)
                     custom_type = attrs.get(attribute_id, {}).get(
@@ -154,21 +168,21 @@ class ProductConfigSession(models.Model):
         return cfg_session_json
 
     @api.multi
-    def update_session_configuration_value(self, vals, product_tmpl_id=None):
+    def update_session_config_vals(self, vals, product_tmpl_id=None):
         """storing data as JSON from the session
         and update the values accordingly"""
         super(ProductConfigSession, self).update_session_configuration_value(
             vals=vals, product_tmpl_id=product_tmpl_id
         )
-        cfg_session_json = self.get_configuration_session_json_dictionary(
+        cfg_session_json = self.get_config_session_json(
             vals=vals, product_tmpl_id=product_tmpl_id
         )
         self.json_config = cfg_session_json
         self.json_config_text = pprint.pformat(cfg_session_json)
 
-    def set_default_cfg_session_json_dictionary(self, custom_value_ids=None):
+    def set_default_config_json(self, custom_value_ids=None):
         """update json field while reconfigure product"""
-        if custom_value_ids == None:
+        if custom_value_ids is None:
             custom_value_ids = self.custom_value_ids
         cfg_session_json = {}
         for custom_val_id in custom_value_ids:
@@ -216,3 +230,17 @@ class ProductConfigSession(models.Model):
         res.value_ids = value_ids
 
         return res
+
+    @api.multi
+    @api.depends("json_vals")
+    def _compute_cfg_weight(self):
+        for cfg_session in self:
+            cfg_session.weight = cfg_session.json_vals.get('weight', 0)
+
+    @api.multi
+    @api.depends("json_vals")
+    def _compute_cfg_price(self):
+        for session in self:
+            session.price = session.json_vals.get('price', 0)
+
+    # TODO: Verify if the above methods and fields are still needed
