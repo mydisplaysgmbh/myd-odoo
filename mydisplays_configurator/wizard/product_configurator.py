@@ -8,15 +8,6 @@ from odoo.exceptions import UserError
 class ProductConfigurator(models.TransientModel):
     _inherit = "product.configurator"
 
-    @api.model
-    def create(self, vals):
-        wizard = super(ProductConfigurator, self).create(vals)
-        if wizard.custom_value_ids:
-            wizard.config_session_id.set_default_config_json(
-                wizard.custom_value_ids
-            )
-        return wizard
-
     def _get_dynamic_fields(self, values):
         dynamic_vals = {}
         product_configurator_obj = self.env["product.configurator"]

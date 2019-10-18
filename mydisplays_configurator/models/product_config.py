@@ -68,8 +68,10 @@ class ProductConfigSession(models.Model):
                 nocopy=True,
                 locals_builtins=True,
             )
+            print("eval_context ",eval_context)
             session.json_vals = eval_context["session"]
             session.json_vals_debug = pprint.pformat(eval_context["session"])
+
     json_config = fields.Serialized(
         name="JSON Config", help="Json representation of all custom values"
     )
@@ -180,10 +182,12 @@ class ProductConfigSession(models.Model):
         self.json_config = cfg_session_json
         self.json_config_text = pprint.pformat(cfg_session_json)
 
-    def set_default_config_json(self, custom_value_ids=None):
+    def set_default_config_json(self, custom_value_ids=None, value_ids=None):
         """update json field while reconfigure product"""
         if custom_value_ids is None:
             custom_value_ids = self.custom_value_ids
+        if value_ids is None:
+            value_ids = self.value_ids
         cfg_session_json = {}
         for custom_val_id in custom_value_ids:
             attribute_id = "%s" % (custom_val_id.attribute_id.id)
@@ -202,6 +206,7 @@ class ProductConfigSession(models.Model):
                     custom_val = vals
             if custom_val:
                 attr_dict["value"] = custom_val
+        cfg_session_json['value_ids'] = value_ids.ids
         self.json_config = cfg_session_json
         self.json_config_text = pprint.pformat(cfg_session_json)
 
@@ -216,5 +221,15 @@ class ProductConfigSession(models.Model):
     def _compute_cfg_price(self):
         for session in self:
             session.price = session.json_vals.get('price', 0)
+            print("session.price ",session.price, session.json_vals)
+
+    @api.model
+    def create(self, vals):
+        session = super(ProductConfigSession, self).create(vals)
+        if session.custom_value_ids or session.value_ids:
+            session.set_default_config_json(
+                session.custom_value_ids, session.value_ids
+            )
+        return session
 
     # TODO: Verify if the above methods and fields are still needed
