@@ -122,8 +122,8 @@ class ProductConfigurator(models.TransientModel):
 
                 # If attribute is required make it so only in the proper step
                 if attr_line.required:
-                    attrs['required'].append(
-                        (dependee_field, 'in', list(val_ids)))
+                    attrs['required'].append(('state', 'in', ['configure']))
+
 
 
             if attr_line.custom:
@@ -169,10 +169,10 @@ class ProductConfigurator(models.TransientModel):
                 for dependee_field, val_ids in attr_depends.items():
                     if not val_ids:
                         continue
-                    attrs["readonly"].append(
-                        (dependee_field, "not in", list(val_ids))
-                    )
-                    if attr_line.required:
+                    if attr_line.required and not attr_line.custom:
+                        attrs["readonly"].append(
+                            (dependee_field, "not in", list(val_ids))
+                        )
                         attrs['required'].append(
                             (dependee_field, 'in', list(val_ids)))
 
