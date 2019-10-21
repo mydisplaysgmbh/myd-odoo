@@ -81,23 +81,23 @@
 
     <template id="config_form_select_inherit" inherit_id="website_product_configurator.config_form_select">
         <xpath expr="//t[@t-foreach='cfg_step_attribute_line_ids']//label[hasclass('control-label')]" position="replace">
-            <label t-att-class="'control-label' + (not line.is_website_visible and ' d-none' or '')"
+            <label t-att-class="'control-label' + (line.invisible and ' d-none' or '')"
                 t-esc="line.attribute_id.name" t-att-data-oe-id="line.attribute_id.id">
             </label>
         </xpath>
         <xpath expr="//t[@t-foreach='cfg_step_attribute_line_ids']//select[@t-att-data-oe-id='line.attribute_id.id']" position="attributes">
-            <attribute name="t-att-class">'form-control config_attribute' + (line.required and ' required_config_attrib' or '') + (not line.is_website_visible and ' d-none' or '')</attribute>
+            <attribute name="t-att-class">'form-control config_attribute' + (line.required and ' required_config_attrib' or '') + (line.invisible and ' d-none' or '')</attribute>
         </xpath>
     </template>
 
     <template id="config_form_radio_inherit" inherit_id="website_product_configurator.config_form_radio">
         <xpath expr="//t[@t-foreach='cfg_step_attribute_line_ids']//label[hasclass('control-label')]" position="replace">
-            <label t-att-class="'control-label' + (not line.is_website_visible and ' d-none' or '')"
+            <label t-att-class="'control-label' + (line.invisible and ' d-none' or '')"
                 t-esc="line.attribute_id.name" t-att-data-oe-id="line.attribute_id.id">
             </label>
         </xpath>
         <xpath expr="//t[@t-foreach='cfg_step_attribute_line_ids']//fieldset[@t-att-data-oe-id='line.attribute_id.id']" position="attributes">
-            <attribute name="t-att-class">'form-control config_attribute' + (line.required and ' required_config_attrib' or '') + (not line.is_website_visible and ' d-none' or '')</attribute>
+            <attribute name="t-att-class">'form-control config_attribute' + (line.required and ' required_config_attrib' or '') + (line.invisible and ' d-none' or '')</attribute>
         </xpath>
     </template>
 </odoo>

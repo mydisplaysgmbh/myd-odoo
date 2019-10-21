@@ -186,7 +186,7 @@ class ProductTemplate(models.Model):
 
     def _check_visible_attribute_line(self):
         invisible_attr = self.attribute_line_ids.filtered(
-            lambda x: not x.is_website_visible
+            lambda x: x.invisible
         ).mapped("attribute_id")
         domain_attr = self.config_line_ids.mapped(
             "domain_id.domain_line_ids.attribute_id"
