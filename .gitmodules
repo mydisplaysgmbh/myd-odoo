@@ -1,0 +1,8 @@
+[submodule "product-configurator"]
+	path = product-configurator
+	url = git@gitlab.pledra.com:pledra/odoo-product-configurator.git
+	branch = 12.0
+[submodule "mydisplays-configurator"]
+	path = mydisplays-configurator
+	url = git@gitlab.pledra.com:pledra/mydisplays.git
+	branch = 12.0
