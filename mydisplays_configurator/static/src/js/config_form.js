@@ -2,12 +2,7 @@ odoo.define('mydisplay_configurator.config_form', function (require) {
     'use strict';
 
     var ajax = require('web.ajax');
-    var time = require('web.time');
-    var utils = require('web.utils');
-    var core = require('web.core');
-    var Dialog = require('web.Dialog');
     var Configurator = require('website_product_configurator.config_form');
-    var _t = core._t;
 
     Configurator.include({
 
