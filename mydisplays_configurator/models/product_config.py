@@ -45,9 +45,7 @@ class ProductConfigSession(models.Model):
             config[attr_json_name] = tmpl_config_cache["attr_vals"][val_id]
 
         # Add custom value_ids to config dict using human readable json name
-        for attr_id, vals in self.json_config.items():
-            if attr_id == 'value_ids':
-                continue
+        for attr_id, vals in self.json_config.get('custom_values', {}).items():
             if not vals.get("value", False):
                 continue
             value = vals.get("value")
@@ -134,7 +132,7 @@ class ProductConfigSession(models.Model):
             "custom_field_prefix"
         )
         custom_val_id = self.get_custom_value_id()
-        cfg_session_json = self.json_config
+        cfg_session_json = self.json_config.get('custom_values', {})
         if not cfg_session_json:
             cfg_session_json = {}
         for attribute_id in attrs:
@@ -170,7 +168,7 @@ class ProductConfigSession(models.Model):
                     )
                     attr_dict["value"] = custom_val
                     cfg_session_json[attribute_id] = attr_dict
-        return cfg_session_json
+        return {'custom_values': cfg_session_json}
 
     @api.multi
     def update_session_config_vals(self, vals, product_tmpl_id=None):
@@ -207,6 +205,7 @@ class ProductConfigSession(models.Model):
                     custom_val = vals
             if custom_val:
                 attr_dict["value"] = custom_val
+        cfg_session_json = {'custom_values': cfg_session_json}
         self.json_config = cfg_session_json
         self.json_config_text = pprint.pformat(cfg_session_json)
 
