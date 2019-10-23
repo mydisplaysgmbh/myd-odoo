@@ -119,7 +119,9 @@ class ProductTemplate(models.Model):
                     "name": attr.name
                 }
                 for attr_val in line.value_ids:
-                    val_tree = json_tree["attr_vals"]['%s' % (attr_val.id)] = {}
+                    val_tree = json_tree["attr_vals"][
+                        '%s' % (attr_val.id)
+                    ] = {}
                     val_tree.update(
                         {
                             "attribute_id": attr.id,

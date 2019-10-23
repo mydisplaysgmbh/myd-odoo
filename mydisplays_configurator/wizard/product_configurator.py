@@ -1,4 +1,4 @@
-from odoo import models, fields, tools, api, _
+from odoo import models, api, _
 import pprint
 from lxml import etree
 from odoo.osv import orm
