@@ -68,7 +68,6 @@ class ProductConfigSession(models.Model):
                 nocopy=True,
                 locals_builtins=True,
             )
-            print("eval_context ",eval_context)
             session.json_vals = eval_context["session"]
             session.json_vals_debug = pprint.pformat(eval_context["session"])
 
@@ -221,7 +220,6 @@ class ProductConfigSession(models.Model):
     def _compute_cfg_price(self):
         for session in self:
             session.price = session.json_vals.get('price', 0)
-            print("session.price ",session.price, session.json_vals)
 
     @api.model
     def create(self, vals):
