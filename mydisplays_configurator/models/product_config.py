@@ -75,6 +75,7 @@ class ProductConfigSession(models.Model):
             )
             session.json_vals = eval_context["session"]
             session.json_vals_debug = pprint.pformat(eval_context["session"])
+
     json_config = fields.Serialized(
         name="JSON Config", help="Json representation of all custom values"
     )
@@ -240,7 +241,7 @@ class ProductConfigDomain(models.Model):
             return
         product_tmpl_id = self.env["product.template"].browse(product_tmpl_id)
         invisible_attr = product_tmpl_id.attribute_line_ids.filtered(
-            lambda x: not x.is_website_visible
+            lambda x: x.invisible
         ).mapped("attribute_id")
         domain_attr = self.mapped("domain_line_ids.attribute_id")
         invalid_attr = domain_attr & invisible_attr
@@ -250,8 +251,7 @@ class ProductConfigDomain(models.Model):
         if invalid_attr:
             attrs_name = "\n".join(list(invalid_attr.mapped("name")))
         raise ValidationError(
-            _(
-                "Please set 'Website' on following attributes "
-                "before add restrictions on these attributes:\n" + attrs_name
-            )
+            _("Invisible attribute lines are not allowed in configuration "
+              "restrictions:\n" + attrs_name
+              )
         )
