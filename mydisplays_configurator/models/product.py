@@ -67,6 +67,10 @@ class ProductTemplate(models.Model):
             "attribute_line_ids.attribute_id.json_name",
             "attribute_line_ids.attribute_id.val_custom",
             "attribute_line_ids.attribute_id.custom_type",
+            "product_template_value_ids",
+            "product_template_value_ids.product_attribute_value_id",
+            "product_template_value_ids.attribute_id",
+            "product_template_value_ids.price_extra",
         ]
         attr_val_prefix = "attribute_line_ids.attribute_id.value_ids.%s"
         attr_val_constraints = self.get_attr_val_json_tree()
@@ -119,7 +123,9 @@ class ProductTemplate(models.Model):
                     "name": attr.name
                 }
                 for attr_val in line.value_ids:
-                    val_tree = json_tree["attr_vals"]['%s' % (attr_val.id)] = {}
+                    val_tree = json_tree["attr_vals"][
+                        '%s' % (attr_val.id)
+                    ] = {}
                     val_tree.update(
                         {
                             "attribute_id": attr.id,
@@ -173,6 +179,11 @@ class ProductTemplate(models.Model):
         default=DEFAULT_PYTHON_CODE,
         help="Write Python code that will compute extra values on the "
         "configuration JSON values field. Some variables are ",
+    )
+    product_template_value_ids = fields.One2many(
+        comodel_name="product.template.attribute.value",
+        inverse_name="product_tmpl_id",
+        string="Price Extra Lines"
     )
 
     @api.constrains("computed_vals_formula")
