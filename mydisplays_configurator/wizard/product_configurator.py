@@ -36,8 +36,10 @@ class ProductConfigurator(models.TransientModel):
         vals = self._get_dynamic_fields(values)
         cfg_session_json = config_session_id.get_config_session_json(vals=vals)
         value_ids = res.get('value', {}).get('value_ids', {})
-        if value_ids:
-            cfg_session_json['value_ids'] = value_ids[0][2]
+        if res.get('value', {}):
+            cfg_session_json['value_ids'] = value_ids and value_ids[0][2] or []
+        else:
+            cfg_session_json['value_ids'] = config_session_id.json_config.get('value_ids')
         config_session_id.json_config = cfg_session_json
         config_session_id.json_config_text = pprint.pformat(cfg_session_json)
         if not res.get("value"):
