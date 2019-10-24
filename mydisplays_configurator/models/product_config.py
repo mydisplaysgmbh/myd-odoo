@@ -74,6 +74,16 @@ class ProductConfigSession(models.Model):
             session.json_vals = eval_context["session"]
             session.json_vals_debug = pprint.pformat(eval_context["session"])
 
+    @api.depends('json_config')
+    def _get_json_value_ids(self):
+        for session in self:
+            json_value_ids = session.json_config.get('value_ids', [])
+            session.value_ids = json_value_ids
+
+    def _set_json_value_ids(self):
+        for session in self:
+            session.json_config['value_ids'] = session.value_ids.ids
+
     json_config = fields.Serialized(
         name="JSON Config", help="Json representation of all custom values"
     )
@@ -86,6 +96,11 @@ class ProductConfigSession(models.Model):
     )
     json_vals_debug = fields.Text(
         name="JSON Vals Debug", compute="_compute_json_vals", readonly=True
+    )
+    value_ids = fields.Many2many(
+        compute='_get_json_value_ids',
+        inverse='_set_json_value_ids',
+        store=True
     )
 
     @api.model
@@ -228,15 +243,3 @@ class ProductConfigSession(models.Model):
     def _compute_cfg_price(self):
         for session in self:
             session.price = session.json_vals.get('price', 0)
-
-    @api.model
-    def create(self, vals):
-        session = super(ProductConfigSession, self).create(vals)
-        if session.custom_value_ids or session.value_ids:
-            session.set_default_config_json(
-                value_ids=session.value_ids,
-                custom_value_ids=session.custom_value_ids
-            )
-        return session
-
-    # TODO: Verify if the above methods and fields are still needed
