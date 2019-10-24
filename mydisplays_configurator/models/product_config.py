@@ -82,7 +82,9 @@ class ProductConfigSession(models.Model):
 
     def _set_json_value_ids(self):
         for session in self:
-            session.json_config['value_ids'] = session.value_ids.ids
+            json_config = session.json_config
+            json_config['value_ids'] = session.value_ids.ids
+            session.json_config = json_config
 
     json_config = fields.Serialized(
         name="JSON Config", help="Json representation of all custom values"
@@ -100,7 +102,6 @@ class ProductConfigSession(models.Model):
     value_ids = fields.Many2many(
         compute='_get_json_value_ids',
         inverse='_set_json_value_ids',
-        store=True
     )
 
     @api.model
@@ -228,7 +229,6 @@ class ProductConfigSession(models.Model):
             'custom_values': cfg_session_json,
             'value_ids': value_ids.ids
         }
-
         self.json_config = cfg_session_json
         self.json_config_text = pprint.pformat(cfg_session_json)
 
