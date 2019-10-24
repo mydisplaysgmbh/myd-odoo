@@ -234,7 +234,8 @@ class ProductConfigSession(models.Model):
         session = super(ProductConfigSession, self).create(vals)
         if session.custom_value_ids or session.value_ids:
             session.set_default_config_json(
-                session.custom_value_ids, session.value_ids
+                value_ids=session.value_ids,
+                custom_value_ids=session.custom_value_ids
             )
         return session
 
