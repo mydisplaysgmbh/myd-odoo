@@ -75,12 +75,22 @@ class ProductConfigSession(models.Model):
             session.json_vals_debug = pprint.pformat(eval_context["session"])
 
     @api.depends('json_config')
-    def _get_json_value_ids(self):
+    def _get_json_vals(self):
         for session in self:
             json_value_ids = session.json_config.get('value_ids', [])
+            json_custom_vals = session.json_config.get('custom_values', {})
+            custom_obj = self.env['product.config.session.custom.value']
+            attr_obj = self.env['product.attribute']
+            memory_custom_objects = custom_obj
+            for k, v in json_custom_vals.items():
+                memory_custom_objects |= custom_obj.new({
+                    'value': v.get('value'),
+                    'attribute_id': attr_obj.browse(int(k))
+                })
+            session.custom_value_ids = memory_custom_objects
             session.value_ids = json_value_ids
 
-    def _set_json_value_ids(self):
+    def _set_json_vals(self):
         for session in self:
             json_config = session.json_config
             json_config['value_ids'] = session.value_ids.ids
@@ -99,9 +109,13 @@ class ProductConfigSession(models.Model):
     json_vals_debug = fields.Text(
         name="JSON Vals Debug", compute="_compute_json_vals", readonly=True
     )
+    custom_value_ids = fields.One2many(
+        compute='_get_json_vals',
+        # inverse='_set_json_vals',
+    )
     value_ids = fields.Many2many(
-        compute='_get_json_value_ids',
-        inverse='_set_json_value_ids',
+        compute='_get_json_vals',
+        inverse='_set_json_vals',
     )
 
     @api.model
