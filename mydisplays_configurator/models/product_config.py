@@ -244,11 +244,9 @@ class ProductConfigDomain(models.Model):
 
     @api.constrains("domain_line_ids")
     def _check_domain_line_ids(self):
-        check_website_visible = self.env.context.get(
-            "check_website_visible", False
-        )
-        product_tmpl_id = self.env.context.get("product_tmpl_id", [])
-        if not check_website_visible or not product_tmpl_id:
+        check_attr_visible = self.env.context.get("check_attr_visible")
+        product_tmpl_id = self.env.context.get("product_tmpl_id")
+        if not check_attr_visible or not product_tmpl_id:
             return
         product_tmpl_id = self.env["product.template"].browse(product_tmpl_id)
         invisible_attr = product_tmpl_id.attribute_line_ids.filtered(
@@ -258,9 +256,7 @@ class ProductConfigDomain(models.Model):
         invalid_attr = domain_attr & invisible_attr
         if not invalid_attr:
             return
-        attrs_name = ""
-        if invalid_attr:
-            attrs_name = "\n".join(list(invalid_attr.mapped("name")))
+        attrs_name = "\n".join(list(invalid_attr.mapped("name")))
         raise ValidationError(
             _("Invisible attribute lines are not allowed in configuration "
               "restrictions:\n" + attrs_name
