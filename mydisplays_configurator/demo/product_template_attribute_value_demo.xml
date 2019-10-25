@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <function model="ir.model.data" name="_update_xmlids">
+            <value model="base" eval="[{
+                'xml_id': 'mydisplays_configurator.product_template_attribute_value_1',
+                'record': obj().env.ref('mydisplays_configurator.product_attribute_line_1').product_template_value_ids.filtered(lambda vals: vals.product_attribute_value_id == obj().env.ref('mydisplays_configurator.product_attribute_value_2')),
+                'noupdate': True,
+            }, {
+                'xml_id': 'mydisplays_configurator.product_template_attribute_value_2',
+                'record': obj().env.ref('mydisplays_configurator.product_attribute_line_1').product_template_value_ids.filtered(lambda vals: vals.product_attribute_value_id == obj().env.ref('mydisplays_configurator.product_attribute_value_3')),
+                'noupdate': True,
+            }, {
+                'xml_id': 'mydisplays_configurator.product_template_attribute_value_3',
+                'record': obj().env.ref('mydisplays_configurator.product_attribute_line_2').product_template_value_ids.filtered(lambda vals: vals.product_attribute_value_id == obj().env.ref('mydisplays_configurator.product_attribute_value_7')),
+                'noupdate': True,
+            }, {
+                'xml_id': 'mydisplays_configurator.product_template_attribute_value_4',
+                'record': obj().env.ref('mydisplays_configurator.product_attribute_line_2').product_template_value_ids.filtered(lambda vals: vals.product_attribute_value_id == obj().env.ref('mydisplays_configurator.product_attribute_value_8')),
+                'noupdate': True,
+            }, {
+                'xml_id': 'mydisplays_configurator.product_template_attribute_value_5',
+                'record': obj().env.ref('mydisplays_configurator.product_attribute_line_3').product_template_value_ids.filtered(lambda vals: vals.product_attribute_value_id == obj().env.ref('mydisplays_configurator.product_attribute_value_10')),
+                'noupdate': True,
+            }, {
+                'xml_id': 'mydisplays_configurator.product_template_attribute_value_6',
+                'record': obj().env.ref('mydisplays_configurator.product_attribute_line_3').product_template_value_ids.filtered(lambda vals: vals.product_attribute_value_id == obj().env.ref('mydisplays_configurator.product_attribute_value_11')),
+                'noupdate': True,
+            }, {
+                'xml_id': 'mydisplays_configurator.product_template_attribute_value_7',
+                'record': obj().env.ref('mydisplays_configurator.product_attribute_line_3').product_template_value_ids.filtered(lambda vals: vals.product_attribute_value_id == obj().env.ref('mydisplays_configurator.product_attribute_value_12')),
+                'noupdate': True,
+            }, {
+                'xml_id': 'mydisplays_configurator.product_template_attribute_value_8',
+                'record': obj().env.ref('mydisplays_configurator.product_attribute_line_3').product_template_value_ids.filtered(lambda vals: vals.product_attribute_value_id == obj().env.ref('mydisplays_configurator.product_attribute_value_13')),
+                'noupdate': True,
+            }, {
+                'xml_id': 'mydisplays_configurator.product_template_attribute_value_9',
+                'record': obj().env.ref('mydisplays_configurator.product_attribute_line_4').product_template_value_ids.filtered(lambda vals: vals.product_attribute_value_id == obj().env.ref('mydisplays_configurator.product_attribute_value_15')),
+                'noupdate': True,
+            }, {
+                'xml_id': 'mydisplays_configurator.product_template_attribute_value_10',
+                'record': obj().env.ref('mydisplays_configurator.product_attribute_line_5').product_template_value_ids.filtered(lambda vals: vals.product_attribute_value_id == obj().env.ref('mydisplays_configurator.product_attribute_value_17')),
+                'noupdate': True,
+            }, {
+                'xml_id': 'mydisplays_configurator.product_template_attribute_value_11',
+                'record': obj().env.ref('mydisplays_configurator.product_attribute_line_5').product_template_value_ids.filtered(lambda vals: vals.product_attribute_value_id == obj().env.ref('mydisplays_configurator.product_attribute_value_18')),
+                'noupdate': True,
+            },]"/>
+        </function>
+
+        <record id="product_template_attribute_value_1" model="product.template.attribute.value">
+            <field name="price_extra">11.00</field>
+        </record>
+
+        <record id="product_template_attribute_value_2" model="product.template.attribute.value">
+            <field name="price_extra">24.00</field>
+        </record>
+
+        <record id="product_template_attribute_value_3" model="product.template.attribute.value">
+            <field name="price_extra">11.90</field>
+        </record>
+
+        <record id="product_template_attribute_value_4" model="product.template.attribute.value">
+            <field name="price_extra">23.90</field>
+        </record>
+
+        <record id="product_template_attribute_value_5" model="product.template.attribute.value">
+            <field name="price_extra">4.90</field>
+        </record>
+
+        <record id="product_template_attribute_value_6" model="product.template.attribute.value">
+            <field name="price_extra">8.90</field>
+        </record>
+
+        <record id="product_template_attribute_value_7" model="product.template.attribute.value">
+            <field name="price_extra">17.90</field>
+        </record>
+
+        <record id="product_template_attribute_value_8" model="product.template.attribute.value">
+            <field name="price_extra">26.90</field>
+        </record>
+
+        <record id="product_template_attribute_value_9" model="product.template.attribute.value">
+            <field name="price_extra">8.90</field>
+        </record>
+
+        <record id="product_template_attribute_value_10" model="product.template.attribute.value">
+            <field name="price_extra">34.90</field>
+        </record>
+
+        <record id="product_template_attribute_value_11" model="product.template.attribute.value">
+            <field name="price_extra">43.90</field>
+        </record>
+
+    </data>
+</odoo>

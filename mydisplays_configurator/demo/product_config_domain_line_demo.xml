@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="product_config_line_print_material" model="product.config.line">
+            <field name="product_tmpl_id" ref="mydisplays_configurator.product_template_rollup_lite"/>
+            <field name="attribute_line_id" ref="mydisplays_configurator.product_attribute_line_3"/>
+            <field name="value_ids" eval="[(6, 0, [
+                ref('mydisplays_configurator.product_attribute_value_9'),
+                ref('mydisplays_configurator.product_attribute_value_10'),
+                ref('mydisplays_configurator.product_attribute_value_11'),
+                ref('mydisplays_configurator.product_attribute_value_12'),
+                ref('mydisplays_configurator.product_attribute_value_13'),])]"/>
+            <field name="domain_id" ref="mydisplays_configurator.product_config_domain_print_material"/>
+        </record>
+
+        <record id="product_config_line_3mm_acrylic_glass_white_opal" model="product.config.line">
+            <field name="product_tmpl_id" ref="mydisplays_configurator.product_template_my_acrylglas"/>
+            <field name="attribute_line_id" ref="mydisplays_configurator.product_attribute_line_15"/>
+            <field name="value_ids" eval="[(6, 0, [
+                    ref('mydisplays_configurator.product_attribute_value_54'),
+                ])]"/>
+            <field name="domain_id" ref="mydisplays_configurator.product_config_domain_3mm_acrylic_glass_white_opal"/>
+        </record>
+
+        <record id="product_config_line_backlight_blockout_print" model="product.config.line">
+            <field name="product_tmpl_id" ref="mydisplays_configurator.product_template_my_acrylglas"/>
+            <field name="attribute_line_id" ref="mydisplays_configurator.product_attribute_line_16"/>
+            <field name="value_ids" eval="[(6, 0, [
+                    ref('mydisplays_configurator.product_attribute_value_56'),
+                    ref('mydisplays_configurator.product_attribute_value_58')
+                ])]"/>
+            <field name="domain_id" ref="mydisplays_configurator.product_config_domain_backlight_blockout_print"/>
+        </record>
+
+        <record id="product_config_line_one_sided" model="product.config.line">
+            <field name="product_tmpl_id" ref="mydisplays_configurator.product_template_my_acrylglas"/>
+            <field name="attribute_line_id" ref="mydisplays_configurator.product_attribute_line_18"/>
+            <field name="value_ids" eval="[(6, 0, [
+                    ref('mydisplays_configurator.product_attribute_value_64')
+                ])]"/>
+            <field name="domain_id" ref="mydisplays_configurator.product_config_domain_one_sided"/>
+        </record>
+
+    </data>
+</odoo>

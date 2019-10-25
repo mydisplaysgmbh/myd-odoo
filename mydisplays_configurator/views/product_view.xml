@@ -10,11 +10,25 @@
             <xpath expr="//field[@name='config_step_line_ids']" position="after">
                 <separator colspan="4" string="Computed Vals Formula"/>
                 <field name="computed_vals_formula" widget="ace" options="{'mode': 'python'}"/>
-<!--                 <separator colspan="4" string="Config Cache"/>
-                <field name="config_cache"/> -->
+                <separator colspan="4" string="Config Cache"/>
+                <field name="config_cache_debug" readonly="True" widget="ace" options="{'mode': 'python'}"/>
+            </xpath>
+            <xpath expr="//field[@name='attribute_line_ids']//field[@name='required']" position="before">
+                <field name="invisible" invisible="not context.get('default_config_ok', False)"/>
+            </xpath>
+            <xpath expr="//field[@name='attribute_line_ids']//field[@name='required']" position="attributes">
+                <attribute name="attrs">{'readonly': [('invisible','=',True)]}</attribute>
+                <attribute name="force_save">1</attribute>
+            </xpath>
+            <xpath expr="//page[@name='configurator']//field[@name='config_line_ids']//tree//field[@name='domain_id']" position="after">
+                <field name="product_tmpl_id" invisible="1"/>
+            </xpath>
+            <xpath expr="//page[@name='configurator']//field[@name='config_line_ids']//tree//field[@name='domain_id']" position="attributes">
+                <attribute name="context">{'check_attr_visible': True, 'product_tmpl_id': product_tmpl_id}</attribute>
             </xpath>
         </field>
     </record>
+<<<<<<< HEAD
 
     <record id="product_form_view_custom_vals_remove" model="ir.ui.view">
         <field name="name">product.configurator.form.view.custom.vals.remove</field>
@@ -28,3 +42,6 @@
     </record>
 
 </odoo>
+=======
+</odoo>
+>>>>>>> origin/12.0

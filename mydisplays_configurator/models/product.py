@@ -1,6 +1,7 @@
 import json
+import pprint
 
-from odoo import api, fields, models
+from odoo import api, fields, models, _
 from odoo.tools.safe_eval import test_python_expr
 from odoo.exceptions import ValidationError
 
@@ -25,6 +26,7 @@ class ProductTemplate(models.Model):
             },
             'attrs': {
                 'attr_id_1': {
+                    'name': attribute.name,
                     'custom': attribute.val_custom,
                     'custom_type': attribute.custom_type,
                     'required': attribute.required,
@@ -65,6 +67,10 @@ class ProductTemplate(models.Model):
             "attribute_line_ids.attribute_id.json_name",
             "attribute_line_ids.attribute_id.val_custom",
             "attribute_line_ids.attribute_id.custom_type",
+            "product_template_value_ids",
+            "product_template_value_ids.product_attribute_value_id",
+            "product_template_value_ids.attribute_id",
+            "product_template_value_ids.price_extra",
         ]
         attr_val_prefix = "attribute_line_ids.attribute_id.value_ids.%s"
         attr_val_constraints = self.get_attr_val_json_tree()
@@ -87,7 +93,7 @@ class ProductTemplate(models.Model):
                 "attrs": {},
                 "attr_vals": {},
                 "attr_json_map": {
-                    a.id: a.json_name for a in attrs if a.json_name
+                    '%s' % (a.id): a.json_name for a in attrs if a.json_name
                 },
             }
 
@@ -109,14 +115,17 @@ class ProductTemplate(models.Model):
 
             for line in attr_lines:
                 attr = line.attribute_id
-                json_tree["attrs"][attr.id] = {
+                json_tree["attrs"]['%s' % (attr.id)] = {
                     "required": line.required,
                     "multi": line.multi,
                     "custom": line.custom,
                     "custom_type": attr.custom_type,
+                    "name": attr.name
                 }
                 for attr_val in line.value_ids:
-                    val_tree = json_tree["attr_vals"][attr_val.id] = {}
+                    val_tree = json_tree["attr_vals"][
+                        '%s' % (attr_val.id)
+                    ] = {}
                     val_tree.update(
                         {
                             "attribute_id": attr.id,
@@ -150,6 +159,7 @@ class ProductTemplate(models.Model):
                             attr_val.id, {}
                         ).get("weight_extra", 0)
             product_tmpl.config_cache = json_tree
+            product_tmpl.config_cache_debug = pprint.pformat(json_tree)
 
     config_cache = fields.Serialized(
         name="Cached configuration data",
@@ -159,11 +169,21 @@ class ProductTemplate(models.Model):
         help="Store data used for configuration in json format for quick "
         "access and low latency",
     )
+    config_cache_debug = fields.Text(
+        name='Cached config data (debug)',
+        compute='_get_config_data',
+        readonly=True,
+    )
     computed_vals_formula = fields.Text(
         string="Computed values function",
         default=DEFAULT_PYTHON_CODE,
         help="Write Python code that will compute extra values on the "
         "configuration JSON values field. Some variables are ",
+    )
+    product_template_value_ids = fields.One2many(
+        comodel_name="product.template.attribute.value",
+        inverse_name="product_tmpl_id",
+        string="Price Extra Lines"
     )
 
     @api.constrains("computed_vals_formula")
@@ -174,3 +194,26 @@ class ProductTemplate(models.Model):
             )
             if msg:
                 raise ValidationError(msg)
+
+    def _check_visible_attribute_line(self):
+        invisible_attr = self.attribute_line_ids.filtered(
+            lambda x: x.invisible
+        ).mapped("attribute_id")
+        domain_attr = self.config_line_ids.mapped(
+            "domain_id.domain_line_ids.attribute_id"
+        )
+        invalid_attr = domain_attr & invisible_attr
+        return invalid_attr
+
+    @api.constrains("config_line_ids", "attribute_line_ids")
+    def _check_config_line_ids(self):
+        for tmpl in self.filtered(lambda x: x.config_line_ids):
+            invalid_attr = tmpl._check_visible_attribute_line()
+            if not invalid_attr:
+                continue
+            attrs_name = "\n".join(list(invalid_attr.mapped("name")))
+            raise ValidationError(
+                _("Invisible attribute lines are not allowed in configuration "
+                  "restrictions:\n" + attrs_name
+                  )
+            )
