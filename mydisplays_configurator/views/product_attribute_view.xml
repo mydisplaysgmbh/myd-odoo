@@ -8,6 +8,11 @@
         <field name="arch" type="xml">
             <xpath expr="//field[@name='required']" position="before">
                 <field name="json_name"/>
+                <field name="invisible"/>
+            </xpath>
+            <xpath expr="//field[@name='required']" position="attributes">
+                <attribute name="attrs">{'readonly': [('invisible','=',True)]}</attribute>
+                <attribute name="force_save">1</attribute>
             </xpath>
         </field>
     </record>

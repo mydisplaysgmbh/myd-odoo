@@ -2,7 +2,7 @@ import pprint
 
 from odoo import api, fields, models, _
 from odoo.tools.safe_eval import safe_eval
-from odoo.exceptions import UserError
+from odoo.exceptions import UserError, ValidationError
 
 
 class ProductConfigSessionCustomValue(models.Model):
@@ -174,13 +174,7 @@ class ProductConfigSession(models.Model):
                 continue
             custom_flag = True
             if field_name in vals:
-                # custom value changed with standard one
                 value = vals.get(field_name, False)
-                if (
-                    value != custom_val_id.id
-                    and attribute_id in cfg_session_json
-                ):
-                    cfg_session_json.pop(attribute_id)
                 custom_flag = (value == custom_val_id.id)
             if custom_field in vals and custom_flag:
                 custom_val = vals.get(custom_field, False)
@@ -256,3 +250,28 @@ class ProductConfigSession(models.Model):
     def _compute_cfg_price(self):
         for session in self:
             session.price = session.json_vals.get('price', 0)
+
+
+class ProductConfigDomain(models.Model):
+    _inherit = "product.config.domain"
+
+    @api.constrains("domain_line_ids")
+    def _check_domain_line_ids(self):
+        check_attr_visible = self.env.context.get("check_attr_visible")
+        product_tmpl_id = self.env.context.get("product_tmpl_id")
+        if not check_attr_visible or not product_tmpl_id:
+            return
+        product_tmpl_id = self.env["product.template"].browse(product_tmpl_id)
+        invisible_attr = product_tmpl_id.attribute_line_ids.filtered(
+            lambda x: x.invisible
+        ).mapped("attribute_id")
+        domain_attr = self.mapped("domain_line_ids.attribute_id")
+        invalid_attr = domain_attr & invisible_attr
+        if not invalid_attr:
+            return
+        attrs_name = "\n".join(list(invalid_attr.mapped("name")))
+        raise ValidationError(
+            _("Invisible attribute lines are not allowed in configuration "
+              "restrictions:\n" + attrs_name
+              )
+        )

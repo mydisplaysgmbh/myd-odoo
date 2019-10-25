@@ -1,7 +1,7 @@
 import json
 import pprint
 
-from odoo import api, fields, models
+from odoo import api, fields, models, _
 from odoo.tools.safe_eval import test_python_expr
 from odoo.exceptions import ValidationError
 
@@ -194,3 +194,26 @@ class ProductTemplate(models.Model):
             )
             if msg:
                 raise ValidationError(msg)
+
+    def _check_visible_attribute_line(self):
+        invisible_attr = self.attribute_line_ids.filtered(
+            lambda x: x.invisible
+        ).mapped("attribute_id")
+        domain_attr = self.config_line_ids.mapped(
+            "domain_id.domain_line_ids.attribute_id"
+        )
+        invalid_attr = domain_attr & invisible_attr
+        return invalid_attr
+
+    @api.constrains("config_line_ids", "attribute_line_ids")
+    def _check_config_line_ids(self):
+        for tmpl in self.filtered(lambda x: x.config_line_ids):
+            invalid_attr = tmpl._check_visible_attribute_line()
+            if not invalid_attr:
+                continue
+            attrs_name = "\n".join(list(invalid_attr.mapped("name")))
+            raise ValidationError(
+                _("Invisible attribute lines are not allowed in configuration "
+                  "restrictions:\n" + attrs_name
+                  )
+            )

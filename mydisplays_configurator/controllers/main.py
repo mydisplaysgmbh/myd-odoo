@@ -26,8 +26,11 @@ class MydisplaysConfigWebsiteSale(ProductConfigWebsiteSale):
     def save_configuration(self, form_values, current_step=False,
                            next_step=False, **post):
         res = super(MydisplaysConfigWebsiteSale, self).save_configuration(
-            form_values=form_values, current_step=current_step,
-            next_step=next_step, post=post)
+            form_values=form_values,
+            current_step=current_step,
+            next_step=next_step,
+            **post
+        )
         try:
             redirect_url = res.get('redirect_url', False)
             if not redirect_url:
@@ -96,9 +99,14 @@ class MydisplaysConfigWebsiteSale(ProductConfigWebsiteSale):
 
 
 class WebsiteSale(WebsiteSale):
-
-    @http.route(['/shop/cart/update'], type='http', auth="public",
-                methods=['POST'], website=True, csrf=False)
+    @http.route(
+        ["/shop/cart/update"],
+        type="http",
+        auth="public",
+        methods=["POST"],
+        website=True,
+        csrf=False,
+    )
     def cart_update(self, product_id, add_qty=1, set_qty=0, **kw):
         """This route is called when adding a product to cart (no options)."""
         sale_order = request.website.sale_get_order(force_create=True)
