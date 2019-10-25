@@ -211,12 +211,9 @@ class ProductTemplate(models.Model):
             invalid_attr = tmpl._check_visible_attribute_line()
             if not invalid_attr:
                 continue
-            attrs_name = ""
-            if invalid_attr:
-                attrs_name = "\n".join(list(invalid_attr.mapped("name")))
+            attrs_name = "\n".join(list(invalid_attr.mapped("name")))
             raise ValidationError(
-                _(
-                    "Please set 'Website' on following attributes "
-                    "as these are exist in restrictions:\n" + attrs_name
-                )
+                _("Invisible attribute lines are not allowed in configuration "
+                  "restrictions:\n" + attrs_name
+                  )
             )
