@@ -86,7 +86,9 @@ class MydisplaysConfigWebsiteSale(ProductConfigWebsiteSale):
             'product_tmpl': product_tmpl_id,
             'config_session': config_session_id,
             'pricelist': pricelist,
-            'custom_vals': config_session_id.json_config,
+            'custom_vals': config_session_id.json_config.get(
+                'custom_values', {}
+            ),
             'json_vals': config_session_id.json_vals,
             'attr_data': product_tmpl_id.config_cache.get('attrs', {}),
             'vals': vals,

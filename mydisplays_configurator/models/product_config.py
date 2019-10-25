@@ -45,9 +45,7 @@ class ProductConfigSession(models.Model):
             config[attr_json_name] = tmpl_config_cache["attr_vals"][val_id]
 
         # Add custom value_ids to config dict using human readable json name
-        for attr_id, vals in self.json_config.items():
-            if attr_id == 'value_ids':
-                continue
+        for attr_id, vals in self.json_config.get('custom_values', {}).items():
             if not vals.get("value", False):
                 continue
             value = vals.get("value")
@@ -76,6 +74,18 @@ class ProductConfigSession(models.Model):
             session.json_vals = eval_context["session"]
             session.json_vals_debug = pprint.pformat(eval_context["session"])
 
+    @api.depends('json_config')
+    def _get_json_value_ids(self):
+        for session in self:
+            json_value_ids = session.json_config.get('value_ids', [])
+            session.value_ids = json_value_ids
+
+    def _set_json_value_ids(self):
+        for session in self:
+            json_config = session.json_config
+            json_config['value_ids'] = session.value_ids.ids
+            session.json_config = json_config
+
     json_config = fields.Serialized(
         name="JSON Config", help="Json representation of all custom values"
     )
@@ -88,6 +98,10 @@ class ProductConfigSession(models.Model):
     )
     json_vals_debug = fields.Text(
         name="JSON Vals Debug", compute="_compute_json_vals", readonly=True
+    )
+    value_ids = fields.Many2many(
+        compute='_get_json_value_ids',
+        inverse='_set_json_value_ids',
     )
 
     @api.model
@@ -135,7 +149,7 @@ class ProductConfigSession(models.Model):
             "custom_field_prefix"
         )
         custom_val_id = self.get_custom_value_id()
-        cfg_session_json = self.json_config
+        cfg_session_json = self.json_config.get('custom_values', {})
         if not cfg_session_json:
             cfg_session_json = {}
         for attribute_id in attrs:
@@ -165,15 +179,7 @@ class ProductConfigSession(models.Model):
                     )
                     attr_dict["value"] = custom_val
                     cfg_session_json[attribute_id] = attr_dict
-            if field_name in vals:
-                # custom value changed with standard one
-                value = vals.get(field_name, False)
-                if (
-                    value != custom_val_id.id
-                    and attribute_id in cfg_session_json
-                ):
-                    cfg_session_json.pop(attribute_id)
-        return cfg_session_json
+        return {'custom_values': cfg_session_json}
 
     @api.multi
     def update_session_config_vals(self, vals, product_tmpl_id=None):
@@ -188,10 +194,12 @@ class ProductConfigSession(models.Model):
         self.json_config = cfg_session_json
         self.json_config_text = pprint.pformat(cfg_session_json)
 
-    def set_default_config_json(self, custom_value_ids=None):
+    def set_default_config_json(self, value_ids=None, custom_value_ids=None):
         """update json field while reconfigure product"""
         if custom_value_ids is None:
             custom_value_ids = self.custom_value_ids
+        if value_ids is None:
+            value_ids = self.value_ids
         cfg_session_json = {}
         for custom_val_id in custom_value_ids:
             attribute_id = "%s" % (custom_val_id.attribute_id.id)
@@ -210,6 +218,11 @@ class ProductConfigSession(models.Model):
                     custom_val = vals
             if custom_val:
                 attr_dict["value"] = custom_val
+
+        cfg_session_json = {
+            'custom_values': cfg_session_json,
+            'value_ids': value_ids.ids
+        }
         self.json_config = cfg_session_json
         self.json_config_text = pprint.pformat(cfg_session_json)
 
@@ -224,8 +237,6 @@ class ProductConfigSession(models.Model):
     def _compute_cfg_price(self):
         for session in self:
             session.price = session.json_vals.get('price', 0)
-
-    # TODO: Verify if the above methods and fields are still needed
 
 
 class ProductConfigDomain(models.Model):
