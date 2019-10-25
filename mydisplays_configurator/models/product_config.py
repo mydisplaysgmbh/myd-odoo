@@ -80,12 +80,11 @@ class ProductConfigSession(models.Model):
             json_value_ids = session.json_config.get('value_ids', [])
             json_custom_vals = session.json_config.get('custom_values', {})
             custom_obj = self.env['product.config.session.custom.value']
-            attr_obj = self.env['product.attribute']
             memory_custom_objects = custom_obj
             for k, v in json_custom_vals.items():
                 memory_custom_objects |= custom_obj.new({
                     'value': v.get('value'),
-                    'attribute_id': attr_obj.browse(int(k))
+                    'attribute_id': int(k),
                 })
             session.custom_value_ids = memory_custom_objects
             session.value_ids = json_value_ids
