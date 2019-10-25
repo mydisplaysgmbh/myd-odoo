@@ -176,7 +176,10 @@ class ProductConfigSession(models.Model):
         result = {
             'custom_values': cfg_session_json,
         }
-        if changed_field:
+        if changed_field and (
+            changed_field.startswith(field_prefix) or
+            changed_field.startswith(custom_field_prefix)
+        ):
             result.update({
                 'changed_attr': changed_field.split('-')[1],
             })
