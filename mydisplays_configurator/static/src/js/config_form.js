@@ -24,7 +24,6 @@ odoo.define('mydisplay_configurator.config_form', function (require) {
                 var form_data = self.config_form.serializeArray();
                 for (var field_name in self.image_dict) {
                     form_data.push({'name': field_name, 'value': self.image_dict[field_name]});
-
                 }
                 $.blockUI(self.blockui_opts);
                     ajax.jsonRpc("/website_product_configurator/onchange", 'call', {
