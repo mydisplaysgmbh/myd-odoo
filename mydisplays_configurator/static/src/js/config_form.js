@@ -34,6 +34,9 @@ odoo.define('mydisplay_configurator.config_form', function (require) {
                         if (data.error) {
                             self.openWarningDialog(data.error);
                         } else {
+                            if (data.warning) {
+                                self.openWarningDialog(data.warning.message);
+                            }
                             var values = data.value;
                             var domains = data.domain;
 

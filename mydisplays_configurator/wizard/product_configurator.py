@@ -47,6 +47,11 @@ class ProductConfigurator(models.TransientModel):
         json_session_vals = config_session_id.json_vals
         res["value"]["price"] = json_session_vals.get("price", 0)
         res["value"]["weight"] = json_session_vals.get("weight", 0)
+        if config_session_id.json_vals.get('warning'):
+            res['warning'] = {
+                'title': _("Warning!"),
+                'message': config_session_id.json_vals.get('warning')
+            }
         return res
 
     @api.model
