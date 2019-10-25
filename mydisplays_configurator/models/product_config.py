@@ -239,6 +239,51 @@ class ProductConfigSession(models.Model):
         self.json_config = cfg_session_json
         self.json_config_text = pprint.pformat(cfg_session_json)
 
+    @api.model
+    def search_variant(
+        self, value_ids=None, custom_vals=None, product_tmpl_id=None
+    ):
+        """ Prevent to save custom values on variant
+        """
+        if value_ids is None:
+            value_ids = self.value_ids.ids
+
+        # Remove custom value
+        custom_value_id = self.get_custom_value_id()
+        value_ids = [
+            value for value in value_ids if value != custom_value_id.id
+        ]
+        return super(ProductConfigSession, self).search_variant(
+            value_ids=value_ids,
+            custom_vals={},
+            product_tmpl_id=product_tmpl_id,
+        )
+
+    @api.model
+    def get_variant_vals(self, value_ids=None, custom_vals=None, **kwargs):
+        """ Prevent to save custom values on variants
+         """
+        self.ensure_one()
+
+        if value_ids is None:
+            value_ids = self.value_ids.ids
+
+        # Remove custom value
+        custom_value_id = self.get_custom_value_id()
+        value_ids = [
+            value for value in value_ids if value != custom_value_id.id
+        ]
+        return super(ProductConfigSession, self).get_variant_vals(
+            value_ids=value_ids, custom_vals={}, kwargs=kwargs
+        )
+
+    @api.multi
+    def create_get_variant(self, value_ids=None, custom_vals=None):
+        """ Prevent to save custom values on variants"""
+        return super(ProductConfigSession, self).create_get_variant(
+            value_ids=value_ids, custom_vals={}
+        )
+
     @api.multi
     @api.depends("json_vals")
     def _compute_cfg_weight(self):
