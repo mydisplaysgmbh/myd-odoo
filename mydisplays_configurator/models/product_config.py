@@ -285,7 +285,7 @@ class ProductConfigSession(models.Model):
         )
 
     def _create_bom_from_json(self):
-        """Create a bill of material from the json custom vallues attached on
+        """Create a bill of material from the json custom values attached on
         the related session and link it on the sale order line
         """
         json_vals = self.json_vals
