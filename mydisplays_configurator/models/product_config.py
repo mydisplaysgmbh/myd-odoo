@@ -52,6 +52,10 @@ class ProductConfigSession(models.Model):
             attr_json_name = tmpl_config_cache["attr_json_map"][str(attr_id)]
             # TODO: Add typecast using custom_type info
             config[attr_json_name] = value
+        if self.json_config.get('changed_attr'):
+            config['changed_field'] = tmpl_config_cache["attr_json_map"][
+                self.json_config.get('changed_attr')
+            ]
         return {
             "template": tmpl_config_cache.get("attrs", {}),
             "session": {"price": 0, "weight": 0, "quantity": 0, "bom": []},
@@ -139,7 +143,7 @@ class ProductConfigSession(models.Model):
 
     @api.multi
     def get_config_session_json(
-        self, vals, product_tmpl_id=None
+        self, vals, changed_field, product_tmpl_id=None
     ):
         """Get product.config.session data in a serialized computed field
             {
@@ -192,7 +196,17 @@ class ProductConfigSession(models.Model):
                     )
                     attr_dict["value"] = custom_val
                     cfg_session_json[attribute_id] = attr_dict
-        return {'custom_values': cfg_session_json}
+        result = {
+            'custom_values': cfg_session_json,
+        }
+        if changed_field and (
+            changed_field.startswith(field_prefix) or
+            changed_field.startswith(custom_field_prefix)
+        ):
+            result.update({
+                'changed_attr': changed_field.split('-')[1],
+            })
+        return result
 
     @api.multi
     def update_session_config_vals(self, vals, product_tmpl_id=None):
