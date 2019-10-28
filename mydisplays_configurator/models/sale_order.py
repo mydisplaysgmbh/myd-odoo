@@ -1,4 +1,5 @@
-from odoo import fields, models, api
+from odoo import fields, models, api, _
+from odoo.exceptions import ValidationError
 
 
 class SaleOrder(models.Model):
@@ -16,14 +17,25 @@ class SaleOrder(models.Model):
             return res
 
         config_session_id = int(config_session_id)
+        config_session = self.env['product.config.session'].browse(
+            config_session_id
+        )
         order_line = self.env['sale.order.line'].browse(res.get('line_id'))
         for line in order_line:
-            line.cfg_session_id = config_session_id
-            bom_id = line._create_bom_from_json()
             line.write({
-                'bom_id': bom_id,
-                'price_unit': line.cfg_session_id.json_vals.get('price')
+                'cfg_session_id': config_session.id,
+                'price_unit': config_session.json_vals.get('price'),
             })
+
+    @api.multi
+    def action_confirm(self):
+        """Create bom and write to line before confirming sale order"""
+        config_order_lines = self.mapped('order_line').filtered(
+            lambda l: l.config_ok and l.cfg_session_id
+        )
+        for so_line in config_order_lines:
+            so_line.bom_id = so_line.cfg_session_id._create_bom_from_json()
+        return super(SaleOrder, self).action_confirm()
 
 
 class SaleOrderLine(models.Model):
@@ -48,20 +60,14 @@ class SaleOrderLine(models.Model):
         string="Custom Values",
     )
 
-    def _create_bom_from_json(self):
-        """Create a bill of material from the json custom vallues attached on
-        the related session and link it on the sale order line
-        """
-        json_vals = self.cfg_session_id.json_vals
-        bom_lines = json_vals.get('bom', [])
-
-        if not bom_lines:
-            return None
-
-        bom = self.env['mrp.bom'].create({
-            'product_tmpl_id': self.product_id.product_tmpl_id.id,
-            'product_id': self.product_id.id,
-            'bom_line_ids': [(0, 0, line_data) for line_data in bom_lines]
-        })
-
-        return bom.id
+    @api.constrains('cfg_session_id', 'product_id')
+    def check_product_config_session(self):
+        """Ensure there are no inconsistencies between the products and
+        attached configuration sessions"""
+        for line in self.filtered(lambda l: l.cfg_session_id):
+            if line.product_id != line.cfg_session_id.product_id:
+                raise ValidationError(_(
+                    'Product on sale order line must match the product on the '
+                    'related configuration session - %s' %
+                    line.cfg_session_id.name)
+                )

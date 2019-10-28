@@ -284,6 +284,46 @@ class ProductConfigSession(models.Model):
             value_ids=value_ids, custom_vals={}
         )
 
+    def _create_bom_from_json(self):
+        """Create a bill of material from the json custom values attached on
+        the related session and link it on the sale order line
+        """
+        json_vals = self.json_vals
+        bom_lines = json_vals.get('bom', [])
+
+        if not bom_lines:
+            return None
+
+        bom = self.env['mrp.bom'].create({
+            'product_tmpl_id': self.product_tmpl_id.id,
+            'routing_id': self._create_get_route().id,
+            'product_id': self.product_id.id,
+            'bom_line_ids': [(0, 0, line_data) for line_data in bom_lines]
+        })
+
+        return bom
+
+    def _create_get_route(self, operation_ids=None):
+        """Find a route matching the operations given or create one
+        if search returns empty"""
+
+        if not operation_ids:
+            operation_ids = self.value_ids.mapped('operation_id').ids
+
+        route_obj = self.env['mrp.routing']
+
+        # Search for a routing with an exact match on operation ids
+        routes = route_obj.search([
+            ('operation_ids', '=', op_id) for op_id in operation_ids
+        ])
+
+        # Filter out routes that do not have the same amount of operations
+        routes = routes.filtered(
+            lambda r: len(r.operation_ids) == len(operation_ids)
+        )
+
+        return routes[:1]
+
     @api.multi
     @api.depends("json_vals")
     def _compute_cfg_weight(self):

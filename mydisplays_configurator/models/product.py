@@ -6,7 +6,6 @@ from odoo.tools.safe_eval import test_python_expr
 from odoo.exceptions import ValidationError
 
 DEFAULT_PYTHON_CODE = """# Available variables:
-#  - template: Cached values from the related product template
 #  - config: Current configuration expressed as json
 #  - session: Object to store computed values on\n\n\n\n
 """
