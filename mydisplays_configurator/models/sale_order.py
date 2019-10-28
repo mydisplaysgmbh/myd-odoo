@@ -16,14 +16,24 @@ class SaleOrder(models.Model):
             return res
 
         config_session_id = int(config_session_id)
+        config_session = self.env['product.config.session'].browse(
+            config_session_id
+        )
         order_line = self.env['sale.order.line'].browse(res.get('line_id'))
         for line in order_line:
-            line.cfg_session_id = config_session_id
-            bom_id = line._create_bom_from_json()
             line.write({
-                'bom_id': bom_id,
-                'price_unit': line.cfg_session_id.json_vals.get('price')
+                'cfg_session_id': config_session.id,
+                'price_unit': config_session.json_vals.get('price'),
             })
+
+    @api.multi
+    def action_confirm(self):
+        """Create bom and write to line before confirming sale order"""
+        config_order_lines = self.mapped('order_line').filtered(
+            lambda l: l.config_ok
+        )
+        for so_line in config_order_lines:
+            so_line.bom_id = so_line.cfg_session_id._create_bom_from_json()
 
 
 class SaleOrderLine(models.Model):
@@ -47,21 +57,3 @@ class SaleOrderLine(models.Model):
         related="cfg_session_id.custom_value_ids",
         string="Custom Values",
     )
-
-    def _create_bom_from_json(self):
-        """Create a bill of material from the json custom vallues attached on
-        the related session and link it on the sale order line
-        """
-        json_vals = self.cfg_session_id.json_vals
-        bom_lines = json_vals.get('bom', [])
-
-        if not bom_lines:
-            return None
-
-        bom = self.env['mrp.bom'].create({
-            'product_tmpl_id': self.product_id.product_tmpl_id.id,
-            'product_id': self.product_id.id,
-            'bom_line_ids': [(0, 0, line_data) for line_data in bom_lines]
-        })
-
-        return bom.id
