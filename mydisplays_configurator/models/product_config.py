@@ -49,13 +49,17 @@ class ProductConfigSession(models.Model):
             if not vals.get("value", False):
                 continue
             value = vals.get("value")
-            attr_json_name = tmpl_config_cache["attr_json_map"][str(attr_id)]
+            attr_json_name = tmpl_config_cache["attr_json_map"].get(
+                str(attr_id)
+            )
             # TODO: Add typecast using custom_type info
             config[attr_json_name] = value
+
         if self.json_config.get('changed_attr'):
-            config['changed_field'] = tmpl_config_cache["attr_json_map"][
+            config['changed_field'] = tmpl_config_cache["attr_json_map"].get(
                 self.json_config.get('changed_attr')
-            ]
+            )
+
         return {
             "template": tmpl_config_cache.get("attrs", {}),
             "session": {"price": 0, "weight": 0, "quantity": 0, "bom": []},
@@ -65,7 +69,7 @@ class ProductConfigSession(models.Model):
     @api.multi
     @api.depends("product_tmpl_id.config_cache", "json_config")
     def _compute_json_vals(self):
-        for session in self:
+        for session in self.filtered(lambda s: s.state != 'done'):
             code = session.product_tmpl_id.computed_vals_formula
             eval_context = session._get_eval_context()
             safe_eval(
