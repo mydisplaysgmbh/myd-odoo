@@ -17,6 +17,7 @@
         'product_configurator_sale',
     ],
     'data': [
+        'data/product_attribute_data.xml',
         'views/config_form_templates.xml',
         'views/sale_order_view.xml',
         'views/product_attribute_view.xml',
