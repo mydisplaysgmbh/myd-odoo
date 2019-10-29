@@ -87,7 +87,7 @@ class MydisplaysConfigWebsiteSale(ProductConfigWebsiteSale):
                 'mydisplays_configurator.quantity_attribute'
             )
             qty_custom_val = custom_vals.get(str(quantity_attr.id), {})
-            product_qty = qty_custom_val.get('value', 1)
+            product_qty = int(qty_custom_val.get('value', 1))
         except Exception:
             product_qty = 1
 
@@ -149,7 +149,7 @@ class WebsiteSale(WebsiteSale):
             product_custom_attribute_values=product_custom_attribute_values,
             no_variant_attribute_values=no_variant_attribute_values,
             # Custom code
-            config_session=kw.get('config_session', False)
+            config_session_id=kw.get('config_session_id', False)
             # End
         )
         return request.redirect("/shop/cart")
