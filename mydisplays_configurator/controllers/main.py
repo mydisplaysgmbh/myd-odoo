@@ -48,24 +48,24 @@ class MydisplaysConfigWebsiteSale(ProductConfigWebsiteSale):
 
     @http.route(
         '/website_product_configurator/configuration/'
-        '<model("product.config.session"):config_session_id>',
+        '<model("product.config.session"):config_session>',
         type='http', auth="public", website=True)
-    def config_session(self, config_session_id, **post):
+    def config_session(self, config_session, **post):
         """Render product page of product_id"""
-        if not config_session_id.exists():
+        if not config_session.exists():
             return request.render("website.404")
-        product_id = config_session_id.product_id
-        product_tmpl_id = config_session_id.product_tmpl_id
+        product_id = config_session.product_id
+        product_tmpl_id = config_session.product_tmpl_id
         if not product_tmpl_id.exists():
             return request.render("website.404")
 
-        cfg_user_id = config_session_id.user_id
+        cfg_user_id = config_session.user_id
         user_id = request.env.user
 
         check_for_session = (
             product_id.product_tmpl_id == product_tmpl_id and
             cfg_user_id == user_id and
-            config_session_id.state == 'done'
+            config_session.state == 'done'
         ) and True or False
 
         if not check_for_session:
@@ -75,24 +75,34 @@ class MydisplaysConfigWebsiteSale(ProductConfigWebsiteSale):
             product_id.attribute_value_ids,
             key=lambda obj: obj.attribute_id.sequence
         )
+        custom_vals = config_session.json_config.get('custom_values', {})
         pricelist = get_pricelist()
         if request.session['product_config_session'].get(product_tmpl_id.id):
             product_config_session = request.session['product_config_session']
             del product_config_session[product_tmpl_id.id]
             request.session['product_config_session'] = product_config_session
 
+        try:
+            quantity_attr = request.env.ref(
+                'mydisplays_configurator.quantity_attribute'
+            )
+            qty_custom_val = custom_vals.get(str(quantity_attr.id), {})
+            product_qty = qty_custom_val.get('value', 1)
+        except Exception:
+            product_qty = 1
+
         values = {
             'product_id': product_id,
             'product_tmpl': product_tmpl_id,
-            'config_session': config_session_id,
+            'config_session': config_session,
             'pricelist': pricelist,
-            'custom_vals': config_session_id.json_config.get(
-                'custom_values', {}
-            ),
-            'json_vals': config_session_id.json_vals,
+            'product_qty': product_qty,
+            'custom_vals': custom_vals,
+            'json_vals': config_session.json_vals,
             'attr_data': product_tmpl_id.config_cache.get('attrs', {}),
             'vals': vals,
         }
+
         return request.render(
             "website_product_configurator.cfg_product_variant", values
         )
@@ -126,6 +136,12 @@ class WebsiteSale(WebsiteSale):
                 kw.get('no_variant_attribute_values')
             )
 
+        if kw.get('product_qty'):
+            try:
+                set_qty = int(kw.get('product_qty'))
+            except Exception:
+                pass
+
         sale_order._cart_update(
             product_id=int(product_id),
             add_qty=add_qty,
@@ -133,7 +149,7 @@ class WebsiteSale(WebsiteSale):
             product_custom_attribute_values=product_custom_attribute_values,
             no_variant_attribute_values=no_variant_attribute_values,
             # Custom code
-            config_session_id=kw.get('config_session_id', False)
+            config_session=kw.get('config_session', False)
             # End
         )
         return request.redirect("/shop/cart")

@@ -6,6 +6,7 @@
         <field name="active" eval="False"/>
         <field name="val_custom" eval="True"/>
         <field name="custom_type">int</field>
+        <field name="min_val" eval="1"/>
         <field name="json_name">quantity</field>
     </record>
 
