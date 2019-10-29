@@ -160,6 +160,11 @@ class ProductTemplate(models.Model):
             product_tmpl.config_cache = json_tree
             product_tmpl.config_cache_debug = pprint.pformat(json_tree)
 
+    config_qty_ok = fields.Boolean(
+        name="Config Quantity",
+        help="Allow setting quantity in the configuration form",
+        default=True
+    )
     config_cache = fields.Serialized(
         name="Cached configuration data",
         compute="_get_config_data",

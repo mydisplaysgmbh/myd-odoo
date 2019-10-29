@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="quantity_attribute" model="product.attribute">
+        <field name="name">Quantity</field>
+        <field name="active" eval="False"/>
+        <field name="val_custom" eval="True"/>
+        <field name="custom_type">int</field>
+        <field name="json_name">quantity</field>
+    </record>
+
+</odoo>
