@@ -160,8 +160,51 @@ class ProductTemplate(models.Model):
             product_tmpl.config_cache = json_tree
             product_tmpl.config_cache_debug = pprint.pformat(json_tree)
 
+    @api.onchange('config_qty_ok')
+    def onchange_config_qty(self):
+        """Add / remove quantity attribute line to product template when boolean button
+        is checked"""
+        qty_attribute = self.env.ref(
+            'mydisplays_configurator.quantity_attribute'
+        )
+        qty_line = self.attribute_line_ids.filtered(
+            lambda l: l.attribute_id.id == qty_attribute.id
+        )
+        if self.config_qty_ok and not qty_line:
+            attribute_line_obj = self.env['product.template.attribute.line']
+            qty_line = attribute_line_obj.new({
+                'attribute_id': qty_attribute.id,
+                'custom': True
+            })
+            self.attribute_line_ids |= qty_line
+        elif not self.config_qty_ok and qty_line:
+            self.attribute_line_ids -= qty_line
+
+    @api.constrains('config_qty_ok', 'attribute_line_ids')
+    def check_qty_attr_line(self):
+        """Ensure the quantity attribute line is added if config_qty_ok
+        field is True"""
+        qty_attribute = self.env.ref(
+            'mydisplays_configurator.quantity_attribute'
+        )
+        for product_tmpl in self:
+            qty_line = product_tmpl.attribute_line_ids.filtered(
+                lambda l: l.attribute_id.id == qty_attribute.id and l.custom)
+            if product_tmpl.config_qty_ok and not qty_line:
+                raise ValidationError(_(
+                    "No quantity attribute line has been found on template "
+                    "'%s'. Please toggle or turn off the config quantity "
+                    "boolean field." % product_tmpl.name)
+                )
+            elif not product_tmpl.config_qty_ok and qty_line:
+                raise ValidationError(_(
+                    "Quantity attribute line present in template with config "
+                    "quantity set to False. Please turn on config quantity or "
+                    "remove the quantity attribute line")
+                )
+
     config_qty_ok = fields.Boolean(
-        name="Config Quantity",
+        string="Config Quantity",
         help="Allow setting quantity in the configuration form",
         default=True
     )
