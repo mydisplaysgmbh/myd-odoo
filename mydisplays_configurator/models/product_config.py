@@ -103,12 +103,16 @@ class ProductConfigSession(models.Model):
 
             json_vals = eval_context['session']
 
+            config_qty = session.get_session_qty()
+
             json_vals['price'] = sum([
                 price for k, price in json_vals['prices'].items()
-            ])
+            ]) * config_qty
+
             json_vals['weight'] = sum([
                 weight for k, weight in json_vals['weights'].items()
-            ])
+            ]) * config_qty
+
             json_vals['bom'] = [
                 (0, 0, line) for k, line in json_vals['bom'].items()
             ]
@@ -178,6 +182,23 @@ class ProductConfigSession(models.Model):
                 raise UserError(_("Please provide a valid float value"))
         else:
             return val
+
+    @api.model
+    def get_session_qty(self):
+        """Attempt to retrieve the quantity potentially set on a configuration
+        session via the modle created quantity attribute"""
+        try:
+            quantity_attr = self.env.ref(
+                'mydisplays_configurator.quantity_attribute'
+            )
+            qty_custom_val = self.json_config['custom_values'].get(
+                str(quantity_attr.id), {}
+            )
+            product_qty = int(qty_custom_val.get('value', 1))
+        except Exception:
+            product_qty = 1
+
+        return product_qty
 
     @api.multi
     def get_config_session_json(
