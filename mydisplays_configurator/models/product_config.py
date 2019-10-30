@@ -62,8 +62,29 @@ class ProductConfigSession(models.Model):
 
         return {
             "template": tmpl_config_cache.get("attrs", {}),
-            "session": {"price": 0, "weight": 0, "quantity": 0, "bom": []},
+            "session": self._get_eval_context_session(),
             "config": config,
+        }
+
+    @api.model
+    def _get_eval_context_session(self):
+        prices = {}
+        weights = {}
+        bom = {}
+        for attr_val in self.value_ids.filtered(lambda v: v.product_id):
+            product = attr_val.product_id
+            json_name = attr_val.attribute_id.json_name
+            prices[json_name] = product.lst_price
+            weights[json_name] = product.weight
+            bom[json_name] = {
+                'product_id': product.id,
+                'product_qty': 1
+            }
+
+        return {
+            'prices': prices,
+            'weights': weights,
+            'bom': bom
         }
 
     @api.multi
@@ -79,8 +100,25 @@ class ProductConfigSession(models.Model):
                 nocopy=True,
                 locals_builtins=True,
             )
-            session.json_vals = eval_context["session"]
-            session.json_vals_debug = pprint.pformat(eval_context["session"])
+
+            json_vals = eval_context['session']
+
+            config_qty = session.get_session_qty()
+
+            json_vals['price'] = sum([
+                price for k, price in json_vals['prices'].items()
+            ]) * config_qty
+
+            json_vals['weight'] = sum([
+                weight for k, weight in json_vals['weights'].items()
+            ]) * config_qty
+
+            json_vals['bom'] = [
+                (0, 0, line) for k, line in json_vals['bom'].items()
+            ]
+
+            session.json_vals = json_vals
+            session.json_vals_debug = pprint.pformat(json_vals)
 
     @api.depends('json_config')
     def _get_json_vals(self):
@@ -144,6 +182,23 @@ class ProductConfigSession(models.Model):
                 raise UserError(_("Please provide a valid float value"))
         else:
             return val
+
+    @api.model
+    def get_session_qty(self):
+        """Attempt to retrieve the quantity potentially set on a configuration
+        session via the modle created quantity attribute"""
+        try:
+            quantity_attr = self.env.ref(
+                'mydisplays_configurator.quantity_attribute'
+            )
+            qty_custom_val = self.json_config['custom_values'].get(
+                str(quantity_attr.id), {}
+            )
+            product_qty = int(qty_custom_val.get('value', 1))
+        except Exception:
+            product_qty = 1
+
+        return product_qty
 
     @api.multi
     def get_config_session_json(

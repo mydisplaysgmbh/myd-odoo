@@ -82,14 +82,7 @@ class MydisplaysConfigWebsiteSale(ProductConfigWebsiteSale):
             del product_config_session[product_tmpl.id]
             request.session['product_config_session'] = product_config_session
 
-        try:
-            quantity_attr = request.env.ref(
-                'mydisplays_configurator.quantity_attribute'
-            )
-            qty_custom_val = custom_vals.get(str(quantity_attr.id), {})
-            product_qty = int(qty_custom_val.get('value', 1))
-        except Exception:
-            product_qty = 1
+        product_qty = config_session.get_session_qty()
 
         values = {
             'product_id': product,
