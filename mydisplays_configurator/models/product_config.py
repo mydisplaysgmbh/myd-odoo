@@ -118,9 +118,11 @@ class ProductConfigSession(models.Model):
 
             config_qty = session.get_session_qty()
 
-            json_vals['price'] = sum([
+            json_vals['price_unit'] = sum([
                 price for k, price in json_vals['prices'].items()
-            ]) * config_qty
+            ])
+
+            json_vals['price'] = json_vals['price_unit'] * config_qty
 
             json_vals['weight'] = sum([
                 weight for k, weight in json_vals['weights'].items()
