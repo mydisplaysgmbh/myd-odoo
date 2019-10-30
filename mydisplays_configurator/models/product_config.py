@@ -114,7 +114,7 @@ class ProductConfigSession(models.Model):
             ]) * config_qty
 
             json_vals['bom'] = [
-                (0, 0, line) for k, line in json_vals['bom'].items()
+                line_data for k, line_data in json_vals['bom'].items()
             ]
 
             session.json_vals = json_vals
