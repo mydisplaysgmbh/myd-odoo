@@ -62,8 +62,29 @@ class ProductConfigSession(models.Model):
 
         return {
             "template": tmpl_config_cache.get("attrs", {}),
-            "session": {"price": 0, "weight": 0, "quantity": 0, "bom": []},
+            "session": self._get_config_session(),
             "config": config,
+        }
+
+    @api.model
+    def _get_config_session(self):
+        prices = {}
+        weights = {}
+        bom = {}
+        for attr_val in self.value_ids.filtered(lambda v: v.product_id):
+            product = attr_val.product_id
+            json_name = attr_val.attribute_id.json_name
+            prices[json_name] = product.lst_price
+            weights[json_name] = product.weight
+            bom[json_name] = {
+                'product_id': product.id,
+                'product_qty': 1
+            }
+
+        return {
+            'prices': prices,
+            'weights': weights,
+            'bom': bom
         }
 
     @api.multi
@@ -79,8 +100,21 @@ class ProductConfigSession(models.Model):
                 nocopy=True,
                 locals_builtins=True,
             )
-            session.json_vals = eval_context["session"]
-            session.json_vals_debug = pprint.pformat(eval_context["session"])
+
+            json_vals = eval_context['session']
+
+            json_vals['price'] = sum([
+                price for k, price in json_vals['prices'].items()
+            ])
+            json_vals['weight'] = sum([
+                weight for k, weight in json_vals['weights'].items()
+            ])
+            json_vals['bom'] = [
+                (0, 0, line) for k, line in json_vals['bom'].items()
+            ]
+
+            session.json_vals = json_vals
+            session.json_vals_debug = pprint.pformat(json_vals)
 
     @api.depends('json_config')
     def _get_json_vals(self):
