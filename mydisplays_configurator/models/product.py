@@ -6,8 +6,27 @@ from odoo.tools.safe_eval import test_python_expr
 from odoo.exceptions import ValidationError
 
 DEFAULT_PYTHON_CODE = """# Available variables:
-#  - config: Current configuration expressed as json
-#  - session: Object to store computed values on\n\n\n\n
+#  - config: Current configuration expressed as a json object
+#       config['attr_json_name'] holds cached data for the selected value
+#       config['changed_field'] hold the name of the field changed by the user
+#
+#  - session: Object to store final computed values
+#      session['prices'] holds a dictionary of all related prices:
+#      session['prices'][attribute_json_name] = X
+#
+#      session['weights'] holds a dictionary of all related weights:
+#      session['weights'][attribute_json_name] = X
+#
+#      session['bom'] holds a dictionary of al related prodcuts for the bom:
+#      session['bom'][attribute_json_name] = {
+#          'product_id': related_product_id,
+#          'product_qty': 1
+#      }
+#
+#      session['warning'] contents will pop-up in the frontend (used in
+#      conjuction with config['changed_field'] to pop up message only once)
+#
+\n\n\n\n
 """
 
 
