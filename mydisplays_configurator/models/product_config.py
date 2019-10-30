@@ -62,12 +62,12 @@ class ProductConfigSession(models.Model):
 
         return {
             "template": tmpl_config_cache.get("attrs", {}),
-            "session": self._get_config_session(),
+            "session": self._get_eval_context_session(),
             "config": config,
         }
 
     @api.model
-    def _get_config_session(self):
+    def _get_eval_context_session(self):
         prices = {}
         weights = {}
         bom = {}
