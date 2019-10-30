@@ -74,11 +74,11 @@ class ProductConfigSession(models.Model):
         value_ids = [
             str(val_id) for val_id in self.json_config.get('value_ids', [])
         ]
+        tmpl_config_cache = self.product_tmpl_id.config_cache
         for value_id in value_ids:
-            config_cache = self.product_tmpl_id.config_cache
-            attr_val_data = config_cache['attr_vals'].get(value_id, {})
+            attr_val_data = tmpl_config_cache['attr_vals'].get(value_id, {})
             attribute_id = str(attr_val_data.get('attribute_id'))
-            json_name = config_cache['attr_json_map'].get(attribute_id)
+            json_name = tmpl_config_cache['attr_json_map'].get(attribute_id)
             if not json_name:
                 continue
             prices[json_name] = attr_val_data.get('price')
