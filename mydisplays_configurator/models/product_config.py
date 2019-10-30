@@ -71,7 +71,8 @@ class ProductConfigSession(models.Model):
         prices = {}
         weights = {}
         bom = {}
-        for attr_val in self.value_ids.filtered(lambda v: v.product_id):
+        value_ids = self.json_config.get('value_ids', [])
+        for attr_val in value_ids:
             product = attr_val.product_id
             json_name = attr_val.attribute_id.json_name
             prices[json_name] = product.lst_price
