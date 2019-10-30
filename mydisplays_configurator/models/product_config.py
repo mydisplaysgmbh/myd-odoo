@@ -71,13 +71,26 @@ class ProductConfigSession(models.Model):
         prices = {}
         weights = {}
         bom = {}
-        for attr_val in self.value_ids.filtered(lambda v: v.product_id):
-            product = attr_val.product_id
-            json_name = attr_val.attribute_id.json_name
-            prices[json_name] = product.lst_price
-            weights[json_name] = product.weight
+        value_ids = [
+            str(val_id) for val_id in self.json_config.get('value_ids', [])
+        ]
+        tmpl_config_cache = self.product_tmpl_id.config_cache
+        for value_id in value_ids:
+            attr_val_data = tmpl_config_cache['attr_vals'].get(value_id, {})
+            attribute_id = str(attr_val_data.get('attribute_id'))
+            json_name = tmpl_config_cache['attr_json_map'].get(attribute_id)
+            if not json_name:
+                continue
+            prices[json_name] = attr_val_data.get('price')
+            weights[json_name] = attr_val_data.get('weight')
+
+            product_id = attr_val_data.get('product_id')
+
+            if not product_id:
+                continue
+
             bom[json_name] = {
-                'product_id': product.id,
+                'product_id': product_id,
                 'product_qty': 1
             }
 
@@ -105,9 +118,11 @@ class ProductConfigSession(models.Model):
 
             config_qty = session.get_session_qty()
 
-            json_vals['price'] = sum([
+            json_vals['price_unit'] = sum([
                 price for k, price in json_vals['prices'].items()
-            ]) * config_qty
+            ])
+
+            json_vals['price'] = json_vals['price_unit'] * config_qty
 
             json_vals['weight'] = sum([
                 weight for k, weight in json_vals['weights'].items()

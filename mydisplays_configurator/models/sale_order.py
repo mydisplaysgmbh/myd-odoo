@@ -24,7 +24,7 @@ class SaleOrder(models.Model):
         for line in order_line:
             line.write({
                 'cfg_session_id': config_session.id,
-                'price_unit': config_session.json_vals.get('price'),
+                'price_unit': config_session.json_vals.get('price_unit'),
             })
 
     @api.multi
