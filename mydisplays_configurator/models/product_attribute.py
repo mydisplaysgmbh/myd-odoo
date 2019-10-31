@@ -100,3 +100,29 @@ class ProductAttributeValue(models.Model):
                     'Please provide a valid JSON object and be sure to use '
                     'double quotes "" for keys and delete trailing commas'
                 ))
+
+    @api.multi
+    def name_get(self):
+        res = super(ProductAttributeValue, self).name_get()
+        if not self._context.get('show_price_extra'):
+            return res
+        product_tmpl_id = self.env.context.get('active_id', False)
+        product_tmpl = self.env['product.template'].browse(
+            int(product_tmpl_id)
+        )
+        tmpl_config_cache = product_tmpl.config_cache or {}
+        res_prices = []
+
+        for attr_val in res:
+            attr_vals = tmpl_config_cache.get('attr_vals', {})
+            json_vals = attr_vals.get(str(attr_val[0]), {})
+            price_extra = json_vals.get('price')
+            if price_extra:
+                val_id = self.env['product.attribute.value'].browse(
+                    attr_val[0]
+                )
+                attr_val = (
+                    val_id.id, '%s ( +%s )' % (val_id.name, price_extra)
+                )
+            res_prices.append(attr_val)
+        return res_prices
