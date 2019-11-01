@@ -126,3 +126,32 @@ class ProductAttributeValue(models.Model):
                 )
             res_prices.append(attr_val)
         return res_prices
+
+    def get_attr_value_name(self, product_tmpl, pricelist_id):
+        self = self.with_context({
+            'show_price_extra': False,
+            'active_id': product_tmpl.id,
+            'show_attribute': False,
+        })
+
+        res = self.name_get()
+        product_tmpl_id = self.env.context.get('active_id', False)
+        product_tmpl = self.env['product.template'].browse(
+            int(product_tmpl_id)
+        )
+        tmpl_config_cache = product_tmpl.config_cache or {}
+        res_prices = []
+
+        for attr_val in res:
+            attr_vals = tmpl_config_cache.get('attr_vals', {})
+            json_vals = attr_vals.get(str(attr_val[0]), {})
+            price_extra = json_vals.get('price')
+            if price_extra:
+                val_id = self.env['product.attribute.value'].browse(
+                    attr_val[0]
+                )
+                attr_val = (
+                    val_id.id, '%s ( +%s )' % (val_id.name, price_extra)
+                )
+            res_prices.append(attr_val)
+        return res_prices
