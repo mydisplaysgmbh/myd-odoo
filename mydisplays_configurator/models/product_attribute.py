@@ -103,7 +103,11 @@ class ProductAttributeValue(models.Model):
 
     @api.multi
     def name_get(self):
-        res = super(ProductAttributeValue, self).name_get()
+        self2 = self.with_context({
+            'show_price_extra': False,
+        })
+        res = super(ProductAttributeValue, self2).name_get()
+
         if not self._context.get('show_price_extra'):
             return res
         product_tmpl_id = self.env.context.get('active_id', False)
@@ -136,6 +140,8 @@ class ProductAttributeValue(models.Model):
 
         res = self.name_get()
         product_tmpl_id = self.env.context.get('active_id', False)
+        pricelist = self.env['product.pricelist'].browse(int(pricelist_id))
+        price_precision = pricelist.currency_id.decimal_places or 2
         product_tmpl = self.env['product.template'].browse(
             int(product_tmpl_id)
         )
@@ -151,7 +157,8 @@ class ProductAttributeValue(models.Model):
                     attr_val[0]
                 )
                 attr_val = (
-                    val_id.id, '%s ( +%s )' % (val_id.name, price_extra)
+                    val_id.id, '%s ( +%s )' % (val_id.name, (
+                        '{0:,.%sf}' % (price_precision)).format(price_extra))
                 )
             res_prices.append(attr_val)
         return res_prices
