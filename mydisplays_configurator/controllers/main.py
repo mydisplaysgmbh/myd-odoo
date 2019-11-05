@@ -18,8 +18,12 @@ class MydisplaysConfigWebsiteSale(ProductConfigWebsiteSale):
             cfg_session=cfg_session
         )
         json_session_vals = cfg_session.json_vals
+        config_cache = cfg_session.product_tmpl_id.config_cache
         if json_session_vals:
-            vals.update({'json_session_vals': json_session_vals})
+            vals.update({
+                'json_session_vals': json_session_vals,
+                'config_cache': config_cache,
+            })
         return vals
 
     @http.route()

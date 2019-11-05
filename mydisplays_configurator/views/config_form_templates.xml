@@ -89,6 +89,13 @@
         <xpath expr="//t[@t-foreach='cfg_step_attribute_line_ids']//select[@t-att-data-oe-id='line.attribute_id.id']" position="attributes">
             <attribute name="t-att-class">'form-control config_attribute' + (line.required and ' required_config_attrib' or '') + (line.invisible and ' d-none' or '')</attribute>
         </xpath>
+        <xpath expr="//t[@t-foreach='cfg_step_attribute_line_ids']//select[@t-att-data-oe-id='line.attribute_id.id']//t[@t-foreach='line.value_ids']//option[contains(@t-att-class, 'config_attr_value')]//t" position="replace">
+            <t t-esc="value.name"/>
+            <t t-set="price_extra" t-value="config_cache.get('attr_vals', {}).get('%s' % (value.id), {}).get('price')"/>
+            <t t-if="price_extra">
+                (+<t t-esc="price_extra" t-options="{'widget': 'monetary', 'display_currency': pricelist.currency_id, 'from_currency': website.currency_id}"/>)
+            </t>
+        </xpath>
     </template>
 
     <template id="config_form_radio_inherit" inherit_id="website_product_configurator.config_form_radio">
@@ -99,6 +106,15 @@
         </xpath>
         <xpath expr="//t[@t-foreach='cfg_step_attribute_line_ids']//fieldset[@t-att-data-oe-id='line.attribute_id.id']" position="attributes">
             <attribute name="t-att-class">'form-control config_attribute' + (line.required and ' required_config_attrib' or '') + (line.invisible and ' d-none' or '')</attribute>
+        </xpath>
+        <xpath expr="//t[@t-foreach='cfg_step_attribute_line_ids']//fieldset[@t-att-data-oe-id='line.attribute_id.id']//t[@t-foreach='line.value_ids']//t[@t-set='value_label']" position="attributes">
+            <attribute name="t-value">value.name</attribute>
+        </xpath>
+        <xpath expr="//t[@t-foreach='cfg_step_attribute_line_ids']//fieldset[@t-att-data-oe-id='line.attribute_id.id']//t[@t-foreach='line.value_ids']//span[hasclass('label_config_attr_value_radio')]" position="after">
+            <t t-set="price_extra" t-value="config_cache.get('attr_vals', {}).get('%s' % (value.id), {}).get('price')"/>
+            <t t-if="price_extra">
+                <span class="label_config_price_extra_radio">(+<t t-esc="price_extra" t-options="{'widget': 'monetary', 'display_currency': pricelist.currency_id, 'from_currency': website.currency_id}"/>)</span>
+            </t>
         </xpath>
     </template>
 </odoo>

@@ -3,3 +3,10 @@
 	height: 60px;
 	vertical-align: text-top;
 }
+
+.label_config_price_extra_radio {
+	position: absolute;
+    z-index: 1;
+    width: 138px;
+    margin: 25px auto auto 5px;;
+}
