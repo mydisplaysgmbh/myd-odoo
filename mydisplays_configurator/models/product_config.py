@@ -386,7 +386,9 @@ class ProductConfigSession(models.Model):
             'product_tmpl_id': self.product_tmpl_id.id,
             'routing_id': self._create_get_route().id,
             'product_id': self.product_id.id,
-            'bom_line_ids': [(0, 0, line_data) for line_data in bom_lines]
+            'bom_line_ids': [
+                (0, 0, line_data) for line_data in bom_lines if line_data
+            ]
         })
 
         return bom
