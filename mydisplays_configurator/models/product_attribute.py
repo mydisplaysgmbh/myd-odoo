@@ -108,6 +108,9 @@ class ProductAttributeValue(models.Model):
 
         if not self._context.get('show_price_extra'):
             return res
+        price_precision = self.env['decimal.precision'].precision_get(
+            'Product Price'
+        )
         product_tmpl_id = self.env.context.get('active_id', False)
         product_tmpl = self.env['product.template'].browse(
             int(product_tmpl_id)
@@ -120,7 +123,10 @@ class ProductAttributeValue(models.Model):
             price_extra = json_vals.get('price')
             if price_extra:
                 attr_val = (
-                    attr_val[0], '%s ( +%s )' % (attr_val[1], price_extra)
+                    attr_val[0], '%s ( +%s )' % (
+                        attr_val[1],
+                        ('{0:,.%sf}' % (price_precision)).format(price_extra)
+                    )
                 )
             res_prices.append(attr_val)
         return res_prices
