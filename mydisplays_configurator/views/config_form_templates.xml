@@ -87,7 +87,7 @@
             </label>
         </xpath>
         <xpath expr="//t[@t-foreach='cfg_step_attribute_line_ids']//select[@t-att-data-oe-id='line.attribute_id.id']" position="attributes">
-            <attribute name="t-att-class">'form-control config_attribute' + (line.required and ' required_config_attrib' or '') + (' d-none' if (not line.value_ids or line.invisible) else '')</attribute>
+            <attribute name="t-att-class">'form-control config_attribute' + (' required_config_attrib' if (not available_val and line.required and line.custom) or (available_val and line.required) else '') + (' d-none' if (not line.value_ids or line.invisible) else '')</attribute>
         </xpath>
     </template>
 
@@ -98,7 +98,7 @@
             </label>
         </xpath>
         <xpath expr="//t[@t-foreach='cfg_step_attribute_line_ids']//fieldset[@t-att-data-oe-id='line.attribute_id.id']" position="attributes">
-            <attribute name="t-att-class">'form-control config_attribute' + (line.required and ' required_config_attrib' or '') + (' d-none' if (not line.value_ids or line.invisible) else '')</attribute>
+            <attribute name="t-att-class">'form-control config_attribute' + (' required_config_attrib' if (not available_val and line.required and line.custom) or (available_val and line.required) else '') + (' d-none' if (not line.value_ids or line.invisible) else '')</attribute>
         </xpath>
     </template>
 </odoo>
