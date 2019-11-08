@@ -426,6 +426,14 @@ class ProductConfigSession(models.Model):
         for session in self:
             session.price = session.json_vals.get('price', 0)
 
+    def get_session_price(self):
+        json_vals = self.json_vals
+        if not json_vals or (json_vals.get('price_unit', False) is False):
+            self._compute_json_vals()
+        if not json_vals or (json_vals.get('price_unit', False) is False):
+            return None
+        return self.json_vals.get('price_unit')
+
 
 class ProductConfigDomain(models.Model):
     _inherit = "product.config.domain"

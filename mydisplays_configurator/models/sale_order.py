@@ -13,6 +13,11 @@ class SaleOrder(models.Model):
             set_qty=set_qty, **kwargs)
 
         config_session_id = kwargs.get('config_session_id', False)
+        if not config_session_id and line_id is not False:
+            order_line = self._cart_find_product_line(
+                product_id, line_id, **kwargs)[:1]
+            config_session_id = order_line.cfg_session_id.id
+
         if not config_session_id:
             return res
 
@@ -24,8 +29,9 @@ class SaleOrder(models.Model):
         for line in order_line:
             line.write({
                 'cfg_session_id': config_session.id,
-                'price_unit': config_session.json_vals.get('price_unit'),
+                'price_unit': config_session.get_session_price() or 0.0,
             })
+        return res
 
     @api.multi
     def action_confirm(self):
