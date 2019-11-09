@@ -427,11 +427,11 @@ class ProductConfigSession(models.Model):
             session.price = session.json_vals.get('price', 0)
 
     def get_session_price(self):
-        json_vals = self.json_vals
-        if not json_vals or (json_vals.get('price_unit', False) is False):
+        json_vals = self.json_vals or {}
+        if json_vals.get('price_unit', None) is None:
             self._compute_json_vals()
-        if not json_vals or (json_vals.get('price_unit', False) is False):
-            return None
+        if json_vals.get('price_unit', None) is None:
+            return 0.0
         return self.json_vals.get('price_unit')
 
 
