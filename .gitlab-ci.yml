@@ -1,0 +1,3 @@
+include:
+  - project: 'pledra/pledra-doodba-scaffolding'
+    file: '/templates/.gitlab-ci-template.yml'
