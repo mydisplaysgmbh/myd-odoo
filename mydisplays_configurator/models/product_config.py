@@ -435,7 +435,7 @@ class ProductConfigSession(models.Model):
 
     def get_session_price(self):
         json_vals = self.json_vals or {}
-        if json_vals.get('price_unit', None) is None:
+        if not json_vals:
             self._compute_json_vals()
         if json_vals.get('price_unit', None) is None:
             return 0.0

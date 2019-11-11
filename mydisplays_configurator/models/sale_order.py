@@ -13,7 +13,7 @@ class SaleOrder(models.Model):
             set_qty=set_qty, **kwargs)
 
         config_session_id = kwargs.get('config_session_id', False)
-        if not config_session_id and line_id is not False:
+        if not config_session_id and line_id:
             order_line = self._cart_find_product_line(
                 product_id, line_id, **kwargs)[:1]
             config_session_id = order_line.cfg_session_id.id
