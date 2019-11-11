@@ -182,6 +182,8 @@ class ProductTemplate(models.Model):
     def onchange_config_qty(self):
         """Add / remove quantity attribute line to product template when boolean button
         is checked"""
+        if not self.config_ok:
+            return
         qty_attribute = self.env.ref(
             'mydisplays_configurator.quantity_attribute'
         )
@@ -205,7 +207,7 @@ class ProductTemplate(models.Model):
         qty_attribute = self.env.ref(
             'mydisplays_configurator.quantity_attribute'
         )
-        for product_tmpl in self:
+        for product_tmpl in self.filtered(lambda tmpl: tmpl.config_ok):
             qty_line = product_tmpl.attribute_line_ids.filtered(
                 lambda l: l.attribute_id.id == qty_attribute.id and l.custom)
             if product_tmpl.config_qty_ok and not qty_line:
