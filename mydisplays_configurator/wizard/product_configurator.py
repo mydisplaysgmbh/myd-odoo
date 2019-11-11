@@ -33,6 +33,10 @@ class ProductConfigurator(models.TransientModel):
         )
         if not config_session_id:
             config_session_id = self.config_session_id
+
+        if not config_session_id:
+            return res
+
         vals = self._get_dynamic_fields(values)
         cfg_session_json = config_session_id.get_config_session_json(
             vals=vals, changed_field=field_name
