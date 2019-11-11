@@ -133,7 +133,6 @@ class ProductConfigSession(models.Model):
             ]
 
             session.json_vals = json_vals
-            session.json_vals_debug = pprint.pformat(json_vals)
 
     @api.depends('json_config')
     def _get_json_vals(self):
@@ -156,6 +155,12 @@ class ProductConfigSession(models.Model):
             json_config['value_ids'] = session.value_ids.ids
             session.json_config = json_config
 
+    @api.multi
+    @api.depends("json_vals")
+    def _compute_json_vals_debug(self):
+        for session in self:
+            session.json_vals_debug = pprint.pformat(session.json_vals)
+
     json_config = fields.Serialized(
         name="JSON Config", help="Json representation of all custom values"
     )
@@ -167,7 +172,9 @@ class ProductConfigSession(models.Model):
         store=True,
     )
     json_vals_debug = fields.Text(
-        name="JSON Vals Debug", compute="_compute_json_vals", readonly=True
+        name="JSON Vals Debug",
+        compute="_compute_json_vals_debug",
+        readonly=True
     )
     custom_value_ids = fields.One2many(
         compute='_get_json_vals',

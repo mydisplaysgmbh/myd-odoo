@@ -177,7 +177,6 @@ class ProductTemplate(models.Model):
                             attr_val.id, {}
                         ).get("weight_extra", 0)
             product_tmpl.config_cache = json_tree
-            product_tmpl.config_cache_debug = pprint.pformat(json_tree)
 
     @api.onchange('config_qty_ok')
     def onchange_config_qty(self):
@@ -222,6 +221,13 @@ class ProductTemplate(models.Model):
                     "remove the quantity attribute line")
                 )
 
+    @api.multi
+    @api.depends('config_cache')
+    def _compute_config_cache_debug(self):
+        for template in self:
+            template.config_cache_debug = pprint.pformat(template.config_cache)
+
+
     config_qty_ok = fields.Boolean(
         string="Config Quantity",
         help="Allow setting quantity in the configuration form",
@@ -237,7 +243,7 @@ class ProductTemplate(models.Model):
     )
     config_cache_debug = fields.Text(
         name='Cached config data (debug)',
-        compute='_get_config_data',
+        compute='_compute_config_cache_debug',
         readonly=True,
     )
     computed_vals_formula = fields.Text(
