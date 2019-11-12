@@ -208,6 +208,8 @@ class ProductTemplate(models.Model):
             'mydisplays_configurator.quantity_attribute'
         )
         for product_tmpl in self.filtered(lambda tmpl: tmpl.config_ok):
+            if not product_tmpl.env.context.get('check_constraint', True):
+                continue
             qty_line = product_tmpl.attribute_line_ids.filtered(
                 lambda l: l.attribute_id.id == qty_attribute.id and l.custom)
             if product_tmpl.config_qty_ok and not qty_line:
