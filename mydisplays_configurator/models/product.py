@@ -178,6 +178,34 @@ class ProductTemplate(models.Model):
                         ).get("weight_extra", 0)
             product_tmpl.config_cache = json_tree
 
+    @api.multi
+    def toggle_config(self):
+        super(ProductTemplate, self).toggle_config()
+        for record in self:
+            record.set_quantity_attribute_line(
+                config_qty_ok=record.config_ok
+            )
+            record.config_qty_ok = record.config_ok
+
+    def set_quantity_attribute_line(self, config_qty_ok=None):
+        if config_qty_ok is None:
+            config_qty_ok = self.config_qty_ok
+        qty_attribute = self.env.ref(
+            'mydisplays_configurator.quantity_attribute'
+        )
+        qty_line = self.attribute_line_ids.filtered(
+            lambda l: l.attribute_id.id == qty_attribute.id
+        )
+        if config_qty_ok and not qty_line:
+            attribute_line_obj = self.env['product.template.attribute.line']
+            qty_line = attribute_line_obj.create({
+                'product_tmpl_id': self.id,
+                'attribute_id': qty_attribute.id,
+                'custom': True
+            })
+        elif not config_qty_ok and qty_line:
+            qty_line.unlink()
+
     @api.onchange('config_qty_ok')
     def onchange_config_qty(self):
         """Add / remove quantity attribute line to product template when boolean button
