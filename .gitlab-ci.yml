@@ -1,10 +1,20 @@
-variables:
-  CI_IMAGE: "gcr.io/pledra-1/mydisplays"
-  CI_IMAGE_TAG: "12.0-${CI_COMMIT_SHA}"
-  GCLOUD_PROJECT: "pledra-1"
-  ODOO_MINOR: "12.0"
-  ODOO_STAGING_BRANCH: "12.0-staging"
+stages:
+  - build
 
-include:
-  - project: 'pledra/pledra-doodba-scaffolding'
-    file: '/templates/.gitlab-ci-template.yml'
+Build:
+  image: google/cloud-sdk:latest
+  stage: build
+  script:
+    # Login to gcloud
+    - echo $GIT_STRATEGY
+
+# variables:
+#   CI_IMAGE: "gcr.io/pledra-1/mydisplays"
+#   CI_IMAGE_TAG: "12.0-${CI_COMMIT_SHA}"
+#   GCLOUD_PROJECT: "pledra-1"
+#   ODOO_MINOR: "12.0"
+#   ODOO_STAGING_BRANCH: "12.0-staging"
+
+# include:
+#   - project: 'pledra/pledra-doodba-scaffolding'
+#     file: '/templates/.gitlab-ci-template.yml'
