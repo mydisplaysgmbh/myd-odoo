@@ -227,7 +227,6 @@ class ProductTemplate(models.Model):
         for template in self:
             template.config_cache_debug = pprint.pformat(template.config_cache)
 
-
     config_qty_ok = fields.Boolean(
         string="Config Quantity",
         help="Allow setting quantity in the configuration form",
