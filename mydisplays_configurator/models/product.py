@@ -183,10 +183,11 @@ class ProductTemplate(models.Model):
         """If we create new product template then only
         configurable products have field default_config_ok=True.
         """
-        default_config_ok = self._context.get('default_config_ok', False)
+        res = super(ProductTemplate, self).default_get(default_fields)
+        default_config_ok = res.get('config_ok', False)
         if default_config_ok:
-            self = self.with_context(default_config_qty_ok=default_config_ok)
-        return super(ProductTemplate, self).default_get(default_fields)
+            res['config_qty_ok'] = default_config_ok
+        return res
 
     @api.multi
     def toggle_config(self):
