@@ -45,7 +45,9 @@ class ProductConfigurator(models.TransientModel):
         if res.get('value', {}):
             cfg_session_json['value_ids'] = value_ids and value_ids[0][2] or []
         else:
-            cfg_session_json['value_ids'] = config_session_id.json_config.get('value_ids')
+            cfg_session_json['value_ids'] = config_session_id.json_config.get(
+                'value_ids'
+            )
         config_session_id.json_config = cfg_session_json
         config_session_id.json_config_text = pprint.pformat(cfg_session_json)
         if not res.get("value"):
@@ -128,8 +130,6 @@ class ProductConfigurator(models.TransientModel):
                 if attr_line.required:
                     attrs['required'].append(('state', 'in', ['configure']))
 
-
-
             if attr_line.custom:
                 pass
                 # TODO: Implement restrictions for ranges
@@ -180,7 +180,6 @@ class ProductConfigurator(models.TransientModel):
                     if attr_line.required and not attr_line.custom:
                         attrs['required'].append(
                             (dependee_field, 'in', list(val_ids)))
-
 
             # Create the new field in the view
             node = etree.Element(
