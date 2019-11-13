@@ -9,6 +9,7 @@
     'author': "Pledra",
     'website': "http://www.pledra.com",
     'category': 'Generic Modules/Base',
+    'license': 'Other proprietary',
     'version': '0.1',
     'depends': [
         'base_sparse_field',
