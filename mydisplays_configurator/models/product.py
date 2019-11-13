@@ -178,9 +178,29 @@ class ProductTemplate(models.Model):
                         ).get("weight_extra", 0)
             product_tmpl.config_cache = json_tree
 
+    @api.model
+    def default_get(self, default_fields):
+        """If we create new product template then only
+        configurable products have field default_config_ok=True.
+        """
+        res = super(ProductTemplate, self).default_get(default_fields)
+        default_config_ok = res.get('config_ok', False)
+        if default_config_ok:
+            res['config_qty_ok'] = default_config_ok
+        return res
+
+    @api.multi
+    def toggle_config(self):
+        super(ProductTemplate, self).toggle_config()
+        for record in self:
+            record2 = record.with_context(check_constraint=False)
+            record2.config_qty_ok = record2.config_ok
+            record.onchange_config_qty()
+
     @api.onchange('config_qty_ok')
     def onchange_config_qty(self):
-        """Add / remove quantity attribute line to product template when boolean button
+        """Add / remove quantity attribute line to product
+        template when boolean button
         is checked"""
         qty_attribute = self.env.ref(
             'mydisplays_configurator.quantity_attribute'
@@ -205,7 +225,9 @@ class ProductTemplate(models.Model):
         qty_attribute = self.env.ref(
             'mydisplays_configurator.quantity_attribute'
         )
-        for product_tmpl in self:
+        for product_tmpl in self.filtered(lambda tmpl: tmpl.config_ok):
+            if not product_tmpl.env.context.get('check_constraint', True):
+                continue
             qty_line = product_tmpl.attribute_line_ids.filtered(
                 lambda l: l.attribute_id.id == qty_attribute.id and l.custom)
             if product_tmpl.config_qty_ok and not qty_line:
@@ -231,7 +253,6 @@ class ProductTemplate(models.Model):
     config_qty_ok = fields.Boolean(
         string="Config Quantity",
         help="Allow setting quantity in the configuration form",
-        default=True
     )
     config_cache = fields.Serialized(
         name="Cached configuration data",
