@@ -101,9 +101,9 @@ class ProductTemplate(models.Model):
     @api.multi
     @api.depends(get_config_dependencies)
     def _get_config_data(self):
+        """Fetch configuration data related to templates and store them as
+        json in config_cache serialized field"""
         for product_tmpl in self.filtered(lambda x: x.config_ok):
-            """Fetch configuration data related to templates and store them as
-            json in config_cache serialized field"""
             attr_lines = product_tmpl.attribute_line_ids
             attrs = attr_lines.mapped("attribute_id")
             json_tree = {
