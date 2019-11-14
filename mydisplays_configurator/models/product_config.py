@@ -413,8 +413,9 @@ class ProductConfigSession(models.Model):
         operation_value_ids = self.value_ids.filtered(
             lambda v: v.operation_ids
         )
-
         route_obj = self.env['mrp.routing']
+        if not operation_value_ids:
+            return route_obj
 
         domain_sets = []
         for value_id in operation_value_ids:
@@ -449,7 +450,7 @@ class ProductConfigSession(models.Model):
             return routes[:1]
 
         # create new route if no mach found
-        new_route_id = self.env['mrp.routing'].create({
+        new_route_id = route_obj.create({
             'name': '%s (%s)' % (self.product_id.name, self.name)
         })
         for value_id in operation_value_ids:
