@@ -72,7 +72,8 @@ class ProductTemplate(models.Model):
         return [
             "json_context",
             "product_id",
-            "product_id.price",
+            "product_id.lst_price",
+            "product_id.standard_price",
             "product_id.weight",
         ]
 
