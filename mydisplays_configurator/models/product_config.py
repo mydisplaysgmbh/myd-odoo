@@ -1,4 +1,5 @@
 import pprint
+import itertools
 
 from odoo import api, fields, models, _
 from odoo.tools.safe_eval import safe_eval
@@ -400,25 +401,36 @@ class ProductConfigSession(models.Model):
 
         return bom
 
-    def _create_get_route(self, operation_ids=None):
+    def _create_get_route(self, value_ids=None):
         """Find a route matching the operations given or create one
         if search returns empty"""
 
-        if not operation_ids:
-            operation_ids = self.value_ids.mapped('operation_id').ids
+        if not value_ids:
+            value_ids = self.value_ids
+        operation_value_ids = self.value_ids.filtered(lambda v: v.operation_ids)
 
         route_obj = self.env['mrp.routing']
 
+        domain_sets = []
+        for value_id in operation_value_ids:
+            domain = [
+                ('operation_ids', '=', op_set.id)
+                for op_set in value_id.operation_ids
+            ]
+            domain = ((len(domain) - 1) * ['|']) + domain
+            domain_sets.append(domain)
+        domain = (
+            (len(domain_sets) - 1) * ['&']
+        ) + list(itertools.chain.from_iterable(domain_sets))
+
         # Search for a routing with an exact match on operation ids
-        routes = route_obj.search([
-            ('operation_ids', '=', op_id) for op_id in operation_ids
-        ])
+        routes = route_obj.search(domain)
 
         # Filter out routes that do not have the same amount of operations
+        operation_ids = operation_value_ids.mapped('operation_ids')
         routes = routes.filtered(
-            lambda r: len(r.operation_ids) == len(operation_ids)
+            lambda r: not (r.operation_ids - operation_ids)
         )
-
         return routes[:1]
 
     @api.multi
