@@ -26,11 +26,10 @@ class SaleOrder(models.Model):
             config_session_id
         )
         order_line = self.env['sale.order.line'].browse(res.get('line_id'))
-        for line in order_line:
-            line.write({
-                'cfg_session_id': config_session.id,
-                'price_unit': config_session.get_session_price() or 0.0,
-            })
+        order_line.write({
+            'cfg_session_id': config_session.id,
+            'price_unit': config_session.get_session_price() or 0.0,
+        })
         return res
 
     @api.multi
