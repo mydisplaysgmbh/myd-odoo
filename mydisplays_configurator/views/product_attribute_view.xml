@@ -28,7 +28,7 @@
                         <field name="json_context" widget="ace" options="{'mode': 'python'}"/>
                     </page>
                     <page string="Operations" name="operations" attrs="{'invisible': [('product_id', '=', False)]}">
-                        <field name="operation_ids" attrs="{'readonly': [('product_id', '=', False)]}"/>
+                        <field name="operation_ids" attrs="{'readonly': [('product_id', '=', False)]}" options="{'no_create': True}"/>
                     </page>
                 </notebook>
             </xpath>

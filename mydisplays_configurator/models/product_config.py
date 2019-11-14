@@ -1,9 +1,12 @@
 import pprint
 import itertools
+import logging
 
 from odoo import api, fields, models, _
 from odoo.tools.safe_eval import safe_eval
 from odoo.exceptions import UserError, ValidationError
+
+_logger = logging.getLogger(__name__)
 
 
 class ProductConfigSessionCustomValue(models.Model):
@@ -407,7 +410,9 @@ class ProductConfigSession(models.Model):
 
         if not value_ids:
             value_ids = self.value_ids
-        operation_value_ids = self.value_ids.filtered(lambda v: v.operation_ids)
+        operation_value_ids = self.value_ids.filtered(
+            lambda v: v.operation_ids
+        )
 
         route_obj = self.env['mrp.routing']
 
@@ -431,7 +436,40 @@ class ProductConfigSession(models.Model):
         routes = routes.filtered(
             lambda r: not (r.operation_ids - operation_ids)
         )
-        return routes[:1]
+        if routes:
+            if len(routes) > 1:
+                _logger.info(
+                    "Multiple routes have been identified:"
+                    " Session: %s Product: %s Routes: %s" % (
+                        self.name,
+                        self.product_id.name,
+                        ', '.join(routes.mapped('code'))
+                    )
+                )
+            return routes[:1]
+
+        # create new route if no mach found
+        new_route_id = self.env['mrp.routing'].create({
+            'name': '%s (%s)' % (self.product_id.name, self.name)
+        })
+        for value_id in operation_value_ids:
+            default_vals = {
+                'routing_id': new_route_id.id
+            }
+            value_id.operation_ids[:1].copy(default=default_vals)
+        _logger.info(
+            "No matching route found:"
+            " Session: %s Product: %s Routes: %s" % (
+                self.name,
+                self.product_id.name,
+                ', '.join(routes.mapped('code'))
+            )
+        )
+        _logger.info(
+            "New route created:"
+            " Route: %s" % (new_route_id.code)
+        )
+        return new_route_id
 
     @api.multi
     @api.depends("json_vals")
