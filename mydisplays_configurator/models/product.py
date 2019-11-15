@@ -310,3 +310,93 @@ class ProductTemplate(models.Model):
                   "restrictions:\n" + attrs_name
                   )
             )
+
+    def get_product_templates_with_session(self, config_session_map={}):
+        tmpls_to_update = self.env['product.template']
+        if not config_session_map:
+            return tmpls_to_update
+        configurable_tmpls = self.filtered(lambda p: p.config_ok)
+        for cfg_tmpl in configurable_tmpls:
+            if cfg_tmpl.id not in config_session_map.keys():
+                continue
+            tmpls_to_update += cfg_tmpl
+        return tmpls_to_update
+
+    def _compute_weight(self):
+        session_map = self.env.context.get('product_template_sessions', {})
+        configurable_tmpls = self.get_product_templates_with_session(
+            session_map.copy()
+        )
+        standard_templates = self - configurable_tmpls
+
+        for cfg_tmpl in configurable_tmpls:
+            product_session = self.env['product.config.session'].browse(
+                session_map.get(cfg_tmpl.id)
+            )
+            if not product_session.exists():
+                standard_templates += cfg_tmpl
+                continue
+            cfg_tmpl.weight = product_session.get_session_weight() or 0
+        super(ProductProduct, standard_templates)._compute_weight()
+
+    @api.multi
+    def _compute_template_price(self):
+        session_map = self.env.context.get('product_template_sessions', {})
+        configurable_tmpls = self.get_product_templates_with_session(
+            session_map.copy()
+        )
+        standard_templates = self - configurable_tmpls
+        for cfg_tmpl in configurable_tmpls:
+            product_session = self.env['product.config.session'].browse(
+                session_map.get(cfg_tmpl.id)
+            )
+            if not product_session.exists():
+                standard_templates += cfg_tmpl
+                continue
+            cfg_tmpl.weight = product_session.get_session_price() or 0
+        super(ProductProduct, standard_templates)._compute_weight()
+
+
+class ProductProduct(models.Model):
+    _inherit = 'product.product'
+
+    def get_products_with_session(self, config_session_map={}):
+        products_to_update = self.env['product.product']
+        if not config_session_map:
+            return products_to_update
+        configurable_products = self.filtered(lambda p: p.config_ok)
+        for cfg_product in configurable_products:
+            if cfg_product.id not in config_session_map.keys():
+                continue
+            products_to_update += cfg_product
+        return products_to_update
+
+    def _compute_product_weight(self):
+        session_map = self.env.context.get('product_sessions', {})
+        configurable_products = self.get_products_with_session(session_map.copy())
+        standard_products = self - configurable_products
+
+        for cfg_product in configurable_products:
+            product_session = self.env['product.config.session'].browse(
+                session_map.get(cfg_product.id)
+            )
+            if not product_session.exists():
+                standard_products += cfg_product
+                continue
+            cfg_product.weight = product_session.get_session_weight() or 0
+        super(ProductProduct, standard_products)._compute_product_weight()
+
+    def _compute_product_price(self):
+        session_map = self.env.context.get('product_sessions', {})
+        configurable_products = self.get_products_with_session(session_map.copy())
+        standard_products = self - configurable_products
+
+        for cfg_product in configurable_products:
+            product_session = self.env['product.config.session'].browse(
+                session_map.get(cfg_product.id)
+            )
+            if not product_session.exists():
+                standard_products += cfg_product
+                continue
+            cfg_product.price = product_session.get_session_price() or 0
+         super(ProductProduct, standard_products)._compute_product_price()
