@@ -222,6 +222,26 @@ class ProductConfigSession(models.Model):
 
         return product_qty
 
+    def get_session_weight(self):
+        """Return weight from JSON Values"""
+        weight = None
+        if self.json_vals:
+            weight = self.json_vals.get('weight', None)
+        if weight is not None:
+            product_qty = self.get_session_qty()
+            weight = weight / product_qty
+        return weight
+
+    def get_session_volume(self):
+        """Return volume from JSON Values"""
+        volume = None
+        if self.json_vals:
+            volume = self.json_vals.get('volume', None)
+        if volume is not None:
+            product_qty = self.get_session_qty()
+            volume = volume / product_qty
+        return volume
+
     @api.multi
     def get_config_session_json(
         self, vals, changed_field, product_tmpl_id=None
