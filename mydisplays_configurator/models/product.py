@@ -311,7 +311,7 @@ class ProductTemplate(models.Model):
                   )
             )
 
-    def get_product_templates_with_session(self, config_session_map={}):
+    def get_product_templates_with_session(self, config_session_map=None):
         tmpls_to_update = self.env['product.template']
         if not config_session_map:
             return tmpls_to_update
@@ -362,7 +362,7 @@ class ProductTemplate(models.Model):
 class ProductProduct(models.Model):
     _inherit = 'product.product'
 
-    def get_products_with_session(self, config_session_map={}):
+    def get_products_with_session(self, config_session_map=None):
         products_to_update = self.env['product.product']
         if not config_session_map:
             return products_to_update
