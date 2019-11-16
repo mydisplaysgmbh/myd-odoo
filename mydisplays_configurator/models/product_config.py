@@ -248,11 +248,13 @@ class ProductConfigSession(models.Model):
     ):
         """Get product.config.session data in a serialized computed field
             {
-                'attrs': {
+                'changed_attr': attr_1_id,
+                'custom_values': {
                     attr_1_id: {
                         'value': custom - value,  # (sanitized and typecasted),
                     }
-                }
+                },
+                'value_ids': []
             }
 
         """
