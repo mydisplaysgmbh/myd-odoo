@@ -7,9 +7,12 @@
             <t t-set="json_session_vals" t-value="vals.get('json_session_vals')"/>
             <attribute name="t-esc">('{0:,.%sf}' % (weight_prec)).format(json_session_vals.get("weight", 0))</attribute>
         </xpath>
-        <xpath expr="//form[@id='product_config_form']//span[hasclass('config_product_price')]" position="attributes">
-            <t t-set="json_session_vals" t-value="vals.get('json_session_vals')"/>
-            <attribute name="t-esc">json_session_vals.get("price", 0)</attribute>
+        <xpath expr="//form[@id='product_config_form']//span[hasclass('config_product_price')]" position="replace">
+            <t t-set="price" t-value="product_tmpl.with_context({'config_session_id': cfg_session.id, 'pricelist': pricelist.id}).price"/>
+            <span itemprop="price" style="display:none;" t-esc="price"/>
+            <span itemprop="priceCurrency" style="display:none;" t-esc="website.currency_id.name"/>
+            <span class="config_product_price" t-esc="price"
+                    t-options="{'widget': 'monetary', 'display_currency': website.currency_id}"/>
         </xpath>
     </template>
 
@@ -60,7 +63,11 @@
                         </t>
                         <div class="config_price">
                             <h4 class="oe_price_h4 css_editable_mode_hidden">
-                                <b class="oe_price" style="white-space: nowrap;" t-esc="json_vals.get('price', 0)" t-options="{'widget': 'monetary', 'display_currency': product_tmpl.currency_id}"/>
+                                <t t-set="curr_pl" t-value="website.get_current_pricelist()" />
+                                <t t-set="price" t-value="product_id.with_context({'product_sessions': {product_id.id: config_session.id}, 'pricelist': curr_pl.id}).price"/>
+                                <span itemprop="price" style="display:none;" t-esc="price"/>
+                                <span itemprop="priceCurrency" style="display:none;" t-esc="website.currency_id.name"/>
+                                <b class="oe_price" style="white-space: nowrap;" t-esc="price" t-options="{'widget': 'monetary', 'display_currency': website.currency_id}"/>
                             </h4>
                         </div>
                         <a role="button" id="add_to_cart" class="btn btn-primary btn-lg mt8 js_check_product a-submit" href="#">Add to Cart</a>

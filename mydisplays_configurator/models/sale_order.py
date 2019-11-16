@@ -8,10 +8,6 @@ class SaleOrder(models.Model):
     @api.multi
     def _cart_update(self, product_id=None, line_id=None,
                      add_qty=0, set_qty=0, **kwargs):
-        res = super(SaleOrder, self)._cart_update(
-            product_id=product_id, line_id=line_id, add_qty=add_qty,
-            set_qty=set_qty, **kwargs)
-
         config_session_id = kwargs.get('config_session_id', False)
         if not config_session_id and line_id:
             order_line = self._cart_find_product_line(
@@ -22,15 +18,30 @@ class SaleOrder(models.Model):
             return res
 
         config_session_id = int(config_session_id)
-        config_session = self.env['product.config.session'].browse(
-            config_session_id
+        product = product_id
+        if not product:
+            config_session = self.env['product.config.session'].browse(
+                config_session_id
+            )
+            product = config_session.product_id.id
+        session_map = {
+            product: config_session_id
+        }
+        self = self.with_context(product_sessions=session_map)
+        return super(SaleOrder, self)._cart_update(
+            product_id=product_id, line_id=line_id, add_qty=add_qty,
+            set_qty=set_qty, **kwargs
         )
-        order_line = self.env['sale.order.line'].browse(res.get('line_id'))
-        order_line.write({
-            'cfg_session_id': config_session.id,
-            'price_unit': config_session.get_session_price() or 0.0,
-        })
-        return res
+
+    @api.multi
+    def _website_product_id_change(self, order_id, product_id, qty=0):
+        values = super(SaleOrder, self)._website_product_id_change(
+            order_id=order_id, product_id=product_id, qty=qty
+        )
+        session_map = self.env.context.get('product_sessions', {})
+        if session_map.get(product_id, False):
+            values.update({'cfg_session_id': session_map.get(product_id)})
+        return values
 
     @api.multi
     def action_confirm(self):
@@ -76,3 +87,23 @@ class SaleOrderLine(models.Model):
                     'related configuration session - %s' %
                     line.cfg_session_id.name)
                 )
+
+    @api.onchange('product_id', 'price_unit',
+                  'product_uom', 'product_uom_qty', 'tax_id')
+    def _onchange_discount(self):
+        if self.cfg_session_id:
+            self = self.with_context(
+                product_sessions={self.product_id.id: self.cfg_session_id.id}
+            )
+        return super(SaleOrderLine, self)._onchange_discount()
+
+    @api.multi
+    def _get_display_price(self, product):
+        if self.cfg_session_id:
+            session_map = {self.product_id.id: self.cfg_session_id.id}
+            self = self.with_context(product_sessions=session_map)
+            product = product.with_context(product_sessions=session_map)
+        res = super(SaleOrderLine, self)._get_display_price(
+            product=product)
+        return res
+

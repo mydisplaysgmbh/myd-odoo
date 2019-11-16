@@ -222,25 +222,34 @@ class ProductConfigSession(models.Model):
 
         return product_qty
 
+    def get_json_vals(self):
+        mode = self.env.all.mode
+        if mode == 'onchange':
+            self.env.all.mode = False
+        json_vals = self.json_vals or {}
+        if mode == 'onchange':
+            self.env.all.mode = mode
+        return json_vals
+
     def get_session_weight(self):
         """Return weight from JSON Values"""
-        weight = None
-        if self.json_vals:
-            weight = self.json_vals.get('weight', None)
+        json_vals = self.get_json_vals()
+
+        weight = json_vals.get('weight', None)
         if weight is not None:
             product_qty = self.get_session_qty()
             weight = weight / product_qty
-        return weight
+        return weight or 0
 
     def get_session_volume(self):
         """Return volume from JSON Values"""
-        volume = None
-        if self.json_vals:
-            volume = self.json_vals.get('volume', None)
+        json_vals = self.get_json_vals()
+
+        volume = json_vals.get('volume', None)
         if volume is not None:
             product_qty = self.get_session_qty()
             volume = volume / product_qty
-        return volume
+        return volume or 0
 
     @api.multi
     def get_config_session_json(
@@ -454,12 +463,8 @@ class ProductConfigSession(models.Model):
             session.price = session.json_vals.get('price', 0)
 
     def get_session_price(self):
-        json_vals = self.json_vals or {}
-        if not json_vals:
-            self._compute_json_vals()
-        if json_vals.get('price_unit', None) is None:
-            return 0.0
-        return self.json_vals.get('price_unit')
+        json_vals = self.get_json_vals()
+        return json_vals.get('price_unit') or 0.0
 
 
 class ProductConfigDomain(models.Model):
