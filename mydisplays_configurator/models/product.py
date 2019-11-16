@@ -333,11 +333,12 @@ class ProductTemplate(models.Model):
             product_session = self.env['product.config.session'].browse(
                 session_map.get(cfg_tmpl.id)
             )
-            if not product_session.exists():
+            if (not product_session.exists() or
+                    product_session.product_tmpl_id != cfg_tmpl):
                 standard_templates += cfg_tmpl
                 continue
             cfg_tmpl.weight = product_session.get_session_weight() or 0
-        super(ProductProduct, standard_templates)._compute_weight()
+        super(ProductTemplate, standard_templates)._compute_weight()
 
     @api.multi
     def _compute_template_price(self):
@@ -350,11 +351,12 @@ class ProductTemplate(models.Model):
             product_session = self.env['product.config.session'].browse(
                 session_map.get(cfg_tmpl.id)
             )
-            if not product_session.exists():
+            if (not product_session.exists() or
+                    product_session.product_tmpl_id != cfg_tmpl):
                 standard_templates += cfg_tmpl
                 continue
             cfg_tmpl.weight = product_session.get_session_price() or 0
-        super(ProductProduct, standard_templates)._compute_weight()
+        super(ProductTemplate, standard_templates)._compute_weight()
 
 
 class ProductProduct(models.Model):
@@ -380,7 +382,8 @@ class ProductProduct(models.Model):
             product_session = self.env['product.config.session'].browse(
                 session_map.get(cfg_product.id)
             )
-            if not product_session.exists():
+            if (not product_session.exists() or
+                    product_session.product_id != cfg_product):
                 standard_products += cfg_product
                 continue
             cfg_product.weight = product_session.get_session_weight() or 0
@@ -395,8 +398,9 @@ class ProductProduct(models.Model):
             product_session = self.env['product.config.session'].browse(
                 session_map.get(cfg_product.id)
             )
-            if not product_session.exists():
+            if (not product_session.exists() or
+                    product_session.product_id != cfg_product):
                 standard_products += cfg_product
                 continue
             cfg_product.price = product_session.get_session_price() or 0
-         super(ProductProduct, standard_products)._compute_product_price()
+        super(ProductProduct, standard_products)._compute_product_price()
