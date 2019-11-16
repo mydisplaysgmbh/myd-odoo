@@ -355,8 +355,8 @@ class ProductTemplate(models.Model):
                     product_session.product_tmpl_id != cfg_tmpl):
                 standard_templates += cfg_tmpl
                 continue
-            cfg_tmpl.weight = product_session.get_session_price() or 0
-        super(ProductTemplate, standard_templates)._compute_weight()
+            cfg_tmpl.price = product_session.get_session_price() or 0
+        super(ProductTemplate, standard_templates)._compute_template_price()
 
 
 class ProductProduct(models.Model):
