@@ -8,8 +8,8 @@
             <attribute name="t-esc">('{0:,.%sf}' % (weight_prec)).format(json_session_vals.get("weight", 0))</attribute>
         </xpath>
         <xpath expr="//form[@id='product_config_form']//span[hasclass('config_product_price')]" position="replace">
-            <t t-set="price" t-value="product_tmpl.with_context({'config_session_id': cfg_session.id, 'pricelist': pricelist.id}).price"/>
-            <span itemprop="price" style="display:none;" t-esc="price"/>
+            <t t-set="price" t-value="product_tmpl.with_context({'product_template_sessions': {product_tmpl.id: cfg_session.id}, 'pricelist': pricelist.id}).price"/>
+            <span class="config_product_price" itemprop="price" style="display:none;" t-esc="price"/>
             <span itemprop="priceCurrency" style="display:none;" t-esc="website.currency_id.name"/>
             <span class="config_product_price" t-esc="price"
                     t-options="{'widget': 'monetary', 'display_currency': website.currency_id}"/>
