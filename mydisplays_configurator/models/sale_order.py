@@ -104,4 +104,3 @@ class SaleOrderLine(models.Model):
         res = super(SaleOrderLine, self)._get_display_price(
             product=product)
         return res
-

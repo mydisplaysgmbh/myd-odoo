@@ -11,7 +11,7 @@
         <record id="product_attribute_line_1" model="product.template.attribute.line">
             <field name="product_tmpl_id" ref="mydisplays_configurator.product_template_rollup_lite"/>
             <field name="attribute_id" ref="mydisplays_configurator.product_attribute_system_configuration"/>
-            <field name="value_ids" 
+            <field name="value_ids"
                 eval="[(6, 0, [
                 ref('mydisplays_configurator.product_attribute_value_1'),
                 ref('mydisplays_configurator.product_attribute_value_2'),
@@ -22,7 +22,7 @@
         <record id="product_attribute_line_2" model="product.template.attribute.line">
             <field name="product_tmpl_id" ref="mydisplays_configurator.product_template_rollup_lite"/>
             <field name="attribute_id" ref="mydisplays_configurator.product_attribute_size"/>
-            <field name="value_ids" 
+            <field name="value_ids"
                 eval="[(6, 0, [
                 ref('mydisplays_configurator.product_attribute_value_4'),
                 ref('mydisplays_configurator.product_attribute_value_5'),
@@ -35,7 +35,7 @@
         <record id="product_attribute_line_3" model="product.template.attribute.line">
             <field name="product_tmpl_id" ref="mydisplays_configurator.product_template_rollup_lite"/>
             <field name="attribute_id" ref="mydisplays_configurator.product_attribute_print_material"/>
-            <field name="value_ids" 
+            <field name="value_ids"
                 eval="[(6, 0, [
                 ref('mydisplays_configurator.product_attribute_value_9'),
                 ref('mydisplays_configurator.product_attribute_value_10'),
@@ -48,7 +48,7 @@
         <record id="product_attribute_line_4" model="product.template.attribute.line">
             <field name="product_tmpl_id" ref="mydisplays_configurator.product_template_rollup_lite"/>
             <field name="attribute_id" ref="mydisplays_configurator.product_attribute_MYD_easychange_system"/>
-            <field name="value_ids" 
+            <field name="value_ids"
                 eval="[(6, 0, [
                 ref('mydisplays_configurator.product_attribute_value_14'),
                 ref('mydisplays_configurator.product_attribute_value_15'),])]"/>
@@ -58,7 +58,7 @@
         <record id="product_attribute_line_5" model="product.template.attribute.line">
             <field name="product_tmpl_id" ref="mydisplays_configurator.product_template_rollup_lite"/>
             <field name="attribute_id" ref="mydisplays_configurator.product_attribute_spotlighting"/>
-            <field name="value_ids" 
+            <field name="value_ids"
                 eval="[(6, 0, [
                 ref('mydisplays_configurator.product_attribute_value_16'),
                 ref('mydisplays_configurator.product_attribute_value_17'),
@@ -91,7 +91,7 @@
         <record id="product_attribute_line_print_material" model="product.template.attribute.line">
             <field name="product_tmpl_id" ref="mydisplays_configurator.product_template_my_werbebanner"/>
             <field name="attribute_id" ref="mydisplays_configurator.product_attribute_print_material"/>
-            <field name="value_ids" 
+            <field name="value_ids"
                 eval="[(6, 0, [
                     ref('mydisplays_configurator.product_attribute_value_12')
                 ])]"/>
@@ -108,7 +108,7 @@
         <record id="product_attribute_line_8" model="product.template.attribute.line">
             <field name="product_tmpl_id" ref="mydisplays_configurator.product_template_my_werbebanner"/>
             <field name="attribute_id" ref="mydisplays_configurator.product_attribute_left"/>
-            <field name="value_ids" 
+            <field name="value_ids"
                 eval="[(6, 0, [
                 ref('mydisplays_configurator.product_attribute_value_21'),
                 ref('mydisplays_configurator.product_attribute_value_22'),
@@ -122,7 +122,7 @@
         <record id="product_attribute_line_9" model="product.template.attribute.line">
             <field name="product_tmpl_id" ref="mydisplays_configurator.product_template_my_werbebanner"/>
             <field name="attribute_id" ref="mydisplays_configurator.product_attribute_right"/>
-            <field name="value_ids" 
+            <field name="value_ids"
                 eval="[(6, 0, [
                 ref('mydisplays_configurator.product_attribute_value_27'),
                 ref('mydisplays_configurator.product_attribute_value_28'),
@@ -136,7 +136,7 @@
         <record id="product_attribute_line_10" model="product.template.attribute.line">
             <field name="product_tmpl_id" ref="mydisplays_configurator.product_template_my_werbebanner"/>
             <field name="attribute_id" ref="mydisplays_configurator.product_attribute_top"/>
-            <field name="value_ids" 
+            <field name="value_ids"
                 eval="[(6, 0, [
                 ref('mydisplays_configurator.product_attribute_value_34'),
                 ref('mydisplays_configurator.product_attribute_value_35'),
@@ -150,7 +150,7 @@
         <record id="product_attribute_line_11" model="product.template.attribute.line">
             <field name="product_tmpl_id" ref="mydisplays_configurator.product_template_my_werbebanner"/>
             <field name="attribute_id" ref="mydisplays_configurator.product_attribute_bottom"/>
-            <field name="value_ids" 
+            <field name="value_ids"
                 eval="[(6, 0, [
                 ref('mydisplays_configurator.product_attribute_value_41'),
                 ref('mydisplays_configurator.product_attribute_value_42'),
@@ -192,7 +192,7 @@
         <record id="product_attribute_line_14" model="product.template.attribute.line">
             <field name="product_tmpl_id" ref="mydisplays_configurator.product_template_my_acrylglas"/>
             <field name="attribute_id" ref="mydisplays_configurator.product_attribute_material_thickness_and_basic_colour"/>
-            <field name="value_ids" 
+            <field name="value_ids"
                 eval="[(6, 0, [
                 ref('mydisplays_configurator.product_attribute_value_50'),
                 ref('mydisplays_configurator.product_attribute_value_51'),
@@ -203,7 +203,7 @@
         <record id="product_attribute_line_15" model="product.template.attribute.line">
             <field name="product_tmpl_id" ref="mydisplays_configurator.product_template_my_acrylglas"/>
             <field name="attribute_id" ref="mydisplays_configurator.product_attribute_design"/>
-            <field name="value_ids" 
+            <field name="value_ids"
                 eval="[(6, 0, [
                 ref('mydisplays_configurator.product_attribute_value_53'),
                 ref('mydisplays_configurator.product_attribute_value_54'),])]"/>
@@ -213,7 +213,7 @@
         <record id="product_attribute_line_16" model="product.template.attribute.line">
             <field name="product_tmpl_id" ref="mydisplays_configurator.product_template_my_acrylglas"/>
             <field name="attribute_id" ref="mydisplays_configurator.product_attribute_printing_method_or_lettering"/>
-            <field name="value_ids" 
+            <field name="value_ids"
                 eval="[(6, 0, [
                 ref('mydisplays_configurator.product_attribute_value_55'),
                 ref('mydisplays_configurator.product_attribute_value_56'),
@@ -225,7 +225,7 @@
         <record id="product_attribute_line_17" model="product.template.attribute.line">
             <field name="product_tmpl_id" ref="mydisplays_configurator.product_template_my_acrylglas"/>
             <field name="attribute_id" ref="mydisplays_configurator.product_attribute_cutting_options"/>
-            <field name="value_ids" 
+            <field name="value_ids"
                 eval="[(6, 0, [
                 ref('mydisplays_configurator.product_attribute_value_59'),
                 ref('mydisplays_configurator.product_attribute_value_60'),
@@ -236,7 +236,7 @@
         <record id="product_attribute_line_18" model="product.template.attribute.line">
             <field name="product_tmpl_id" ref="mydisplays_configurator.product_template_my_acrylglas"/>
             <field name="attribute_id" ref="mydisplays_configurator.product_attribute_suspension_assembly"/>
-            <field name="value_ids" 
+            <field name="value_ids"
                 eval="[(6, 0, [
                 ref('mydisplays_configurator.product_attribute_value_62'),
                 ref('mydisplays_configurator.product_attribute_value_63'),
