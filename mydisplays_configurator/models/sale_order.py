@@ -14,20 +14,18 @@ class SaleOrder(models.Model):
                 product_id, line_id, **kwargs)[:1]
             config_session_id = order_line.cfg_session_id.id
 
-        if not config_session_id:
-            return res
-
-        config_session_id = int(config_session_id)
-        product = product_id
-        if not product:
-            config_session = self.env['product.config.session'].browse(
-                config_session_id
-            )
-            product = config_session.product_id.id
-        session_map = {
-            product: config_session_id
-        }
-        self = self.with_context(product_sessions=session_map)
+        if config_session_id:
+            config_session_id = int(config_session_id)
+            product = product_id
+            if not product:
+                config_session = self.env['product.config.session'].browse(
+                    config_session_id
+                )
+                product = config_session.product_id.id
+            session_map = {
+                product: config_session_id
+            }
+            self = self.with_context(product_sessions=session_map)
         return super(SaleOrder, self)._cart_update(
             product_id=product_id, line_id=line_id, add_qty=add_qty,
             set_qty=set_qty, **kwargs
