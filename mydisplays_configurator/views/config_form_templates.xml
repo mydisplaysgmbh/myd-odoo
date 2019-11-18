@@ -8,7 +8,7 @@
             <attribute name="t-esc">('{0:,.%sf}' % (weight_prec)).format(json_session_vals.get("weight", 0))</attribute>
         </xpath>
         <xpath expr="//form[@id='product_config_form']//span[hasclass('config_product_price')]" position="replace">
-            <t t-set="price" t-value="product_tmpl.with_context({'product_template_sessions': {product_tmpl.id: cfg_session.id}, 'pricelist': pricelist.id}).price"/>
+            <t t-set="price" t-value="product_tmpl.with_context(product_template_sessions={product_tmpl.id: cfg_session.id}, pricelist=pricelist.id).price"/>
             <span class="config_product_price" itemprop="price" style="display:none;" t-esc="price"/>
             <span itemprop="priceCurrency" style="display:none;" t-esc="website.currency_id.name"/>
             <span class="config_product_price" t-esc="price"
@@ -64,7 +64,8 @@
                         <div class="config_price">
                             <h4 class="oe_price_h4 css_editable_mode_hidden">
                                 <t t-set="curr_pl" t-value="website.get_current_pricelist()" />
-                                <t t-set="price" t-value="product_id.with_context({'product_sessions': {product_id.id: config_session.id}, 'pricelist': curr_pl.id}).price"/>
+                                <t t-set="price"
+                                    t-value="product_id.with_context(product_sessions={product_id.id: config_session.id}, pricelist=curr_pl.id).price"/>
                                 <span itemprop="price" style="display:none;" t-esc="price"/>
                                 <span itemprop="priceCurrency" style="display:none;" t-esc="website.currency_id.name"/>
                                 <b class="oe_price" style="white-space: nowrap;" t-esc="price" t-options="{'widget': 'monetary', 'display_currency': website.currency_id}"/>
