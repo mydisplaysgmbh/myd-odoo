@@ -437,40 +437,16 @@ class ProductConfigSession(models.Model):
         routes = routes.filtered(
             lambda r: not (r.operation_ids - operation_ids)
         )
-        if routes:
-            if len(routes) > 1:
-                _logger.info(
-                    "Multiple routes have been identified:"
-                    " Session: %s Product: %s Routes: %s" % (
-                        self.name,
-                        self.product_id.name,
-                        ', '.join(routes.mapped('code'))
-                    )
+        if len(routes) > 1:
+            _logger.info(
+                "Multiple routes have been identified:"
+                " Session: %s Product: %s Routes: %s" % (
+                    self.name,
+                    self.product_id.name,
+                    ', '.join(routes.mapped('code'))
                 )
-            return routes[:1]
-
-        # create new route if no mach found
-        new_route_id = route_obj.create({
-            'name': '%s (%s)' % (self.product_id.name, self.name)
-        })
-        for value_id in operation_value_ids:
-            default_vals = {
-                'routing_id': new_route_id.id
-            }
-            value_id.operation_ids[:1].copy(default=default_vals)
-        _logger.info(
-            "No matching route found:"
-            " Session: %s Product: %s Routes: %s" % (
-                self.name,
-                self.product_id.name,
-                ', '.join(routes.mapped('code'))
             )
-        )
-        _logger.info(
-            "New route created:"
-            " Route: %s" % (new_route_id.code)
-        )
-        return new_route_id
+        return routes[:1]
 
     @api.multi
     @api.depends("json_vals")
