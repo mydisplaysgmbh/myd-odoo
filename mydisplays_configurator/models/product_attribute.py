@@ -77,9 +77,9 @@ class ProductAttributeValue(models.Model):
     @api.onchange('product_id')
     def onchange_product(self):
         if not self.product_id:
-            self.operation_id = None
+            self.operation_ids = False
 
-    operation_id = fields.Many2one(
+    operation_ids = fields.Many2many(
         comodel_name='mrp.routing.workcenter',
         string='Operation / Workcenter',
     )
