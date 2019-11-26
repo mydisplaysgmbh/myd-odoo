@@ -85,8 +85,16 @@ class ProductConfigSession(models.Model):
             json_name = tmpl_config_cache['attr_json_map'].get(attribute_id)
             if not json_name:
                 continue
-            prices[json_name] = attr_val_data.get('price')
-            weights[json_name] = attr_val_data.get('weight')
+
+            if json_name in prices:
+                prices[json_name] += attr_val_data.get('price')
+            else:
+                prices[json_name] = attr_val_data.get('price')
+
+            if json_name in weights:
+                weights[json_name] += attr_val_data.get('weight')
+            else:
+                weights[json_name] = attr_val_data.get('weight')
 
             product_id = attr_val_data.get('product_id')
 
