@@ -30,7 +30,8 @@ class SaleOrder(models.Model):
                     'workcenters': workcenter_ids,
                     'product': line.product_id,
                 })
-            warning_message = cfg_session_id.get_route_warning_message(
+            session_obj = self.env['product.config.session']
+            warning_message = session_obj.get_route_warning_message(
                 message_list)
             sale_order.route_warning = warning_message
 

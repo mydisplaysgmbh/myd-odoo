@@ -95,7 +95,8 @@ class ProductConfigSession(models.Model):
 
             bom[json_name] = {
                 'product_id': product_id,
-                'product_qty': 1
+                'product_qty': 1,
+                'workcenter_id': value_id.workcenter_id.id,
             }
 
         return {
@@ -406,29 +407,20 @@ class ProductConfigSession(models.Model):
     def set_bom_line_operations(self, bom_lines, operation_ids):
         if not operation_ids:
             return bom_lines
-        value_ids = self.json_config.get('value_ids', [])
         attribute_value_obj = self.env['product.attribute.value']
-        check_wc = {}
         for bom_line in bom_lines:
-            product_id = bom_line.get('product_id')
-            if not product_id:
-                continue
-            if product_id not in check_wc:
-                check_wc[product_id] = []
-            value_id = attribute_value_obj.search([
-                ('id', 'in', value_ids),
-                ('product_id', '=', product_id),
-                ('workcenter_id', '!=', False),
-                ('workcenter_id', 'not in', check_wc[product_id]),
-            ], limit=1)
-            if not value_id:
+            workcenter_id = bom_line.get('workcenter_id')
+            if 'workcenter_id' in bom_line:
+                bom_line.pop('workcenter_id')
+            if not workcenter_id:
                 continue
             operation_id = operation_ids.filtered(
-                lambda op: op.workcenter_id == value_id.workcenter_id
+                lambda op: op.workcenter_id == workcenter_id
             )
             bom_line['operation_id'] = operation_id.id
         return bom_lines
 
+    @api.model
     def get_route_warning_message(self, val_list):
         if not val_list:
             return False
@@ -438,10 +430,12 @@ class ProductConfigSession(models.Model):
         for val in val_list:
             workcenter_ids = val.get('workcenters')
             product_id = val.get('product')
+            if not product_id or not workcenter_ids:
+                continue
             warning_message += "\n\nLinked workcenters: %s" % (
                 ', '.join(workcenter_ids.mapped('name'))
             )
-            warning_message += "\nProduct: %s" % (self.product_id.name)
+            warning_message += "\nProduct: %s" % (product_id.name)
         return warning_message
 
     def _create_bom_from_json(self):
@@ -493,7 +487,7 @@ class ProductConfigSession(models.Model):
         """Find a route matching the operations given or create one
         if search returns empty"""
 
-        if workcenter_ids is None:
+        if workcenter_ids is None and self:
             workcenter_ids = self.value_ids.mapped('workcenter_id')
         route_obj = self.env['mrp.routing']
 
