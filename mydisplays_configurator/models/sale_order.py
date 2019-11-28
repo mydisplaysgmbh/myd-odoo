@@ -5,6 +5,35 @@ from odoo.exceptions import ValidationError
 class SaleOrder(models.Model):
     _inherit = "sale.order"
 
+    route_warning = fields.Text(
+        string="Warning", copy=False,
+        compute="_compute_route_warning"
+    )
+
+    def _compute_route_warning(self, warning_message=None):
+        for sale_order in self:
+            if warning_message:
+                sale_order.route_warning = warning_message
+                continue
+
+            message_list = []
+            for line in sale_order.order_line:
+                cfg_session_id = line.cfg_session_id
+                if not line.product_id.config_ok or not cfg_session_id:
+                    continue
+                result = cfg_session_id._create_get_route()
+                route = result.get('route')
+                workcenter_ids = result.get('workcenters')
+                if route or not workcenter_ids:
+                    continue
+                message_list.append({
+                    'workcenters': workcenter_ids,
+                    'product': line.product_id,
+                })
+            warning_message = cfg_session_id.get_route_warning_message(
+                message_list)
+            sale_order.route_warning = warning_message
+
     @api.multi
     def _cart_update(self, product_id=None, line_id=None,
                      add_qty=0, set_qty=0, **kwargs):
@@ -39,7 +68,13 @@ class SaleOrder(models.Model):
             lambda l: l.config_ok and l.cfg_session_id
         )
         for so_line in config_order_lines:
-            so_line.bom_id = so_line.cfg_session_id._create_bom_from_json()
+            bom_id, warning_message = (
+                so_line.cfg_session_id._create_bom_from_json()
+            )
+            so_line.bom_id = bom_id
+            if warning_message:
+                warning_message += self.route_warning or ''
+                self.route_warning = warning_message
         return super(SaleOrder, self).action_confirm()
 
 

@@ -6,13 +6,18 @@
         <field name="model">sale.order</field>
         <field name="inherit_id" ref="sale.view_order_form"/>
         <field name="arch" type="xml">
-            <xpath expr="//field[@name='order_line']/form//field[@name='product_id']" position="after">
+            <xpath expr="//field[@name='order_line']//form//field[@name='product_id']" position="after">
                 <field name="bom_id" attrs="{'readonly': [('state', 'in', ('done', 'sale', 'cancel'))]}"/>
                 <field name="cfg_session_id" invisible="0" readonly="1"/>
             </xpath>
-            <xpath expr="//field[@name='order_line']/tree//field[@name='product_id']" position="after">
+            <xpath expr="//field[@name='order_line']//tree//field[@name='product_id']" position="after">
                 <field name="bom_id" attrs="{'readonly': [('state', 'in', ('done','sale', 'cancel'))]}"/>
                 <field name="cfg_session_id" readonly="1"/>
+            </xpath>
+            <xpath expr="//div[hasclass('oe_title')]" position="before">
+                <div class="alert alert-danger" role="alert" attrs="{'invisible': [('route_warning', '=', False)]}">
+                    <field name="route_warning" readonly="1" force_save="1"/>
+                </div>
             </xpath>
         </field>
     </record>

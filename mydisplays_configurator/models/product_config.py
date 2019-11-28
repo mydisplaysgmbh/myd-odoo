@@ -1,8 +1,12 @@
 import pprint
+import logging
+import itertools
 
 from odoo import api, fields, models, _
 from odoo.tools.safe_eval import safe_eval
 from odoo.exceptions import UserError, ValidationError
+
+_logger = logging.getLogger(__name__)
 
 
 class ProductConfigSessionCustomValue(models.Model):
@@ -399,6 +403,47 @@ class ProductConfigSession(models.Model):
             value_ids=value_ids, custom_vals={}
         )
 
+    def set_bom_line_operations(self, bom_lines, operation_ids):
+        if not operation_ids:
+            return bom_lines
+        value_ids = self.json_config.get('value_ids', [])
+        attribute_value_obj = self.env['product.attribute.value']
+        check_wc = {}
+        for bom_line in bom_lines:
+            product_id = bom_line.get('product_id')
+            if not product_id:
+                continue
+            if product_id not in check_wc:
+                check_wc[product_id] = []
+            value_id = attribute_value_obj.search([
+                ('id', 'in', value_ids),
+                ('product_id', '=', product_id),
+                ('workcenter_id', '!=', False),
+                ('workcenter_id', 'not in', check_wc[product_id]),
+            ], limit=1)
+            if not value_id:
+                continue
+            operation_id = operation_ids.filtered(
+                lambda op: op.workcenter_id == value_id.workcenter_id
+            )
+            bom_line['operation_id'] = operation_id.id
+        return bom_lines
+
+    def get_route_warning_message(self, val_list):
+        if not val_list:
+            return False
+        warning_message = (
+            "No matcing route is found. Please create and set it manually."
+        )
+        for val in val_list:
+            workcenter_ids = val.get('workcenters')
+            product_id = val.get('product')
+            warning_message += "\n\nLinked workcenters: %s" % (
+                ', '.join(workcenter_ids.mapped('name'))
+            )
+            warning_message += "\nProduct: %s" % (self.product_id.name)
+        return warning_message
+
     def _create_bom_from_json(self):
         """Create a bill of material from the json custom values attached on
         the related session and link it on the sale order line
@@ -409,37 +454,79 @@ class ProductConfigSession(models.Model):
         if not bom_lines:
             return None
 
+        result = self._create_get_route()
+        route = result.get('route')
+        if len(route) > 1:
+            _logger.info(
+                "Multiple routes have been identified:"
+                " Session: %s, Product: %s, Routes: %s" % (
+                    self.name,
+                    self.product_id.name,
+                    ', '.join(route.mapped('code'))
+                )
+            )
+            route = route[:1]
+        workcenter_ids = result.get('workcenters')
+        warning_message = False
+        if route:
+            bom_lines = self.set_bom_line_operations(
+                bom_lines,
+                route.operation_ids
+            )
+
         bom = self.env['mrp.bom'].create({
             'product_tmpl_id': self.product_tmpl_id.id,
-            'routing_id': self._create_get_route().id,
+            'routing_id': route and route.id or False,
             'product_id': self.product_id.id,
             'bom_line_ids': [
                 (0, 0, line_data) for line_data in bom_lines if line_data
             ]
         })
+        if not route and workcenter_ids:
+            warning_message = self.get_route_warning_message([{
+                'workcenters': workcenter_ids,
+                'product': self.product_id,
+            }])
+        return bom, warning_message
 
-        return bom
-
-    def _create_get_route(self, operation_ids=None):
+    def _create_get_route(self, workcenter_ids=None):
         """Find a route matching the operations given or create one
         if search returns empty"""
 
-        if not operation_ids:
-            operation_ids = self.value_ids.mapped('operation_id').ids
-
+        if workcenter_ids is None:
+            workcenter_ids = self.value_ids.mapped('workcenter_id')
         route_obj = self.env['mrp.routing']
 
+        if not workcenter_ids:
+            return {
+                'route': route_obj,
+                'workcenters': workcenter_ids,
+            }
+
         # Search for a routing with an exact match on operation ids
-        routes = route_obj.search([
-            ('operation_ids', '=', op_id) for op_id in operation_ids
-        ])
+        domain_sets = []
+        for workcenter_id in workcenter_ids:
+            domain = [
+                ('operation_ids', '=', op_set.id)
+                for op_set in workcenter_id.routing_line_ids
+            ]
+            domain = ((len(domain) - 1) * ['|']) + domain
+            domain_sets.append(domain)
+        domain = ((len(domain_sets) - 1) * ['&']) + list(
+            itertools.chain.from_iterable(domain_sets)
+        )
+        routes = route_obj.search(domain)
 
         # Filter out routes that do not have the same amount of operations
+        operation_ids = workcenter_ids.mapped('routing_line_ids')
         routes = routes.filtered(
-            lambda r: len(r.operation_ids) == len(operation_ids)
+            lambda r: not (r.operation_ids - operation_ids)
         )
 
-        return routes[:1]
+        return {
+            'route': routes,
+            'workcenters': workcenter_ids,
+        }
 
     @api.multi
     @api.depends("json_vals")
