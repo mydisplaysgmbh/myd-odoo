@@ -96,7 +96,7 @@ class ProductConfigSession(models.Model):
             bom[json_name] = {
                 'product_id': product_id,
                 'product_qty': 1,
-                'workcenter_id': value_id.workcenter_id.id,
+                'workcenter_id': attr_val_data.get('workcenter_id'),
             }
 
         return {
@@ -415,7 +415,9 @@ class ProductConfigSession(models.Model):
             if not workcenter_id:
                 continue
             operation_id = operation_ids.filtered(
-                lambda op: op.workcenter_id == workcenter_id
+                lambda op:
+                op.workcenter_id and
+                op.workcenter_id == workcenter_id
             )
             bom_line['operation_id'] = operation_id.id
         return bom_lines
