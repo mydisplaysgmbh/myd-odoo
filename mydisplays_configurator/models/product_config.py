@@ -407,7 +407,6 @@ class ProductConfigSession(models.Model):
     def set_bom_line_operations(self, bom_lines, operation_ids):
         if not operation_ids:
             return bom_lines
-        attribute_value_obj = self.env['product.attribute.value']
         for bom_line in bom_lines:
             workcenter_id = bom_line.get('workcenter_id')
             if 'workcenter_id' in bom_line:
@@ -417,7 +416,7 @@ class ProductConfigSession(models.Model):
             operation_id = operation_ids.filtered(
                 lambda op:
                 op.workcenter_id and
-                op.workcenter_id == workcenter_id
+                op.workcenter_id.id == workcenter_id
             )
             bom_line['operation_id'] = operation_id.id
         return bom_lines
@@ -466,8 +465,8 @@ class ProductConfigSession(models.Model):
         warning_message = False
         if route:
             bom_lines = self.set_bom_line_operations(
-                bom_lines,
-                route.operation_ids
+                bom_lines=bom_lines,
+                operation_ids=route.operation_ids
             )
 
         bom = self.env['mrp.bom'].create({
