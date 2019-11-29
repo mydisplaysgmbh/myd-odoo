@@ -9,6 +9,27 @@ class SaleOrder(models.Model):
         string="Warning", copy=False,
         compute="_compute_route_warning"
     )
+    bom_route_warning = fields.Text(
+        string="BOM Route Warning", copy=False,
+        compute="_compute_bom_route_warning"
+    )
+
+    def _compute_bom_route_warning(self):
+        for sale_order in self:
+            if sale_order.state in ['draft', 'sent']:
+                continue
+            lines_without_route = order_line.mapped('bom_id').filtered(
+                lambda bom: not bom.routeing_id
+            )
+            if lines_without_route:
+                sale_order.bom_route_warning = (
+                    "Following products do not have routes on linked bom. "
+                    "Please set manually.\nProducts : %s" % (
+                        ', '.join(lines_without_route.mapped("name"))
+                    )
+                )
+            else:
+                sale_order.bom_route_warning = False
 
     def _compute_route_warning(self, warning_message=None):
         for sale_order in self:

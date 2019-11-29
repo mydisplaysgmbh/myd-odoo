@@ -16,7 +16,8 @@
             </xpath>
             <xpath expr="//div[hasclass('oe_title')]" position="before">
                 <div class="alert alert-danger" role="alert" attrs="{'invisible': [('route_warning', '=', False)]}">
-                    <field name="route_warning" readonly="1" force_save="1"/>
+                    <field name="route_warning" readonly="1"/>
+                    <field name="bom_route_warning" readonly="1"/>
                 </div>
             </xpath>
         </field>
