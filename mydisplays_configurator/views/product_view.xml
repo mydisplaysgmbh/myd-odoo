@@ -13,6 +13,36 @@
                 <separator colspan="4" string="Config Cache"/>
                 <field name="config_cache_debug" readonly="True" widget="ace" options="{'mode': 'python'}"/>
             </xpath>
+            <xpath expr="//field[@name='attribute_line_ids']//field[@name='required']" position="before">
+                <field name="invisible" invisible="not context.get('default_config_ok', False)"/>
+            </xpath>
+            <xpath expr="//field[@name='attribute_line_ids']//field[@name='required']" position="attributes">
+                <attribute name="attrs">{'readonly': [('invisible','=',True)]}</attribute>
+                <attribute name="force_save">1</attribute>
+            </xpath>
+            <xpath expr="//page[@name='configurator']//field[@name='config_line_ids']//tree//field[@name='domain_id']" position="after">
+                <field name="product_tmpl_id" invisible="1"/>
+            </xpath>
+            <xpath expr="//page[@name='configurator']//field[@name='config_line_ids']//tree//field[@name='domain_id']" position="attributes">
+                <attribute name="context">{'check_attr_visible': True, 'product_tmpl_id': product_tmpl_id}</attribute>
+            </xpath>
+            <xpath expr="//div[@name='options']" position="inside">
+                <div attrs="{'invisible': [('config_ok', '=', False)]}">
+                    <field name="config_qty_ok"/>
+                    <label for="config_qty_ok"/>
+                </div>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="product_form_view_custom_vals_remove" model="ir.ui.view">
+        <field name="name">product.configurator.form.view.custom.vals.remove</field>
+        <field name="model">product.product</field>
+        <field name="inherit_id" ref="product_configurator.product_form_view_custom_vals_inherit"/>
+        <field name="arch" type="xml">
+            <xpath expr="//notebook//field[@name='value_custom_ids']/.." position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
         </field>
     </record>
 

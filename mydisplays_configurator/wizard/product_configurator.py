@@ -1,4 +1,4 @@
-from odoo import models, fields, tools, api, _
+from odoo import models, api, _
 import pprint
 from lxml import etree
 from odoo.osv import orm
@@ -7,15 +7,6 @@ from odoo.exceptions import UserError
 
 class ProductConfigurator(models.TransientModel):
     _inherit = "product.configurator"
-
-    @api.model
-    def create(self, vals):
-        wizard = super(ProductConfigurator, self).create(vals)
-        if wizard.custom_value_ids:
-            wizard.config_session_id.set_default_config_json(
-                wizard.custom_value_ids
-            )
-        return wizard
 
     def _get_dynamic_fields(self, values):
         dynamic_vals = {}
@@ -42,8 +33,21 @@ class ProductConfigurator(models.TransientModel):
         )
         if not config_session_id:
             config_session_id = self.config_session_id
+
+        if not config_session_id:
+            return res
+
         vals = self._get_dynamic_fields(values)
-        cfg_session_json = config_session_id.get_config_session_json(vals=vals)
+        cfg_session_json = config_session_id.get_config_session_json(
+            vals=vals, changed_field=field_name
+        )
+        value_ids = res.get('value', {}).get('value_ids', {})
+        if res.get('value', {}):
+            cfg_session_json['value_ids'] = value_ids and value_ids[0][2] or []
+        else:
+            cfg_session_json['value_ids'] = config_session_id.json_config.get(
+                'value_ids'
+            )
         config_session_id.json_config = cfg_session_json
         config_session_id.json_config_text = pprint.pformat(cfg_session_json)
         if not res.get("value"):
@@ -51,6 +55,11 @@ class ProductConfigurator(models.TransientModel):
         json_session_vals = config_session_id.json_vals
         res["value"]["price"] = json_session_vals.get("price", 0)
         res["value"]["weight"] = json_session_vals.get("weight", 0)
+        if config_session_id.json_vals.get('warning'):
+            res['warning'] = {
+                'title': _("Warning!"),
+                'message': config_session_id.json_vals.get('warning')
+            }
         return res
 
     @api.model
@@ -119,7 +128,7 @@ class ProductConfigurator(models.TransientModel):
 
                 # If attribute is required make it so only in the proper step
                 if attr_line.required:
-                    attrs["required"].append(("state", "in", ["configure"]))
+                    attrs['required'].append(('state', 'in', ['configure']))
 
             if attr_line.custom:
                 pass
@@ -143,8 +152,11 @@ class ProductConfigurator(models.TransientModel):
                     attr_field = field_prefix + str(attr_id)
                     attr_lines = wiz.product_tmpl_id.attribute_line_ids
                     # If the fields it depends on are not in the config step
-                    if config_steps and str(attr_line.id) != wiz.state:
-                        continue
+                    # allow to update attrs for all attribute.\ otherwise
+                    # required will not work with stepchange using statusbar.
+                    # if config_steps and wiz.state not in cfg_step_ids:
+                    #     continue
+
                     if attr_field not in attr_depends:
                         attr_depends[attr_field] = set()
                     if domain_line.condition == "in":
@@ -161,12 +173,13 @@ class ProductConfigurator(models.TransientModel):
                 for dependee_field, val_ids in attr_depends.items():
                     if not val_ids:
                         continue
-                    attrs["readonly"].append(
-                        (dependee_field, "not in", list(val_ids))
-                    )
-                    attrs["required"].append(
-                        (dependee_field, "in", list(val_ids))
-                    )
+                    if not attr_line.custom:
+                        attrs["readonly"].append(
+                            (dependee_field, "not in", list(val_ids))
+                        )
+                    if attr_line.required and not attr_line.custom:
+                        attrs['required'].append(
+                            (dependee_field, 'in', list(val_ids)))
 
             # Create the new field in the view
             node = etree.Element(

@@ -18,16 +18,23 @@ class MydisplaysConfigWebsiteSale(ProductConfigWebsiteSale):
             cfg_session=cfg_session
         )
         json_session_vals = cfg_session.json_vals
+        config_cache = cfg_session.product_tmpl_id.config_cache
         if json_session_vals:
-            vals.update({'json_session_vals': json_session_vals})
+            vals.update({
+                'json_session_vals': json_session_vals,
+                'config_cache': config_cache,
+            })
         return vals
 
     @http.route()
     def save_configuration(self, form_values, current_step=False,
                            next_step=False, **post):
         res = super(MydisplaysConfigWebsiteSale, self).save_configuration(
-            form_values=form_values, current_step=current_step,
-            next_step=next_step, post=post)
+            form_values=form_values,
+            current_step=current_step,
+            next_step=next_step,
+            **post
+        )
         try:
             redirect_url = res.get('redirect_url', False)
             if not redirect_url:
@@ -45,58 +52,68 @@ class MydisplaysConfigWebsiteSale(ProductConfigWebsiteSale):
 
     @http.route(
         '/website_product_configurator/configuration/'
-        '<model("product.config.session"):config_session_id>',
+        '<model("product.config.session"):config_session>',
         type='http', auth="public", website=True)
-    def config_session(self, config_session_id, **post):
+    def config_session(self, config_session, **post):
         """Render product page of product_id"""
-        if not config_session_id.exists():
+        if not config_session.exists():
             return request.render("website.404")
-        product_id = config_session_id.product_id
-        product_tmpl_id = config_session_id.product_tmpl_id
-        if not product_tmpl_id.exists():
+        product = config_session.product_id
+        product_tmpl = config_session.product_tmpl_id
+        if not product_tmpl.exists():
             return request.render("website.404")
 
-        cfg_user_id = config_session_id.user_id
+        cfg_user_id = config_session.user_id
         user_id = request.env.user
 
         check_for_session = (
-            product_id.product_tmpl_id == product_tmpl_id and
+            product.product_tmpl_id == product_tmpl and
             cfg_user_id == user_id and
-            config_session_id.state == 'done'
+            config_session.state == 'done'
         ) and True or False
 
         if not check_for_session:
-            return request.redirect('/shop/product/%s' % slug(product_tmpl_id))
+            return request.redirect('/shop/product/%s' % slug(product_tmpl))
 
         vals = sorted(
-            product_id.attribute_value_ids,
+            product.attribute_value_ids,
             key=lambda obj: obj.attribute_id.sequence
         )
+        custom_vals = config_session.json_config.get('custom_values', {})
         pricelist = get_pricelist()
-        if request.session['product_config_session'].get(product_tmpl_id.id):
+        if request.session['product_config_session'].get(product_tmpl.id):
             product_config_session = request.session['product_config_session']
-            del product_config_session[product_tmpl_id.id]
+            del product_config_session[product_tmpl.id]
             request.session['product_config_session'] = product_config_session
 
+        product_qty = config_session.get_session_qty()
+
         values = {
-            'product_id': product_id,
-            'product_tmpl': product_tmpl_id,
-            'config_session': config_session_id,
+            'product_id': product,
+            'product_tmpl': product_tmpl,
+            'config_session': config_session,
             'pricelist': pricelist,
-            'custom_vals': config_session_id.json_config,
-            'json_vals': config_session_id.json_vals,
-            'attr_data': product_tmpl_id.config_cache.get('attrs', {}),
+            'product_qty': product_qty,
+            'custom_vals': custom_vals,
+            'json_vals': config_session.json_vals,
+            'attr_data': product_tmpl.config_cache.get('attrs', {}),
             'vals': vals,
         }
+
         return request.render(
             "website_product_configurator.cfg_product_variant", values
         )
 
 
 class WebsiteSale(WebsiteSale):
-
-    @http.route(['/shop/cart/update'], type='http', auth="public",
-                methods=['POST'], website=True, csrf=False)
+    @http.route(
+        ["/shop/cart/update"],
+        type="http",
+        auth="public",
+        methods=["POST"],
+        website=True,
+        csrf=False,
+    )
     def cart_update(self, product_id, add_qty=1, set_qty=0, **kw):
         """This route is called when adding a product to cart (no options)."""
         sale_order = request.website.sale_get_order(force_create=True)
@@ -115,6 +132,12 @@ class WebsiteSale(WebsiteSale):
             no_variant_attribute_values = json.loads(
                 kw.get('no_variant_attribute_values')
             )
+
+        if kw.get('product_qty'):
+            try:
+                set_qty = int(kw.get('product_qty'))
+            except Exception:
+                pass
 
         sale_order._cart_update(
             product_id=int(product_id),

@@ -33,6 +33,7 @@
                             <input type="hidden" class="product_template_id" name="product_template_id" t-att-value="product_tmpl.id" />
                             <input type="hidden" class="config_session_id" name="config_session_id" t-att-value="config_session.id" />
                             <input type="hidden" class="bom_id" name="bom_id" t-att-value="json_vals.get('bom', [])" />
+                            <input type="hidden" class="product_qty" name="product_qty" t-att-value="product_qty"/>
                             <div class="col-xs-12">
                                 <ul class="product_vals">
                                     <t t-if="config_session">
@@ -76,6 +77,47 @@
                   Buy now, get in 2 days
                 </p>
             </div>
+        </xpath>
+    </template>
+
+    <template id="config_form_select_inherit" inherit_id="website_product_configurator.config_form_select">
+        <xpath expr="//t[@t-foreach='cfg_step_attribute_line_ids']//label[hasclass('control-label')]" position="replace">
+            <label t-att-class="'control-label' + (line.invisible and ' d-none' or '')"
+                t-esc="line.attribute_id.name" t-att-data-oe-id="line.attribute_id.id">
+            </label>
+        </xpath>
+        <xpath expr="//t[@t-foreach='cfg_step_attribute_line_ids']//select[@t-att-data-oe-id='line.attribute_id.id']" position="attributes">
+            <attribute name="t-att-class">'form-control config_attribute' + (' required_config_attrib' if (not available_val and line.required and line.custom) or (available_val and line.required) else '') + (' d-none' if (not line.value_ids or line.invisible) else '')</attribute>
+        </xpath>
+        <xpath expr="//t[@t-foreach='cfg_step_attribute_line_ids']//select[@t-att-data-oe-id='line.attribute_id.id']//t[@t-foreach='line.value_ids']//option[contains(@t-att-class, 'config_attr_value')]//t" position="replace">
+            <t t-esc="value.name"/>
+            <t t-set="price_extra" t-value="config_cache.get('attr_vals', {}).get('%s' % (value.id), {}).get('price')"/>
+            <t t-if="price_extra">
+                (+<t t-esc="price_extra" t-options="{'widget': 'monetary', 'display_currency': pricelist.currency_id, 'from_currency': website.currency_id}"/>)
+            </t>
+        </xpath>
+        <xpath expr="//t[@t-foreach='cfg_step_attribute_line_ids']//select[@t-att-data-oe-id='line.attribute_id.id']/option[1]" position="attributes">
+            <attribute name="t-att-class">'d-none' if line.required else ''</attribute>
+        </xpath>
+    </template>
+
+    <template id="config_form_radio_inherit" inherit_id="website_product_configurator.config_form_radio">
+        <xpath expr="//t[@t-foreach='cfg_step_attribute_line_ids']//label[hasclass('control-label')]" position="replace">
+            <label t-att-class="'control-label' + (line.invisible and ' d-none' or '')"
+                t-esc="line.attribute_id.name" t-att-data-oe-id="line.attribute_id.id">
+            </label>
+        </xpath>
+        <xpath expr="//t[@t-foreach='cfg_step_attribute_line_ids']//fieldset[@t-att-data-oe-id='line.attribute_id.id']" position="attributes">
+            <attribute name="t-att-class">'form-control config_attribute' + (' required_config_attrib' if (not available_val and line.required and line.custom) or (available_val and line.required) else '') + (' d-none' if (not line.value_ids or line.invisible) else '')</attribute>
+        </xpath>
+        <xpath expr="//t[@t-foreach='cfg_step_attribute_line_ids']//fieldset[@t-att-data-oe-id='line.attribute_id.id']//t[@t-foreach='line.value_ids']//t[@t-set='value_label']" position="attributes">
+            <attribute name="t-value">value.name</attribute>
+        </xpath>
+        <xpath expr="//t[@t-foreach='cfg_step_attribute_line_ids']//fieldset[@t-att-data-oe-id='line.attribute_id.id']//t[@t-foreach='line.value_ids']//span[hasclass('label_config_attr_value_radio')]" position="after">
+            <t t-set="price_extra" t-value="config_cache.get('attr_vals', {}).get('%s' % (value.id), {}).get('price')"/>
+            <t t-if="price_extra">
+                <span class="label_config_price_extra_radio">(+<t t-esc="price_extra" t-options="{'widget': 'monetary', 'display_currency': pricelist.currency_id, 'from_currency': website.currency_id}"/>)</span>
+            </t>
         </xpath>
     </template>
 </odoo>

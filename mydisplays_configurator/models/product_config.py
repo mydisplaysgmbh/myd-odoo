@@ -2,7 +2,7 @@ import pprint
 
 from odoo import api, fields, models, _
 from odoo.tools.safe_eval import safe_eval
-from odoo.exceptions import UserError
+from odoo.exceptions import UserError, ValidationError
 
 
 class ProductConfigSessionCustomValue(models.Model):
@@ -31,33 +31,79 @@ class ProductConfigSession(models.Model):
         # Configuration data (attr vals and custom vals) using json name
         config = {}
         # Add selected value_ids to config dict using human readable json name
-        custom_val_id = self.get_custom_value_id()
-        for attr_val in self.value_ids - custom_val_id:
-            val_id = str(attr_val.id)
+        custom_val = self.get_custom_value_id()
+
+        json_value_ids = list(
+            set(self.json_config.get('value_ids') or []) - set([custom_val.id])
+        )
+
+        for attr_val in json_value_ids:
+            val_id = str(attr_val)
             json_val = tmpl_config_cache["attr_vals"].get(val_id, {})
             attr_id = json_val.get("attribute_id")
             attr_json_name = tmpl_config_cache["attr_json_map"][str(attr_id)]
             config[attr_json_name] = tmpl_config_cache["attr_vals"][val_id]
 
         # Add custom value_ids to config dict using human readable json name
-        for attr_id, vals in self.json_config.items():
+        for attr_id, vals in self.json_config.get('custom_values', {}).items():
             if not vals.get("value", False):
                 continue
             value = vals.get("value")
-            attr_json_name = tmpl_config_cache["attr_json_map"][str(attr_id)]
+            attr_json_name = tmpl_config_cache["attr_json_map"].get(
+                str(attr_id)
+            )
             # TODO: Add typecast using custom_type info
             config[attr_json_name] = value
 
+        if self.json_config.get('changed_attr'):
+            config['changed_field'] = tmpl_config_cache["attr_json_map"].get(
+                self.json_config.get('changed_attr')
+            )
+
         return {
             "template": tmpl_config_cache.get("attrs", {}),
-            "session": {"price": 0, "weight": 0, "quantity": 0, "bom": []},
+            "session": self._get_eval_context_session(),
             "config": config,
         }
 
+    @api.model
+    def _get_eval_context_session(self):
+        prices = {}
+        weights = {}
+        bom = {}
+        value_ids = [
+            str(val_id) for val_id in self.json_config.get('value_ids', [])
+        ]
+        tmpl_config_cache = self.product_tmpl_id.config_cache
+        for value_id in value_ids:
+            attr_val_data = tmpl_config_cache['attr_vals'].get(value_id, {})
+            attribute_id = str(attr_val_data.get('attribute_id'))
+            json_name = tmpl_config_cache['attr_json_map'].get(attribute_id)
+            if not json_name:
+                continue
+            prices[json_name] = attr_val_data.get('price')
+            weights[json_name] = attr_val_data.get('weight')
+
+            product_id = attr_val_data.get('product_id')
+
+            if not product_id:
+                continue
+
+            bom[json_name] = {
+                'product_id': product_id,
+                'product_qty': 1
+            }
+
+        return {
+            'prices': prices,
+            'weights': weights,
+            'bom': bom
+        }
+
     @api.multi
-    @api.depends("product_tmpl_id.config_cache", "json_config", "value_ids")
+    @api.depends("product_tmpl_id.config_cache", "json_config")
     def _compute_json_vals(self):
-        for session in self:
+        for session in self.filtered(lambda s: s.state != 'done'):
             code = session.product_tmpl_id.computed_vals_formula
             eval_context = session._get_eval_context()
             safe_eval(
@@ -67,8 +113,53 @@ class ProductConfigSession(models.Model):
                 nocopy=True,
                 locals_builtins=True,
             )
-            session.json_vals = eval_context["session"]
-            session.json_vals_debug = pprint.pformat(eval_context["session"])
+
+            json_vals = eval_context['session']
+
+            config_qty = session.get_session_qty()
+
+            json_vals['price_unit'] = sum([
+                price for k, price in json_vals['prices'].items()
+            ])
+
+            json_vals['price'] = json_vals['price_unit'] * config_qty
+
+            json_vals['weight'] = sum([
+                weight for k, weight in json_vals['weights'].items()
+            ]) * config_qty
+
+            json_vals['bom'] = [
+                line_data for k, line_data in json_vals['bom'].items()
+            ]
+
+            session.json_vals = json_vals
+
+    @api.depends('json_config')
+    def _get_json_vals(self):
+        for session in self:
+            json_value_ids = session.json_config.get('value_ids', [])
+            json_custom_vals = session.json_config.get('custom_values', {})
+            custom_obj = self.env['product.config.session.custom.value']
+            memory_custom_objects = custom_obj
+            for k, v in json_custom_vals.items():
+                memory_custom_objects |= custom_obj.new({
+                    'value': v.get('value'),
+                    'attribute_id': int(k),
+                })
+            session.custom_value_ids = memory_custom_objects
+            session.value_ids = json_value_ids
+
+    def _set_json_vals(self):
+        for session in self:
+            json_config = session.json_config
+            json_config['value_ids'] = session.value_ids.ids
+            session.json_config = json_config
+
+    @api.multi
+    @api.depends("json_vals")
+    def _compute_json_vals_debug(self):
+        for session in self:
+            session.json_vals_debug = pprint.pformat(session.json_vals)
 
     json_config = fields.Serialized(
         name="JSON Config", help="Json representation of all custom values"
@@ -81,7 +172,17 @@ class ProductConfigSession(models.Model):
         store=True,
     )
     json_vals_debug = fields.Text(
-        name="JSON Vals Debug", compute="_compute_json_vals", readonly=True
+        name="JSON Vals Debug",
+        compute="_compute_json_vals_debug",
+        readonly=True
+    )
+    custom_value_ids = fields.One2many(
+        compute='_get_json_vals',
+        # inverse='_set_json_vals',
+    )
+    value_ids = fields.Many2many(
+        compute='_get_json_vals',
+        inverse='_set_json_vals',
     )
 
     @api.model
@@ -104,9 +205,46 @@ class ProductConfigSession(models.Model):
         else:
             return val
 
+    @api.model
+    def get_session_qty(self):
+        """Attempt to retrieve the quantity potentially set on a configuration
+        session via the modle created quantity attribute"""
+        try:
+            quantity_attr = self.env.ref(
+                'mydisplays_configurator.quantity_attribute'
+            )
+            qty_custom_val = self.json_config['custom_values'].get(
+                str(quantity_attr.id), {}
+            )
+            product_qty = int(qty_custom_val.get('value', 1))
+        except Exception:
+            product_qty = 1
+
+        return product_qty
+
+    def get_session_weight(self):
+        """Return weight from JSON Values"""
+        weight = None
+        if self.json_vals:
+            weight = self.json_vals.get('weight', None)
+        if weight is not None:
+            product_qty = self.get_session_qty()
+            weight = weight / product_qty
+        return weight
+
+    def get_session_volume(self):
+        """Return volume from JSON Values"""
+        volume = None
+        if self.json_vals:
+            volume = self.json_vals.get('volume', None)
+        if volume is not None:
+            product_qty = self.get_session_qty()
+            volume = volume / product_qty
+        return volume
+
     @api.multi
     def get_config_session_json(
-        self, vals, product_tmpl_id=None
+        self, vals, changed_field, product_tmpl_id=None
     ):
         """Get product.config.session data in a serialized computed field
             {
@@ -129,7 +267,7 @@ class ProductConfigSession(models.Model):
             "custom_field_prefix"
         )
         custom_val_id = self.get_custom_value_id()
-        cfg_session_json = self.json_config
+        cfg_session_json = self.json_config.get('custom_values', {})
         if not cfg_session_json:
             cfg_session_json = {}
         for attribute_id in attrs:
@@ -141,13 +279,7 @@ class ProductConfigSession(models.Model):
                 continue
             custom_flag = True
             if field_name in vals:
-                # custom value changed with standard one
                 value = vals.get(field_name, False)
-                if (
-                    value != custom_val_id.id
-                    and attribute_id in cfg_session_json
-                ):
-                    cfg_session_json.pop(attribute_id)
                 custom_flag = (value == custom_val_id.id)
             if custom_field in vals and custom_flag:
                 custom_val = vals.get(custom_field, False)
@@ -165,7 +297,17 @@ class ProductConfigSession(models.Model):
                     )
                     attr_dict["value"] = custom_val
                     cfg_session_json[attribute_id] = attr_dict
-        return cfg_session_json
+        result = {
+            'custom_values': cfg_session_json,
+        }
+        if changed_field and (
+            changed_field.startswith(field_prefix) or
+            changed_field.startswith(custom_field_prefix)
+        ):
+            result.update({
+                'changed_attr': changed_field.split('-')[1],
+            })
+        return result
 
     @api.multi
     def update_session_config_vals(self, vals, product_tmpl_id=None):
@@ -180,10 +322,12 @@ class ProductConfigSession(models.Model):
         self.json_config = cfg_session_json
         self.json_config_text = pprint.pformat(cfg_session_json)
 
-    def set_default_config_json(self, custom_value_ids=None):
+    def set_default_config_json(self, value_ids=None, custom_value_ids=None):
         """update json field while reconfigure product"""
         if custom_value_ids is None:
             custom_value_ids = self.custom_value_ids
+        if value_ids is None:
+            value_ids = self.value_ids
         cfg_session_json = {}
         for custom_val_id in custom_value_ids:
             attribute_id = "%s" % (custom_val_id.attribute_id.id)
@@ -202,6 +346,11 @@ class ProductConfigSession(models.Model):
                     custom_val = vals
             if custom_val:
                 attr_dict["value"] = custom_val
+
+        cfg_session_json = {
+            'custom_values': cfg_session_json,
+            'value_ids': value_ids.ids
+        }
         self.json_config = cfg_session_json
         self.json_config_text = pprint.pformat(cfg_session_json)
 
@@ -231,6 +380,92 @@ class ProductConfigSession(models.Model):
 
         return res
 
+    def search_variant(
+        self, value_ids=None, custom_vals=None, product_tmpl_id=None
+    ):
+        """ Prevent to save custom values on variant
+        """
+        if value_ids is None:
+            value_ids = self.value_ids.ids
+
+        # Remove custom value
+        custom_value_id = self.get_custom_value_id()
+        value_ids = [
+            value for value in value_ids if value != custom_value_id.id
+        ]
+        return super(ProductConfigSession, self).search_variant(
+            value_ids=value_ids,
+            custom_vals={},
+            product_tmpl_id=product_tmpl_id,
+        )
+
+    @api.model
+    def get_variant_vals(self, value_ids=None, custom_vals=None, **kwargs):
+        """ Prevent to save custom values on variants
+         """
+        self.ensure_one()
+
+        if value_ids is None:
+            value_ids = self.value_ids.ids
+
+        # Remove custom value
+        custom_value_id = self.get_custom_value_id()
+        value_ids = [
+            value for value in value_ids if value != custom_value_id.id
+        ]
+        return super(ProductConfigSession, self).get_variant_vals(
+            value_ids=value_ids, custom_vals={}, kwargs=kwargs
+        )
+
+    @api.multi
+    def create_get_variant(self, value_ids=None, custom_vals=None):
+        """ Prevent to save custom values on variants"""
+        return super(ProductConfigSession, self).create_get_variant(
+            value_ids=value_ids, custom_vals={}
+        )
+
+    def _create_bom_from_json(self):
+        """Create a bill of material from the json custom values attached on
+        the related session and link it on the sale order line
+        """
+        json_vals = self.json_vals
+        bom_lines = json_vals.get('bom', [])
+
+        if not bom_lines:
+            return None
+
+        bom = self.env['mrp.bom'].create({
+            'product_tmpl_id': self.product_tmpl_id.id,
+            'routing_id': self._create_get_route().id,
+            'product_id': self.product_id.id,
+            'bom_line_ids': [
+                (0, 0, line_data) for line_data in bom_lines if line_data
+            ]
+        })
+
+        return bom
+
+    def _create_get_route(self, operation_ids=None):
+        """Find a route matching the operations given or create one
+        if search returns empty"""
+
+        if not operation_ids:
+            operation_ids = self.value_ids.mapped('operation_id').ids
+
+        route_obj = self.env['mrp.routing']
+
+        # Search for a routing with an exact match on operation ids
+        routes = route_obj.search([
+            ('operation_ids', '=', op_id) for op_id in operation_ids
+        ])
+
+        # Filter out routes that do not have the same amount of operations
+        routes = routes.filtered(
+            lambda r: len(r.operation_ids) == len(operation_ids)
+        )
+
+        return routes[:1]
+
     @api.multi
     @api.depends("json_vals")
     def _compute_cfg_weight(self):
@@ -243,4 +478,35 @@ class ProductConfigSession(models.Model):
         for session in self:
             session.price = session.json_vals.get('price', 0)
 
-    # TODO: Verify if the above methods and fields are still needed
+    def get_session_price(self):
+        json_vals = self.json_vals or {}
+        if not json_vals:
+            self._compute_json_vals()
+        if json_vals.get('price_unit', None) is None:
+            return 0.0
+        return self.json_vals.get('price_unit')
+
+
+class ProductConfigDomain(models.Model):
+    _inherit = "product.config.domain"
+
+    @api.constrains("domain_line_ids")
+    def _check_domain_line_ids(self):
+        check_attr_visible = self.env.context.get("check_attr_visible")
+        product_tmpl_id = self.env.context.get("product_tmpl_id")
+        if not check_attr_visible or not product_tmpl_id:
+            return
+        product_tmpl_id = self.env["product.template"].browse(product_tmpl_id)
+        invisible_attr = product_tmpl_id.attribute_line_ids.filtered(
+            lambda x: x.invisible
+        ).mapped("attribute_id")
+        domain_attr = self.mapped("domain_line_ids.attribute_id")
+        invalid_attr = domain_attr & invisible_attr
+        if not invalid_attr:
+            return
+        attrs_name = "\n".join(list(invalid_attr.mapped("name")))
+        raise ValidationError(
+            _("Invisible attribute lines are not allowed in configuration "
+              "restrictions:\n" + attrs_name
+              )
+        )

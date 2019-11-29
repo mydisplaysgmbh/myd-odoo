@@ -3,13 +3,11 @@
     'summary': """
         Product configurator adaptation for mydisplays products and workflow
     """,
-    'description': """
-        Product configurator adaptation for mydisplays products and workflow
-    """,
     'author': "Pledra",
     'website': "http://www.pledra.com",
     'category': 'Generic Modules/Base',
-    'version': '0.1',
+    'license': 'Other proprietary',
+    'version': '12.0.1.0.0',
     'depends': [
         'base_sparse_field',
         'mrp',
@@ -17,6 +15,7 @@
         'product_configurator_sale',
     ],
     'data': [
+        'data/product_attribute_data.xml',
         'views/config_form_templates.xml',
         'views/sale_order_view.xml',
         'views/product_attribute_view.xml',

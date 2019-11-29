@@ -1,14 +1,32 @@
 import json
 import pprint
 
-from odoo import api, fields, models
+from odoo import api, fields, models, _
 from odoo.tools.safe_eval import test_python_expr
 from odoo.exceptions import ValidationError
 
 DEFAULT_PYTHON_CODE = """# Available variables:
-#  - template: Cached values from the related product template
-#  - config: Current configuration expressed as json
-#  - session: Object to store computed values on\n\n\n\n
+#  - config: Current configuration expressed as a json object
+#       config['attr_json_name'] holds cached data for the selected value
+#       config['changed_field'] hold the name of the field changed by the user
+#
+#  - session: Object to store final computed values
+#      session['prices'] holds a dictionary of all related prices:
+#      session['prices'][attribute_json_name] = X
+#
+#      session['weights'] holds a dictionary of all related weights:
+#      session['weights'][attribute_json_name] = X
+#
+#      session['bom'] holds a dictionary of al related prodcuts for the bom:
+#      session['bom'][attribute_json_name] = {
+#          'product_id': related_product_id,
+#          'product_qty': 1
+#      }
+#
+#      session['warning'] contents will pop-up in the frontend (used in
+#      conjuction with config['changed_field'] to pop up message only once)
+#
+\n\n\n\n
 """
 
 
@@ -55,7 +73,8 @@ class ProductTemplate(models.Model):
         return [
             "json_context",
             "product_id",
-            "product_id.price",
+            "product_id.lst_price",
+            "product_id.standard_price",
             "product_id.weight",
         ]
 
@@ -68,6 +87,10 @@ class ProductTemplate(models.Model):
             "attribute_line_ids.attribute_id.json_name",
             "attribute_line_ids.attribute_id.val_custom",
             "attribute_line_ids.attribute_id.custom_type",
+            "product_template_value_ids",
+            "product_template_value_ids.product_attribute_value_id",
+            "product_template_value_ids.attribute_id",
+            "product_template_value_ids.price_extra",
         ]
         attr_val_prefix = "attribute_line_ids.attribute_id.value_ids.%s"
         attr_val_constraints = self.get_attr_val_json_tree()
@@ -80,9 +103,9 @@ class ProductTemplate(models.Model):
     @api.multi
     @api.depends(get_config_dependencies)
     def _get_config_data(self):
+        """Fetch configuration data related to templates and store them as
+        json in config_cache serialized field"""
         for product_tmpl in self.filtered(lambda x: x.config_ok):
-            """Fetch configuration data related to templates and store them as
-            json in config_cache serialized field"""
             attr_lines = product_tmpl.attribute_line_ids
             attrs = attr_lines.mapped("attribute_id")
             json_tree = {
@@ -120,7 +143,9 @@ class ProductTemplate(models.Model):
                     "name": attr.name
                 }
                 for attr_val in line.value_ids:
-                    val_tree = json_tree["attr_vals"]['%s' % (attr_val.id)] = {}
+                    val_tree = json_tree["attr_vals"][
+                        '%s' % (attr_val.id)
+                    ] = {}
                     val_tree.update(
                         {
                             "attribute_id": attr.id,
@@ -154,8 +179,82 @@ class ProductTemplate(models.Model):
                             attr_val.id, {}
                         ).get("weight_extra", 0)
             product_tmpl.config_cache = json_tree
-            product_tmpl.config_cache_debug = pprint.pformat(json_tree)
 
+    @api.model
+    def default_get(self, default_fields):
+        """If we create new product template then only
+        configurable products have field default_config_ok=True.
+        """
+        res = super(ProductTemplate, self).default_get(default_fields)
+        default_config_ok = res.get('config_ok', False)
+        if default_config_ok:
+            res['config_qty_ok'] = default_config_ok
+        return res
+
+    @api.multi
+    def toggle_config(self):
+        super(ProductTemplate, self).toggle_config()
+        for record in self:
+            record2 = record.with_context(check_constraint=False)
+            record2.config_qty_ok = record2.config_ok
+            record.onchange_config_qty()
+
+    @api.onchange('config_qty_ok')
+    def onchange_config_qty(self):
+        """Add / remove quantity attribute line to product
+        template when boolean button
+        is checked"""
+        qty_attribute = self.env.ref(
+            'mydisplays_configurator.quantity_attribute'
+        )
+        qty_line = self.attribute_line_ids.filtered(
+            lambda l: l.attribute_id.id == qty_attribute.id
+        )
+        if self.config_qty_ok and not qty_line:
+            attribute_line_obj = self.env['product.template.attribute.line']
+            qty_line = attribute_line_obj.new({
+                'attribute_id': qty_attribute.id,
+                'custom': True
+            })
+            self.attribute_line_ids |= qty_line
+        elif not self.config_qty_ok and qty_line:
+            self.attribute_line_ids -= qty_line
+
+    @api.constrains('config_qty_ok', 'attribute_line_ids')
+    def check_qty_attr_line(self):
+        """Ensure the quantity attribute line is added if config_qty_ok
+        field is True"""
+        qty_attribute = self.env.ref(
+            'mydisplays_configurator.quantity_attribute'
+        )
+        for product_tmpl in self.filtered(lambda tmpl: tmpl.config_ok):
+            if not product_tmpl.env.context.get('check_constraint', True):
+                continue
+            qty_line = product_tmpl.attribute_line_ids.filtered(
+                lambda l: l.attribute_id.id == qty_attribute.id and l.custom)
+            if product_tmpl.config_qty_ok and not qty_line:
+                raise ValidationError(_(
+                    "No quantity attribute line has been found on template "
+                    "'%s'. Please toggle or turn off the config quantity "
+                    "boolean field." % product_tmpl.name)
+                )
+            elif not product_tmpl.config_qty_ok and qty_line:
+                raise ValidationError(_(
+                    "Quantity attribute line present in template with config "
+                    "quantity set to False. Please turn on config quantity or "
+                    "remove the quantity attribute line")
+                )
+
+    @api.multi
+    @api.depends('config_cache')
+    def _compute_config_cache_debug(self):
+        for template in self:
+            template.config_cache_debug = pprint.pformat(template.config_cache)
+
+    config_qty_ok = fields.Boolean(
+        string="Config Quantity",
+        help="Allow setting quantity in the configuration form",
+    )
     config_cache = fields.Serialized(
         name="Cached configuration data",
         compute="_get_config_data",
@@ -166,7 +265,7 @@ class ProductTemplate(models.Model):
     )
     config_cache_debug = fields.Text(
         name='Cached config data (debug)',
-        compute='_get_config_data',
+        compute='_compute_config_cache_debug',
         readonly=True,
     )
     computed_vals_formula = fields.Text(
@@ -174,6 +273,11 @@ class ProductTemplate(models.Model):
         default=DEFAULT_PYTHON_CODE,
         help="Write Python code that will compute extra values on the "
         "configuration JSON values field. Some variables are ",
+    )
+    product_template_value_ids = fields.One2many(
+        comodel_name="product.template.attribute.value",
+        inverse_name="product_tmpl_id",
+        string="Price Extra Lines"
     )
 
     @api.constrains("computed_vals_formula")
@@ -184,3 +288,106 @@ class ProductTemplate(models.Model):
             )
             if msg:
                 raise ValidationError(msg)
+
+    def _check_visible_attribute_line(self):
+        invisible_attr = self.attribute_line_ids.filtered(
+            lambda x: x.invisible
+        ).mapped("attribute_id")
+        domain_attr = self.config_line_ids.mapped(
+            "domain_id.domain_line_ids.attribute_id"
+        )
+        invalid_attr = domain_attr & invisible_attr
+        return invalid_attr
+
+    @api.constrains("config_line_ids", "attribute_line_ids")
+    def _check_config_line_ids(self):
+        for tmpl in self.filtered(lambda x: x.config_line_ids):
+            invalid_attr = tmpl._check_visible_attribute_line()
+            if not invalid_attr:
+                continue
+            attrs_name = "\n".join(list(invalid_attr.mapped("name")))
+            raise ValidationError(
+                _("Invisible attribute lines are not allowed in configuration "
+                  "restrictions:\n" + attrs_name
+                  )
+            )
+
+    def get_product_templates_with_session(self, config_session_map=None):
+        tmpls_to_update = self.env['product.template']
+        if not config_session_map:
+            return tmpls_to_update
+        config_session_templates = self.filtered(lambda p: p.config_ok)
+        for cfg_tmpl in config_session_templates:
+            if cfg_tmpl.id not in config_session_map.keys():
+                continue
+            product_session = self.env['product.config.session'].browse(
+                session_map.get(cfg_tmpl.id)
+            )
+            if (not product_session.exists() or
+                    product_session.product_tmpl_id != cfg_tmpl):
+                continue
+            tmpls_to_update += cfg_tmpl
+        return tmpls_to_update
+
+    def _compute_weight(self):
+        session_map = self.env.context.get('product_template_sessions', {})
+        config_session_templates = self.get_product_templates_with_session(
+            session_map.copy()
+        )
+        standard_templates = self - config_session_templates
+
+        for cfg_tmpl in config_session_templates:
+            cfg_tmpl.weight = product_session.get_session_weight() or 0
+        super(ProductTemplate, standard_templates)._compute_weight()
+
+    @api.multi
+    def _compute_template_price(self):
+        session_map = self.env.context.get('product_template_sessions', {})
+        config_session_templates = self.get_product_templates_with_session(
+            session_map.copy()
+        )
+        standard_templates = self - config_session_templates
+        for cfg_tmpl in config_session_templates:
+            cfg_tmpl.price = product_session.get_session_price() or 0
+        super(ProductTemplate, standard_templates)._compute_template_price()
+
+
+class ProductProduct(models.Model):
+    _inherit = 'product.product'
+
+    def get_products_with_session(self, config_session_map=None):
+        products_to_update = self.env['product.product']
+        if not config_session_map:
+            return products_to_update
+        config_session_products = self.filtered(lambda p: p.config_ok)
+        for cfg_product in config_session_products:
+            if cfg_product.id not in config_session_map.keys():
+                continue
+            product_session = self.env['product.config.session'].browse(
+                config_session_map.get(cfg_product.id)
+            )
+            if (not product_session.exists() or
+                    product_session.product_id != cfg_product):
+                continue
+            products_to_update += cfg_product
+        return products_to_update
+
+    def _compute_product_weight(self):
+        session_map = self.env.context.get('product_sessions', {})
+        config_session_products = self.get_products_with_session(
+            session_map.copy()
+        )
+        standard_products = self - config_session_products
+        for cfg_product in config_session_products:
+            cfg_product.weight = product_session.get_session_weight() or 0
+        super(ProductProduct, standard_products)._compute_product_weight()
+
+    def _compute_product_price(self):
+        session_map = self.env.context.get('product_sessions', {})
+        config_session_products = self.get_products_with_session(
+            session_map.copy()
+        )
+        standard_products = self - config_session_products
+        for cfg_product in config_session_products:
+            cfg_product.price = product_session.get_session_price() or 0
+        super(ProductProduct, standard_products)._compute_product_price()

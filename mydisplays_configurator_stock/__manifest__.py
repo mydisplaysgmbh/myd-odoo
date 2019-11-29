@@ -3,13 +3,11 @@
     'summary': """
         Mydisplay configuration interface module for Stock
     """,
-    'description': """
-        Mydisplay configuration interface module for Stock
-    """,
     'author': "Pledra",
     'website': "http://www.pledra.com",
     'category': 'Generic Modules/Base',
-    'version': '0.1',
+    'license': 'Other proprietary',
+    'version': '12.0.1.0.0',
     'depends': [
         'mydisplays_configurator',
         'product_configurator_stock',
