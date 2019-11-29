@@ -18,6 +18,7 @@ class SaleOrder(models.Model):
         for sale_order in self:
             if sale_order.state in ['draft', 'sent']:
                 continue
+            order_line = sale_order.order_line
             lines_without_route = order_line.mapped('bom_id').filtered(
                 lambda bom: not bom.routeing_id
             )

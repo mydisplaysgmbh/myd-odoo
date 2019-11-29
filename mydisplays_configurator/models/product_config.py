@@ -447,7 +447,7 @@ class ProductConfigSession(models.Model):
         bom_lines = json_vals.get('bom', [])
 
         if not bom_lines:
-            return None
+            return False, ''
 
         result = self._create_get_route()
         route = result.get('route')
