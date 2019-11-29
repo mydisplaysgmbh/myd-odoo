@@ -74,11 +74,6 @@ class ProductAttributeLine(models.Model):
 class ProductAttributeValue(models.Model):
     _inherit = 'product.attribute.value'
 
-    @api.onchange('product_id')
-    def onchange_product(self):
-        if not self.product_id:
-            self.workcenter_id = None
-
     workcenter_id = fields.Many2one(
         comodel_name='mrp.workcenter',
         string='Workcenter',
