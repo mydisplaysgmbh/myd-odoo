@@ -506,7 +506,7 @@ class ProductConfigSession(models.Model):
                 for op_set in workcenter_id.routing_line_ids
             ]
             domain = ((len(domain) - 1) * ['|']) + domain
-            if domain:
+            if not domain:
                 continue
             domain_sets.append(domain)
 
