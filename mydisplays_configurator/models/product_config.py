@@ -426,7 +426,7 @@ class ProductConfigSession(models.Model):
         if not val_list:
             return False
         warning_message = (
-            "No matcing route is found. Please create and set it manually."
+            "No matcing route is found. Please create one manually."
         )
         for val in val_list:
             workcenter_ids = val.get('workcenters')
