@@ -20,7 +20,7 @@ class SaleOrder(models.Model):
                 continue
             order_line = sale_order.order_line
             lines_without_route = order_line.mapped('bom_id').filtered(
-                lambda bom: not bom.routeing_id
+                lambda bom: not bom.routing_id
             )
             if lines_without_route:
                 sale_order.bom_route_warning = (
