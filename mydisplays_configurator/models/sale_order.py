@@ -19,14 +19,14 @@ class SaleOrder(models.Model):
             if sale_order.state in ['draft', 'sent']:
                 continue
             order_line = sale_order.order_line
-            lines_without_route = order_line.mapped('bom_id').filtered(
-                lambda bom: not bom.routing_id
+            lines_without_route = order_line.filtered(
+                lambda l: l.bom_id and not l.bom_id.routing_id
             )
             if lines_without_route:
                 sale_order.bom_route_warning = (
                     "Following products do not have routes on linked bom. "
                     "Please set manually.\nProducts : %s" % (
-                        ', '.join(lines_without_route.mapped("name"))
+                        ', '.join(lines_without_route.mapped("product_id.name"))
                     )
                 )
             else:
