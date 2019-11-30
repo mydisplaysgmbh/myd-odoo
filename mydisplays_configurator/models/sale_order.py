@@ -9,28 +9,6 @@ class SaleOrder(models.Model):
         string="Warning", copy=False,
         compute="_compute_route_warning"
     )
-    bom_route_warning = fields.Text(
-        string="BOM Route Warning", copy=False,
-        compute="_compute_bom_route_warning"
-    )
-
-    def _compute_bom_route_warning(self):
-        for sale_order in self:
-            if sale_order.state in ['draft', 'sent']:
-                continue
-            order_line = sale_order.order_line
-            lines_without_route = order_line.filtered(
-                lambda l: l.bom_id and not l.bom_id.routing_id
-            )
-            if lines_without_route:
-                sale_order.bom_route_warning = (
-                    "Following products do not have routes on linked bom. "
-                    "Please set manually.\nProducts : %s" % (
-                        ', '.join(lines_without_route.mapped("product_id.name"))
-                    )
-                )
-            else:
-                sale_order.bom_route_warning = False
 
     def _compute_route_warning(self, warning_message=None):
         for sale_order in self:
@@ -39,23 +17,54 @@ class SaleOrder(models.Model):
                 continue
 
             message_list = []
+            wrong_route_lines = self.env['sale.order.line']
+            lines_without_route = self.env['sale.order.line']
             for line in sale_order.order_line:
                 cfg_session_id = line.cfg_session_id
                 if not line.product_id.config_ok or not cfg_session_id:
                     continue
                 result = cfg_session_id._create_get_route()
+                print('result ',result)
                 route = result.get('route')
                 workcenter_ids = result.get('workcenters')
-                if route or not workcenter_ids:
+                if not workcenter_ids:
+                    continue
+                if route:
+                    if line.bom_id and not line.bom_id.routing_id:
+                        lines_without_route += line
+                        continue
+                    if line.bom_id and line.bom_id.routing_id != route:
+                        wrong_route_lines += line
+                        continue
                     continue
                 message_list.append({
                     'workcenters': workcenter_ids,
                     'product': line.product_id,
                 })
             session_obj = self.env['product.config.session']
-            warning_message = session_obj.get_route_warning_message(
-                message_list)
-            sale_order.route_warning = warning_message
+            warning_message = ''
+            if message_list:
+                warning_message = session_obj.get_route_warning_message(
+                    message_list
+                )
+            if lines_without_route:
+                warning_message += warning_message and '\n\n' or ''
+                warning_message += (
+                    "Following products do not have routes on linked bom. "
+                    "Please set manually.\nProducts : %s" % (
+                        ', '.join(lines_without_route.mapped("product_id.name"))
+                    )
+                )
+            if wrong_route_lines:
+                warning_message += warning_message and '\n\n' or ''
+                warning_message += (
+                    "Bill of material linked to following products "
+                    "have wrong route according to the configuration on it's "
+                    "attribute values.\nProducts : %s" % (
+                        ', '.join(wrong_route_lines.mapped("product_id.name"))
+                    )
+                )
+            sale_order.route_warning = warning_message or False
 
     @api.multi
     def _cart_update(self, product_id=None, line_id=None,
