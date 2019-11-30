@@ -1,5 +1,6 @@
 from odoo import models, api, _
 import pprint
+import copy
 from lxml import etree
 from odoo.osv import orm
 from odoo.exceptions import UserError
@@ -8,6 +9,7 @@ from odoo.exceptions import UserError
 class ProductConfigurator(models.TransientModel):
     _inherit = "product.configurator"
 
+    @api.model
     def _get_dynamic_fields(self, values):
         dynamic_vals = {}
         product_configurator_obj = self.env["product.configurator"]
@@ -23,10 +25,75 @@ class ProductConfigurator(models.TransientModel):
             dynamic_vals[attr] = value
         return dynamic_vals
 
+    def set_single_available_values(self, old_vals, new_values):
+        product_tmpl_id = self.env['product.template'].browse(
+            old_vals.get('product_tmpl_id', []))
+        if not product_tmpl_id:
+            product_tmpl_id = self.product_tmpl_id
+
+        config_session_id = self.env['product.config.session'].browse(
+            old_vals.get('config_session_id', []))
+        if not config_session_id:
+            config_session_id = self.config_session_id
+
+        attr_data = product_tmpl_id.config_cache.get('attrs')
+        field_prefix = self._prefixes.get('field_prefix')
+
+        flag = True
+        while(flag):
+            flag = False
+            domain_dict = new_values.get('domain')
+            values = new_values.get('value')
+            if not domain_dict or not values:
+                break
+            value_ids = (
+                values.get('value_ids') and
+                values.get('value_ids')[0][2] or []
+            )
+            for attr, domain in domain_dict.items():
+                attr_id = attr.replace(field_prefix, "")
+                if (len(domain[0][2]) != 1 or
+                        domain[0][2][0] in value_ids or
+                        not attr_data.get(attr_id).get("required")):
+                    continue
+                values[attr] = domain[0][2][0]
+                flag = True
+            if not flag:
+                break
+            old_vals.update(values)
+            dynamic_fields = {
+                k: v
+                for k, v in old_vals.items()
+                if k.startswith(field_prefix) and v
+            }
+            cfg_val_ids = list(dynamic_fields.values())
+            domains = self.get_onchange_domains(
+                values=old_vals,
+                cfg_val_ids=cfg_val_ids,
+                product_tmpl_id=product_tmpl_id,
+                config_session_id=config_session_id
+            )
+            updated_vals = self.get_form_vals(
+                dynamic_fields=dynamic_fields,
+                domains=domains,
+                product_tmpl_id=product_tmpl_id,
+                config_session_id=config_session_id,
+            )
+            new_values.update({
+                'value': updated_vals,
+                'domain': domains,
+            })
+        return new_values
+
     @api.multi
     def onchange(self, values, field_name, field_onchange):
+        values_copy = copy.deepcopy(values)
         res = super(ProductConfigurator, self).onchange(
             values=values, field_name=field_name, field_onchange=field_onchange
+        )
+        res = self.set_single_available_values(
+            old_vals=values_copy,
+            new_values=res
         )
         config_session_id = self.env["product.config.session"].browse(
             values.get("config_session_id", [])
