@@ -75,6 +75,7 @@ class ProductTemplate(models.Model):
             "product_id.lst_price",
             "product_id.standard_price",
             "product_id.weight",
+            "workcenter_id",
         ]
 
     def get_config_dependencies(self):
@@ -151,6 +152,7 @@ class ProductTemplate(models.Model):
                             "product_id": 0,
                             "price": 0,
                             "weight": 0,
+                            "workcenter_id": attr_val.workcenter_id.id
                         }
                     )
 

@@ -27,7 +27,7 @@
             </xpath>
 
             <xpath expr="//field[@name='product_id']" position="after">
-                <field name="operation_id" attrs="{'readonly': [('product_id', '=', False)]}"/>
+                <field name="workcenter_id"/>
             </xpath>
         </field>
     </record>
@@ -39,9 +39,9 @@
         <field name="arch" type="xml">
             <xpath expr="//field[@name='name']" position="after">
                 <field name="product_id"/>
-                <field name="operation_id"/>
+                <field name="workcenter_id"/>
             </xpath>
         </field>
-    </record>   
+    </record>
 
 </odoo>
