@@ -86,9 +86,9 @@ class ProductConfigurator(models.TransientModel):
         return new_values
 
     @api.multi
-    def onchange(self, values, field_name, field_onchange):
+    def apply_onchange_values(self, values, field_name, field_onchange):
         values_copy = copy.deepcopy(values)
-        res = super(ProductConfigurator, self).onchange(
+        res = super(ProductConfigurator, self).apply_onchange_values(
             values=values, field_name=field_name, field_onchange=field_onchange
         )
         res = self.set_single_available_values(
@@ -252,7 +252,7 @@ class ProductConfigurator(models.TransientModel):
             node = etree.Element(
                 "field",
                 name=field_name,
-                on_change="onchange_attribute_value(%s, context)" % field_name,
+                on_change="1",
                 default_focus="1" if attr_line == attr_lines[0] else "0",
                 attrs=str(attrs),
                 context=str(
@@ -303,8 +303,7 @@ class ProductConfigurator(models.TransientModel):
                     "field",
                     name=custom_field,
                     # customization
-                    on_change="onchange_attribute_value(%s, context)"
-                    % custom_field,
+                    on_change="1",
                     # End
                     attrs=str(attrs),
                     widget=widget,
