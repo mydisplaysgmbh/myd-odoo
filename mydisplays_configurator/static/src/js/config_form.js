@@ -59,15 +59,20 @@ odoo.define('mydisplay_configurator.config_form', function (require) {
         },
 
         _applyNewValues: function (dynamic_values) {
-            _.each(dynamic_values, function (value, key) {
-                var option = $('select#' + key).find(".config_attr_value[data-oe-id=" + value + "]");
-                if (option.length) {
-                    option[0].selected = true;
-                };
-                var option = $('fieldset#' + key).find(".config_attr_value[data-oe-id=" + value + "]");
-                if (option.length) {
-                    option[0].checked = true;
-                };
+            _.each(dynamic_values, function (values, field_name) {
+                if (!Array.isArray(values)) {
+                    values = [values];
+                }
+                _.each(values, function (value, key) {
+                    var option = $('select#' + field_name).find(".config_attr_value[data-oe-id=" + value + "]");
+                    if (option.length) {
+                        option[0].selected = true;
+                    };
+                    var option = $('fieldset#' + field_name).find(".config_attr_value[data-oe-id=" + value + "]");
+                    if (option.length) {
+                        option[0].checked = true;
+                    };
+                });
             });
         },
 

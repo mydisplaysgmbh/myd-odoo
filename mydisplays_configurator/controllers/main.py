@@ -35,6 +35,8 @@ class MydisplaysConfigWebsiteSale(ProductConfigWebsiteSale):
             **post
         )
         values = updates.get('value')
+        if not values:
+            return updates
         product_configurator_obj = request.env["product.configurator"]
         dynamic_values = product_configurator_obj._get_dynamic_fields(values)
         updates['dynamic_values'] = dynamic_values

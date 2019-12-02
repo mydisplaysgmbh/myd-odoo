@@ -67,6 +67,14 @@ class ProductConfigurator(models.TransientModel):
                 if k.startswith(field_prefix) and v
             }
             cfg_val_ids = list(dynamic_fields.values())
+            cfg_val_ids2 = []
+            for v in cfg_val_ids:
+                if isinstance(v, list):
+                    cfg_val_ids2.append(v[0][2])
+                else:
+                    cfg_val_ids2.append(v)
+
+            cfg_val_ids = config_session_id.flatten_val_ids(cfg_val_ids2)
             domains = self.get_onchange_domains(
                 values=old_vals,
                 cfg_val_ids=cfg_val_ids,
