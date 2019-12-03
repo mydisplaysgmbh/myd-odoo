@@ -16,10 +16,9 @@ class MydisplaysConfigWebsiteSale(ProductConfigWebsiteSale):
         """ Temporary workaround to allow deployment of configurator
         to live instance without disrupting views until we can adapt
         the design of the configurator to the theme"""
-        parentClass = ProductConfigWebsiteSale
         if request.env.user.id in [1, 2]:
-            parentClass = WebsiteSale
-        return super(parentClass, self).product(
+            return WebsiteSale.product(product, category, search, **kwargs)
+        return super(ProductConfigWebsiteSale, self).product(
                 product, category, search, **kwargs
             )
 
