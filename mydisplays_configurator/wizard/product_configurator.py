@@ -256,5 +256,8 @@ class ProductConfiguratorSale(models.TransientModel):
         line_vals = super(ProductConfiguratorSale, self)._get_order_line_vals(
             product_id=product_id
         )
-        line_vals.update({"cfg_session_id": self.config_session_id.id})
+        line_vals.update({
+            "cfg_session_id": self.config_session_id.id,
+            "product_uom_qty": self.config_session_id.get_session_qty()
+        })
         return line_vals
