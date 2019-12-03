@@ -11,6 +11,18 @@ from odoo.addons.website_sale.controllers.main import WebsiteSale
 
 class MydisplaysConfigWebsiteSale(ProductConfigWebsiteSale):
 
+    @http.route()
+    def product(self, product, category='', search='', **kwargs):
+        """ Temporary workaround to allow deployment of configurator
+        to live instance without disrupting views until we can adapt
+        the design of the configurator to the theme"""
+        parentClass = ProductConfigWebsiteSale
+        if self.env.user.id in [1, 2]:
+            parentClass = WebsiteSale
+        return super(parentClass, self).product(
+                product, category, search, **kwargs
+            )
+
     def get_render_vals(self, cfg_session):
         """Return dictionary with values required for website template
         rendering"""
