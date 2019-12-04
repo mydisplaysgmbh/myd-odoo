@@ -137,9 +137,10 @@ class ProductConfigSession(models.Model):
 
             json_vals['price'] = json_vals['price_unit'] * config_qty
 
-            json_vals['weight'] = sum([
+            json_vals['weight_unit'] = sum([
                 weight for k, weight in json_vals['weights'].items()
-            ]) * config_qty
+            ])
+            json_vals['weight'] = json_vals['weight_unit'] * config_qty
 
             json_vals['bom'] = [
                 line_data for k, line_data in json_vals['bom'].items()
@@ -236,6 +237,8 @@ class ProductConfigSession(models.Model):
         return product_qty
 
     def get_json_vals(self):
+        """Prevent to trigger computation on json_val
+        when it is accessed within onchange."""
         mode = self.env.all.mode
         if mode == 'onchange':
             self.env.all.mode = False
@@ -247,21 +250,20 @@ class ProductConfigSession(models.Model):
     def get_session_weight(self):
         """Return weight from JSON Values"""
         json_vals = self.get_json_vals()
-
-        weight = json_vals.get('weight', None)
-        if weight is not None:
-            product_qty = self.get_session_qty()
-            weight = weight / product_qty
+        weight = json_vals.get('weight_unit', None)
         return weight or 0
 
     def get_session_volume(self):
         """Return volume from JSON Values"""
         json_vals = self.get_json_vals()
 
-        volume = json_vals.get('volume', None)
-        if volume is not None:
-            product_qty = self.get_session_qty()
-            volume = volume / product_qty
+        if 'volume_unit' not in json_vals:
+            volume = json_vals.get('volume', None)
+            if volume is not None:
+                product_qty = self.get_session_qty()
+                volume = volume / product_qty
+        else:
+            volume = json_vals.get('volume_unit', None)
         return volume or 0
 
     @api.multi
@@ -270,11 +272,13 @@ class ProductConfigSession(models.Model):
     ):
         """Get product.config.session data in a serialized computed field
             {
-                'attrs': {
+                'changed_attr': attr_1_id,
+                'custom_values': {
                     attr_1_id: {
                         'value': custom - value,  # (sanitized and typecasted),
                     }
-                }
+                },
+                'value_ids': []
             }
 
         """
@@ -377,6 +381,31 @@ class ProductConfigSession(models.Model):
         self.json_config_text = pprint.pformat(cfg_session_json)
 
     @api.model
+    def create(self, vals):
+        res = super(ProductConfigSession, self).create(vals)
+        value_ids = res.value_ids
+        custom_val_id = self.get_custom_value_id()
+        attribute_line_ids = res.product_tmpl_id.attribute_line_ids
+        check_val_ids = attribute_line_ids.mapped("value_ids") + custom_val_id
+        available_value_ids = res.values_available(
+            check_val_ids=check_val_ids.ids
+        )
+        available_value_ids = self.env["product.attribute.value"].browse(
+            available_value_ids
+        )
+        for attr_line in attribute_line_ids:
+            if attr_line.default_val:
+                continue
+            if attr_line.custom:
+                continue
+            line_vals = attr_line.value_ids & available_value_ids
+            if len(line_vals) != 1:
+                continue
+            value_ids |= line_vals
+        res.value_ids = value_ids
+
+        return res
+
     def search_variant(
         self, value_ids=None, custom_vals=None, product_tmpl_id=None
     ):
@@ -421,7 +450,7 @@ class ProductConfigSession(models.Model):
             value_ids=value_ids, custom_vals={}
         )
 
-    def set_bom_line_operations(self, bom_lines, operation_ids):
+    def set_bom_line_operations(self, product, bom_lines, operation_ids):
         if not operation_ids:
             return bom_lines
         for bom_line in bom_lines:
@@ -435,6 +464,22 @@ class ProductConfigSession(models.Model):
                 op.workcenter_id and
                 op.workcenter_id.id == workcenter_id
             )
+            if len(operation_id) > 1:
+                comp_product_id = self.env['product.product'].browse(
+                    bom_line.get('product_id', [])
+                )
+                _logger.error(
+                    "Following operations have same workcenter"
+                    " with in route %s(%s). Operations: %s. "
+                    "Skip auto assignment of 'Consumed in Operation'"
+                    " for product (%s) in BOM linked to product (%s)" % (
+                        operation_id[:1].routing_id.name,
+                        operation_id[:1].routing_id.code,
+                        ', '.join(operation_id.mapped('name')),
+                        comp_product_id.name, product.name
+                    )
+                )
+                continue
             bom_line['operation_id'] = operation_id.id
         return bom_lines
 
@@ -460,7 +505,7 @@ class ProductConfigSession(models.Model):
         """Create a bill of material from the json custom values attached on
         the related session and link it on the sale order line
         """
-        json_vals = self.json_vals
+        json_vals = self.get_json_vals()
         bom_lines = json_vals.get('bom', [])
 
         if not bom_lines:
@@ -482,6 +527,7 @@ class ProductConfigSession(models.Model):
         warning_message = False
         if route:
             bom_lines = self.set_bom_line_operations(
+                product=self.product_id,
                 bom_lines=bom_lines,
                 operation_ids=route.operation_ids
             )
@@ -502,8 +548,8 @@ class ProductConfigSession(models.Model):
         return bom, warning_message
 
     def _create_get_route(self, workcenter_ids=None):
-        """Find a route matching the operations given or create one
-        if search returns empty"""
+        """Find a route matching the operations
+        linked to workcenters defined on attribute values"""
 
         if workcenter_ids is None and self:
             workcenter_ids = self.value_ids.mapped('workcenter_id')
@@ -547,13 +593,15 @@ class ProductConfigSession(models.Model):
     @api.depends("json_vals")
     def _compute_cfg_weight(self):
         for cfg_session in self:
-            cfg_session.weight = cfg_session.json_vals.get('weight', 0)
+            json_vals = cfg_session.get_json_vals()
+            cfg_session.weight = json_vals.get('weight', 0)
 
     @api.multi
     @api.depends("json_vals")
     def _compute_cfg_price(self):
         for session in self:
-            session.price = session.json_vals.get('price', 0)
+            json_vals = session.get_json_vals()
+            session.price = json_vals.get('price', 0)
 
     def get_session_price(self):
         json_vals = self.get_json_vals()
