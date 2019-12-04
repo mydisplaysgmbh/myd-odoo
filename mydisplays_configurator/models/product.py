@@ -76,6 +76,7 @@ class ProductTemplate(models.Model):
             "product_id.lst_price",
             "product_id.standard_price",
             "product_id.weight",
+            "workcenter_id",
         ]
 
     def get_config_dependencies(self):
@@ -152,6 +153,7 @@ class ProductTemplate(models.Model):
                             "product_id": 0,
                             "price": 0,
                             "weight": 0,
+                            "workcenter_id": attr_val.workcenter_id.id
                         }
                     )
 
@@ -321,7 +323,7 @@ class ProductTemplate(models.Model):
             if cfg_tmpl.id not in config_session_map.keys():
                 continue
             product_session = self.env['product.config.session'].browse(
-                session_map.get(cfg_tmpl.id)
+                config_session_map.get(cfg_tmpl.id)
             )
             if (not product_session.exists() or
                     product_session.product_tmpl_id != cfg_tmpl):
@@ -337,6 +339,9 @@ class ProductTemplate(models.Model):
         standard_templates = self - config_session_templates
 
         for cfg_tmpl in config_session_templates:
+            product_session = self.env['product.config.session'].browse(
+                session_map.get(cfg_tmpl.id)
+            )
             cfg_tmpl.weight = product_session.get_session_weight() or 0
         super(ProductTemplate, standard_templates)._compute_weight()
 
@@ -348,6 +353,9 @@ class ProductTemplate(models.Model):
         )
         standard_templates = self - config_session_templates
         for cfg_tmpl in config_session_templates:
+            product_session = self.env['product.config.session'].browse(
+                session_map.get(cfg_tmpl.id)
+            )
             cfg_tmpl.price = product_session.get_session_price() or 0
         super(ProductTemplate, standard_templates)._compute_template_price()
 
@@ -379,6 +387,9 @@ class ProductProduct(models.Model):
         )
         standard_products = self - config_session_products
         for cfg_product in config_session_products:
+            product_session = self.env['product.config.session'].browse(
+                session_map.get(cfg_product.id)
+            )
             cfg_product.weight = product_session.get_session_weight() or 0
         super(ProductProduct, standard_products)._compute_product_weight()
 
@@ -389,5 +400,8 @@ class ProductProduct(models.Model):
         )
         standard_products = self - config_session_products
         for cfg_product in config_session_products:
+            product_session = self.env['product.config.session'].browse(
+                session_map.get(cfg_product.id)
+            )
             cfg_product.price = product_session.get_session_price() or 0
         super(ProductProduct, standard_products)._compute_product_price()

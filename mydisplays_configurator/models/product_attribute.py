@@ -74,14 +74,9 @@ class ProductAttributeLine(models.Model):
 class ProductAttributeValue(models.Model):
     _inherit = 'product.attribute.value'
 
-    @api.onchange('product_id')
-    def onchange_product(self):
-        if not self.product_id:
-            self.operation_id = None
-
-    operation_id = fields.Many2one(
-        comodel_name='mrp.routing.workcenter',
-        string='Operation / Workcenter',
+    workcenter_id = fields.Many2one(
+        comodel_name='mrp.workcenter',
+        string='Workcenter',
     )
     json_context = fields.Text(
         string='Json Context',
