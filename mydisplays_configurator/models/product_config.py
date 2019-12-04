@@ -448,7 +448,7 @@ class ProductConfigSession(models.Model):
             value_ids=value_ids, custom_vals={}
         )
 
-    def set_bom_line_operations(self, bom_lines, operation_ids):
+    def set_bom_line_operations(self, product, bom_lines, operation_ids):
         if not operation_ids:
             return bom_lines
         for bom_line in bom_lines:
@@ -462,6 +462,22 @@ class ProductConfigSession(models.Model):
                 op.workcenter_id and
                 op.workcenter_id.id == workcenter_id
             )
+            if len(operation_id) > 1:
+                comp_product_id = self.env['product.product'].browse(
+                    bom_line.get('product_id', [])
+                )
+                _logger.error(
+                    "Following operations have same workcenter"
+                    " with in route %s(%s). Operations: %s. "
+                    "Skip auto assignment of 'Consumed in Operation'"
+                    " for product (%s) in BOM linked to product (%s)" % (
+                        operation_id[:1].routing_id.name,
+                        operation_id[:1].routing_id.code,
+                        ', '.join(operation_id.mapped('name')),
+                        comp_product_id.name, product.name
+                    )
+                )
+                continue
             bom_line['operation_id'] = operation_id.id
         return bom_lines
 
@@ -509,6 +525,7 @@ class ProductConfigSession(models.Model):
         warning_message = False
         if route:
             bom_lines = self.set_bom_line_operations(
+                product=self.product_id,
                 bom_lines=bom_lines,
                 operation_ids=route.operation_ids
             )
@@ -529,8 +546,8 @@ class ProductConfigSession(models.Model):
         return bom, warning_message
 
     def _create_get_route(self, workcenter_ids=None):
-        """Find a route matching the operations given or create one
-        if search returns empty"""
+        """Find a route matching the operations
+        linked to workcenters defined on attribute values"""
 
         if workcenter_ids is None and self:
             workcenter_ids = self.value_ids.mapped('workcenter_id')

@@ -24,16 +24,16 @@ class SaleOrder(models.Model):
                 if not line.product_id.config_ok or not cfg_session_id:
                     continue
                 result = cfg_session_id._create_get_route()
-                print('result ',result)
-                route = result.get('route')
+                routes = result.get('route')
                 workcenter_ids = result.get('workcenters')
                 if not workcenter_ids:
                     continue
-                if route:
+                if routes:
                     if line.bom_id and not line.bom_id.routing_id:
                         lines_without_route += line
                         continue
-                    if line.bom_id and line.bom_id.routing_id != route:
+                    if (line.bom_id and
+                            line.bom_id.routing_id.id not in routes.ids):
                         wrong_route_lines += line
                         continue
                     continue
