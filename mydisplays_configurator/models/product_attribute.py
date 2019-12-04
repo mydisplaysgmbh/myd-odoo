@@ -63,13 +63,6 @@ class ProductAttributeLine(models.Model):
         self.invisible = self.attribute_id.invisible
         return res
 
-    @api.onchange("invisible")
-    def _onchange_display_attribute(self):
-        """Remove required attribute from line due to limited support for
-        autofilling empty values"""
-        for attr_id in self.filtered(lambda x: x.invisible):
-            attr_id.required = False
-
 
 class ProductAttributeValue(models.Model):
     _inherit = 'product.attribute.value'
