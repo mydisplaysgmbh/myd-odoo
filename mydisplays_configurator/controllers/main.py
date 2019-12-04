@@ -17,7 +17,10 @@ class MydisplaysConfigWebsiteSale(ProductConfigWebsiteSale):
         to live instance without disrupting views until we can adapt
         the design of the configurator to the theme"""
         if request.env.user.id in [1, 2]:
-            return WebsiteSale.product(product, category, search, **kwargs)
+            # return WebsiteSale.product(product, category, search, **kwargs)
+            return super(MydisplaysConfigWebsiteSale, self).product(
+                product, category, search, **kwargs
+            )
         return super(ProductConfigWebsiteSale, self).product(
                 product, category, search, **kwargs
             )
