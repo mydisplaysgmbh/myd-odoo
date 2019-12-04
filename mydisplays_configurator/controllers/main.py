@@ -22,8 +22,8 @@ class MydisplaysConfigWebsiteSale(ProductConfigWebsiteSale):
                 product, category, search, **kwargs
             )
         return super(ProductConfigWebsiteSale, self).product(
-                product, category, search, **kwargs
-            )
+            product, category, search, **kwargs
+        )
 
     def get_render_vals(self, cfg_session):
         """Return dictionary with values required for website template

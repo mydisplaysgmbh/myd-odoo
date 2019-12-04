@@ -24,7 +24,6 @@ class SaleOrder(models.Model):
                 if not line.product_id.config_ok or not cfg_session_id:
                     continue
                 result = cfg_session_id._create_get_route()
-                print('result ',result)
                 route = result.get('route')
                 workcenter_ids = result.get('workcenters')
                 if not workcenter_ids:
@@ -52,7 +51,9 @@ class SaleOrder(models.Model):
                 warning_message += (
                     "Following products do not have routes on linked bom. "
                     "Please set manually.\nProducts : %s" % (
-                        ', '.join(lines_without_route.mapped("product_id.name"))
+                        ', '.join(
+                            lines_without_route.mapped("product_id.name")
+                        )
                     )
                 )
             if wrong_route_lines:
