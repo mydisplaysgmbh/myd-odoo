@@ -103,6 +103,31 @@ class SaleOrder(models.Model):
         return values
 
     @api.multi
+    def _cart_find_product_line(self, product_id=None, line_id=None, **kwargs):
+        """Include Config session in search.
+        """
+        order_line = super(SaleOrder, self)._cart_find_product_line(
+            product_id=product_id,
+            line_id=line_id,
+            **kwargs
+        )
+        # Onchange quantity in cart
+        if line_id:
+            return order_line
+
+        config_session_id = kwargs.get('config_session_id', False)
+        if not config_session_id:
+            session_map = self.env.context.get('product_sessions', {})
+            config_session_id = session_map.get(product_id, False)
+        if not config_session_id:
+            return order_line
+
+        order_line = order_line.filtered(
+            lambda p: p.cfg_session_id.id == int(config_session_id)
+        )
+        return order_line
+
+    @api.multi
     def action_confirm(self):
         """Create bom and write to line before confirming sale order"""
         config_order_lines = self.mapped('order_line').filtered(

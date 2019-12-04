@@ -36,7 +36,7 @@
                             <input type="hidden" class="product_template_id" name="product_template_id" t-att-value="product_tmpl.id" />
                             <input type="hidden" class="config_session_id" name="config_session_id" t-att-value="config_session.id" />
                             <input type="hidden" class="bom_id" name="bom_id" t-att-value="json_vals.get('bom', [])" />
-                            <input type="hidden" class="product_qty" name="product_qty" t-att-value="product_qty"/>
+                            <input type="hidden" class="product_qty form-control quantity" data-min="1" name="add_qty" t-att-value="product_qty or 1"/>
                             <div class="col-xs-12">
                                 <ul class="product_vals">
                                     <t t-if="config_session">
