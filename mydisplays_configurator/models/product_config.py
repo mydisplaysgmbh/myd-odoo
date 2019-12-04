@@ -137,9 +137,10 @@ class ProductConfigSession(models.Model):
 
             json_vals['price'] = json_vals['price_unit'] * config_qty
 
-            json_vals['weight'] = sum([
+            json_vals['weight_unit'] = sum([
                 weight for k, weight in json_vals['weights'].items()
-            ]) * config_qty
+            ])
+            json_vals['weight'] = json_vals['weight_unit'] * config_qty
 
             json_vals['bom'] = [
                 line_data for k, line_data in json_vals['bom'].items()
@@ -236,6 +237,8 @@ class ProductConfigSession(models.Model):
         return product_qty
 
     def get_json_vals(self):
+        """Prevent to trigger computation on json_val
+        when it is accessed within onchange."""
         mode = self.env.all.mode
         if mode == 'onchange':
             self.env.all.mode = False
@@ -247,21 +250,20 @@ class ProductConfigSession(models.Model):
     def get_session_weight(self):
         """Return weight from JSON Values"""
         json_vals = self.get_json_vals()
-
-        weight = json_vals.get('weight', None)
-        if weight is not None:
-            product_qty = self.get_session_qty()
-            weight = weight / product_qty
+        weight = json_vals.get('weight_unit', None)
         return weight or 0
 
     def get_session_volume(self):
         """Return volume from JSON Values"""
         json_vals = self.get_json_vals()
 
-        volume = json_vals.get('volume', None)
-        if volume is not None:
-            product_qty = self.get_session_qty()
-            volume = volume / product_qty
+        if 'volume_unit' not in json_vals:
+            volume = json_vals.get('volume', None)
+            if volume is not None:
+                product_qty = self.get_session_qty()
+                volume = volume / product_qty
+        else:
+            volume = json_vals.get('volume_unit', None)
         return volume or 0
 
     @api.multi
@@ -460,7 +462,7 @@ class ProductConfigSession(models.Model):
         """Create a bill of material from the json custom values attached on
         the related session and link it on the sale order line
         """
-        json_vals = self.json_vals
+        json_vals = self.get_json_vals()
         bom_lines = json_vals.get('bom', [])
 
         if not bom_lines:
@@ -547,13 +549,15 @@ class ProductConfigSession(models.Model):
     @api.depends("json_vals")
     def _compute_cfg_weight(self):
         for cfg_session in self:
-            cfg_session.weight = cfg_session.json_vals.get('weight', 0)
+            json_vals = cfg_session.get_json_vals()
+            cfg_session.weight = json_vals.get('weight', 0)
 
     @api.multi
     @api.depends("json_vals")
     def _compute_cfg_price(self):
         for session in self:
-            session.price = session.json_vals.get('price', 0)
+            json_vals = session.get_json_vals()
+            session.price = json_vals.get('price', 0)
 
     def get_session_price(self):
         json_vals = self.get_json_vals()
