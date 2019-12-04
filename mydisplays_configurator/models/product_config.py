@@ -510,8 +510,8 @@ class ProductConfigSession(models.Model):
         return bom, warning_message
 
     def _create_get_route(self, workcenter_ids=None):
-        """Find a route matching the operations given or create one
-        if search returns empty"""
+        """Find a route matching the operations
+        linked to workcenters defined on attribute values"""
 
         if workcenter_ids is None and self:
             workcenter_ids = self.value_ids.mapped('workcenter_id')
