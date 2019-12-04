@@ -24,16 +24,16 @@ class SaleOrder(models.Model):
                 if not line.product_id.config_ok or not cfg_session_id:
                     continue
                 result = cfg_session_id._create_get_route()
-                print('result ',result)
-                route = result.get('route')
+                routes = result.get('route')
                 workcenter_ids = result.get('workcenters')
                 if not workcenter_ids:
                     continue
-                if route:
+                if routes:
                     if line.bom_id and not line.bom_id.routing_id:
                         lines_without_route += line
                         continue
-                    if line.bom_id and line.bom_id.routing_id != route:
+                    if (line.bom_id and
+                            line.bom_id.routing_id.id not in routes.ids):
                         wrong_route_lines += line
                         continue
                     continue
@@ -52,7 +52,9 @@ class SaleOrder(models.Model):
                 warning_message += (
                     "Following products do not have routes on linked bom. "
                     "Please set manually.\nProducts : %s" % (
-                        ', '.join(lines_without_route.mapped("product_id.name"))
+                        ', '.join(
+                            lines_without_route.mapped("product_id.name")
+                        )
                     )
                 )
             if wrong_route_lines:
@@ -101,6 +103,31 @@ class SaleOrder(models.Model):
         if session_map.get(product_id, False):
             values.update({'cfg_session_id': session_map.get(product_id)})
         return values
+
+    @api.multi
+    def _cart_find_product_line(self, product_id=None, line_id=None, **kwargs):
+        """Include Config session in search.
+        """
+        order_line = super(SaleOrder, self)._cart_find_product_line(
+            product_id=product_id,
+            line_id=line_id,
+            **kwargs
+        )
+        # Onchange quantity in cart
+        if line_id:
+            return order_line
+
+        config_session_id = kwargs.get('config_session_id', False)
+        if not config_session_id:
+            session_map = self.env.context.get('product_sessions', {})
+            config_session_id = session_map.get(product_id, False)
+        if not config_session_id:
+            return order_line
+
+        order_line = order_line.filtered(
+            lambda p: p.cfg_session_id.id == int(config_session_id)
+        )
+        return order_line
 
     @api.multi
     def action_confirm(self):

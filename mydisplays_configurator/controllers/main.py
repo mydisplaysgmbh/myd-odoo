@@ -17,10 +17,13 @@ class MydisplaysConfigWebsiteSale(ProductConfigWebsiteSale):
         to live instance without disrupting views until we can adapt
         the design of the configurator to the theme"""
         if request.env.user.id in [1, 2]:
-            return WebsiteSale.product(product, category, search, **kwargs)
-        return super(ProductConfigWebsiteSale, self).product(
+            # return WebsiteSale.product(product, category, search, **kwargs)
+            return super(MydisplaysConfigWebsiteSale, self).product(
                 product, category, search, **kwargs
             )
+        return super(ProductConfigWebsiteSale, self).product(
+            product, category, search, **kwargs
+        )
 
     def get_render_vals(self, cfg_session):
         """Return dictionary with values required for website template
@@ -30,12 +33,28 @@ class MydisplaysConfigWebsiteSale(ProductConfigWebsiteSale):
         )
         json_session_vals = cfg_session.json_vals
         config_cache = cfg_session.product_tmpl_id.config_cache
-        if json_session_vals:
-            vals.update({
-                'json_session_vals': json_session_vals,
-                'config_cache': config_cache,
-            })
+        vals.update({
+            'json_session_vals': json_session_vals or {},
+            'config_cache': config_cache or {},
+        })
         return vals
+
+    @http.route()
+    def onchange(self, form_values, field_name, **post):
+        """Capture onchange events in the website and forward data to backend
+        onchange method"""
+        updates = super(MydisplaysConfigWebsiteSale, self).onchange(
+            form_values=form_values,
+            field_name=field_name,
+            **post
+        )
+        values = updates.get('value')
+        if not values:
+            return updates
+        product_configurator_obj = request.env["product.configurator"]
+        dynamic_values = product_configurator_obj._get_dynamic_fields(values)
+        updates['dynamic_values'] = dynamic_values
+        return updates
 
     @http.route()
     def save_configuration(self, form_values, current_step=False,
