@@ -38,11 +38,13 @@ odoo.define('mydisplay_configurator.config_form', function (require) {
                             }
                             var values = data.value;
                             var domains = data.domain;
+                            var dynamic_values = data.dynamic_values;
 
                             var open_cfg_step_line_ids = data.open_cfg_step_line_ids;
                             var config_image_vals = data.config_image_vals;
 
                             self._applyDomainOnValues(domains);
+                            self._applyNewValues(dynamic_values)
                             self._setDataOldValId();
                             self._handleOpenSteps(open_cfg_step_line_ids);
                             self._setImageUrl(config_image_vals);
@@ -54,6 +56,24 @@ odoo.define('mydisplay_configurator.config_form', function (require) {
                     });
                     self._handleCustomAttribute(event)
             };
+        },
+
+        _applyNewValues: function (dynamic_values) {
+            _.each(dynamic_values, function (values, field_name) {
+                if (!Array.isArray(values)) {
+                    values = [values];
+                }
+                _.each(values, function (value, key) {
+                    var option = $('select#' + field_name).find(".config_attr_value[data-oe-id=" + value + "]");
+                    if (option.length) {
+                        option[0].selected = true;
+                    };
+                    var option = $('fieldset#' + field_name).find(".config_attr_value[data-oe-id=" + value + "]");
+                    if (option.length) {
+                        option[0].checked = true;
+                    };
+                });
+            });
         },
 
         _onChangeCustomField: function(event) {
