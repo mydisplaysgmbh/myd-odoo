@@ -52,7 +52,9 @@ class SaleOrder(models.Model):
                 warning_message += (
                     "Following products do not have routes on linked bom. "
                     "Please set manually.\nProducts : %s" % (
-                        ', '.join(lines_without_route.mapped("product_id.name"))
+                        ', '.join(
+                            lines_without_route.mapped("product_id.name")
+                        )
                     )
                 )
             if wrong_route_lines:
