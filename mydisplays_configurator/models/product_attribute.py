@@ -19,13 +19,6 @@ class ProductAttribute(models.Model):
     _sql_constraints = [('unique_attribute_json_name', 'unique(json_name)',
                          'Json name must be unique for each attribute')]
 
-    @api.onchange("invisible")
-    def _onchange_display_attribute(self):
-        """Remove required attribute from line due to limited support for
-        autofilling empty values"""
-        for attr_id in self.filtered(lambda x: x.invisible):
-            attr_id.required = False
-
     @api.model_create_multi
     def create(self, vals_list):
         for attr_vals in vals_list:
